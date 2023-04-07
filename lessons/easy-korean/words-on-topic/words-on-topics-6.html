@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://kit.fontawesome.com/e6184ace71.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+
+    <title>Words on topics</title>
+    <style>
+        .play{
+            margin-left: 5px;
+            color: rgb(0, 23, 233);
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translate(-50%,-50%);
+        }
+        .play:active{
+            color: rgb(208, 209, 208);   
+        }
+        h4{
+            text-align: center;
+            padding: 5px;
+            margin-top: 5px;
+        }
+        .table td{
+            position: relative;
+            padding-right: 30px;
+        }
+       
+       
+        
+        
+    </style>
+  </head>
+  <body>
+      <div class="container">
+    <h4>နိုင်ငံများ</h4>
+    <div class="table-responsive">
+        <table class="table table-borderless table-striped">
+            <tbody>
+   <tr><td> 미국			</td><td><i class="play far fa-play-circle"></i>	အမေရိကန်           </td></tr>
+   <tr><td> 중국			</td><td><i class="play far fa-play-circle"></i>	တရုတ်</td></tr>
+   <tr><td> 독일			</td><td><i class="play far fa-play-circle"></i>	ဂျာမနီ</td></tr>
+   <tr><td> 미얀마			</td><td><i class="play far fa-play-circle"></i>    မြန်မာ</td></tr>
+   <tr><td> 한국			</td><td><i class="play far fa-play-circle"></i>	ကိုရီးယား</td></tr>
+   <tr><td> 태국			</td><td><i class="play far fa-play-circle"></i>	ထိုင်း</td></tr>
+   <tr><td> 러시아			</td><td><i class="play far fa-play-circle"></i>    ရုရှား</td></tr>
+   <tr><td> 인도			</td><td><i class="play far fa-play-circle"></i>	အိန္ဒိယ</td></tr>
+   <tr><td> 호주			</td><td><i class="play far fa-play-circle"></i>	ဩစတြေးလျ</td></tr>
+   <tr><td> 베티남			</td><td><i class="play far fa-play-circle"></i>    ဗီယက်နမ်			</td></tr>
+   <tr><td> 인도네시아		</td><td><i class="play far fa-play-circle"></i>	အင်ဒိုနီးရှား</td></tr>
+   <tr><td> 몽골			</td><td><i class="play far fa-play-circle"></i>	မွန်ဂိုလီးယား</td></tr>
+   <tr><td> 캄보디아		</td><td><i class="play far fa-play-circle"></i>	ကမ္ဘောဒီးယား</td></tr>
+   <tr><td> 일본			</td><td><i class="play far fa-play-circle"></i>	ဂျပန်</td></tr>
+   <tr><td> 필리핀			</td><td><i class="play far fa-play-circle"></i>    ဖိလစ်ပိုင်</td></tr>
+   <tr><td> 타이완			</td><td><i class="play far fa-play-circle"></i>    ထိုင်ဝမ်</td></tr>
+   <tr><td> 싱카풀			</td><td><i class="play far fa-play-circle"></i>    စင်ကာပူ</td></tr>
+   <tr><td> 부탄			</td><td><i class="play far fa-play-circle"></i>	ဘူတန်</td></tr>
+   <tr><td> 브루나이		</td><td><i class="play far fa-play-circle"></i>	ဘရူနိုင်း</td></tr>
+   <tr><td> 프랑스			</td><td><i class="play far fa-play-circle"></i>    ပြင်သစ်</td></tr>
+
+            </tbody>
+        </table>
+    </div>
+    
+</div>
+    
+<script>
+        
+    $(document).ready(function(){
+        let str = 'https://calamuseducation.com/easykorean/uploads/audios/wod/wod6/';
+        $('.play').each(function(index){
+            let audioSrc = str + 'audio' + (index+1) +'.mp3';
+            console.log(audioSrc);
+            $(this).append('<audio src="'+audioSrc+'" class="audios"></audio>');
+        });
+        
+        $('.play').on('click',function(){
+            let y = $('.play').index(this);
+            playAudio(y);
+        });
+        function playAudio(index){
+            let x = document.getElementsByClassName('audios');
+            x[index].play();
+        }
+    });
+</script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+
+  </body>
+</html>

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://kit.fontawesome.com/e6184ace71.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+
+    <title>Words on topics</title>
+    <style>
+        .play{
+            margin-left: 5px;
+            color: rgb(0, 23, 233);
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translate(-50%,-50%);
+        }
+        .play:active{
+            color: rgb(208, 209, 208);   
+        }
+        h4{
+            text-align: center;
+            padding: 5px;
+            margin-top: 10px;
+        }
+        .table td{
+            position: relative;
+            padding-right: 30px;
+        }
+       
+        
+        
+    </style>
+  </head>
+  <body>
+      <div class="container">
+    <h4>ပိုက်ဆံ</h4>
+    <div class="table-responsive">
+        <table class="table table-borderless table-striped">
+            <tbody>
+                                <tr><td>돈               </td><td><i class="play far fa-play-circle"></i>  ပိုက်ဆံ</td></tr>                
+                                <tr><td>달러             </td><td><i class="play far fa-play-circle"></i> ဒေါ်လာ</td></tr>                
+                                <tr><td>원               </td><td><i class="play far fa-play-circle"></i> ဝမ်</td></tr>                
+                                <tr><td>현금             </td><td><i class="play far fa-play-circle"></i>  ငွေသား</td></tr>                
+                                <tr><td>동전             </td><td><i class="play far fa-play-circle"></i> အကြွေစေ့</td></tr>                
+                                <tr><td>크레디트 카드    </td><td><i class="play far fa-play-circle"></i>ခရက်ဒစ် ကတ်</td></tr>                   
+                                <tr><td>자동 현금 인출기 </td><td><i class="play far fa-play-circle"></i>ATM</td></tr>                   
+                                <tr><td>거스름돈         </td><td><i class="play far fa-play-circle"></i> ပြန်အမ်းငွေ</td></tr>                   
+                                <tr><td>환전하다         </td><td><i class="play far fa-play-circle"></i>ငွေလဲသည်</td></tr>                   
+                                <tr><td>돈을 낭비하다    </td><td><i class="play far fa-play-circle"></i>ပိုက်ဆံဖြုန်းတီးသည်</td></tr>                   
+                                <tr><td>돈을 쓰다        </td><td><i class="play far fa-play-circle"></i>ပိုက်ဆံသုံးသည်</td></tr>                
+                                <tr><td>돈을 갚다        </td><td><i class="play far fa-play-circle"></i>  ပိုက်ဆံပြန်ဆပ်သည်</td></tr>                
+                                <tr><td>돈을 벌다        </td><td><i class="play far fa-play-circle"></i> ပိုက်ဆံရှာသည်</td></tr>                
+                                <tr><td>돈을 모으다      </td><td><i class="play far fa-play-circle"></i>ပိုက်ဆံစုသည်</td></tr>                   
+                                <tr><td>돈을 빌리다    </td><td><i class="play far fa-play-circle"></i>ပိုက်ဆံချေးသည်</td></tr>                   
+   
+            </tbody>
+        </table>
+    </div>
+    
+</div>
+    
+<script>
+        
+    $(document).ready(function(){
+        let str = 'https://calamuseducation.com/easykorean/uploads/audios/wod/wod13/';
+        $('.play').each(function(index){
+            let audioSrc = str + 'audio' + (index+1) +'.mp3';
+            console.log(audioSrc);
+            $(this).append('<audio src="'+audioSrc+'" class="audios"></audio>');
+        });
+        
+        $('.play').on('click',function(){
+            let y = $('.play').index(this);
+            playAudio(y);
+        });
+        function playAudio(index){
+            let x = document.getElementsByClassName('audios');
+            x[index].play();
+        }
+    });
+</script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+
+  </body>
+</html>

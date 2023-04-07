@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://kit.fontawesome.com/e6184ace71.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+
+    <title>Words on topics</title>
+    <style>
+        .play{
+            margin-left: 5px;
+            color: rgb(0, 23, 233);
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translate(-50%,-50%);
+        }
+        .play:active{
+            color: rgb(208, 209, 208);   
+        }
+        h4{
+            text-align: center;
+            padding: 5px;
+            margin-top: 5px;
+        }
+        .table td{
+            position: relative;
+            padding-right: 30px;
+        }
+       
+        
+        
+    </style>
+  </head>
+  <body>
+      <div class="container">
+    <h4>ဟင်းသီးဟင်းရွက်များ</h4>
+    <div class="table-responsive">
+        <table class="table table-borderless table-striped">
+            <tbody>
+ <tr><td>   감자				</td><td><i class="play far fa-play-circle"></i>	အာလူး</td></tr>
+ <tr><td>   양파				</td><td><i class="play far fa-play-circle"></i>	ကြက်သွန်နီ</td></tr>
+ <tr><td>   호박				</td><td><i class="play far fa-play-circle"></i>	ရွှေဖရုံသီး</td></tr>
+ <tr><td>   마늘				</td><td><i class="play far fa-play-circle"></i>	ကြက်သွန်ဖြူ       </td></tr>
+ <tr><td>   양배추				</td><td><i class="play far fa-play-circle"></i>    ဂေါ်ဖီထုပ်</td></tr>
+ <tr><td>   옥수수				</td><td><i class="play far fa-play-circle"></i>    ပြောင်းဖူး</td></tr>
+ <tr><td>   오이				</td><td><i class="play far fa-play-circle"></i>	သခွါးသီး</td></tr>
+ <tr><td>   고구마				</td><td><i class="play far fa-play-circle"></i>    ကန်စွန်းဥ</td></tr>
+ <tr><td>   고추				</td><td><i class="play far fa-play-circle"></i>	ငရုတ်သီး</td></tr>
+ <tr><td>   가지				</td><td><i class="play far fa-play-circle"></i>	ခရမ်းသီး</td></tr>
+ <tr><td>   콜리플라워			</td><td><i class="play far fa-play-circle"></i>	ပန်းဂေါ်ဖီ</td></tr>
+ <tr><td>   당근				</td><td><i class="play far fa-play-circle"></i>	မုန်လာဥနီ</td></tr>
+ <tr><td>   배추				</td><td><i class="play far fa-play-circle"></i>	မုန့်ညင်း</td></tr>
+ <tr><td>   피망				</td><td><i class="play far fa-play-circle"></i>	ငရုတ်ပွ</td></tr>
+ <tr><td>   버섯    			</td><td><i class="play far fa-play-circle"></i>	မှို</td></tr>
+ <tr><td>   벼					</td><td><i class="play far fa-play-circle"></i>    စပါးနှံ</td></tr>
+ <tr><td>   무					</td><td><i class="play far fa-play-circle"></i>    မုန်လာဥဖြူ</td></tr>
+ <tr><td>   완두콩				</td><td><i class="play far fa-play-circle"></i>    စာတော်ပဲ</td></tr>
+ <tr><td>   시금치				</td><td><i class="play far fa-play-circle"></i>    ဒေါက်ခွရွက်	</td></tr>
+ <tr><td>   세러리				</td><td><i class="play far fa-play-circle"></i>    တရုတ်နံနံ</td></tr>
+
+            </tbody>
+        </table>
+    </div>
+    
+</div>
+    
+<script>
+        
+    $(document).ready(function(){
+        let str = 'https://calamuseducation.com/easykorean/uploads/audios/wod/wod4/';
+        $('.play').each(function(index){
+            let audioSrc = str + 'audio' + (index+1) +'.mp3';
+            console.log(audioSrc);
+            $(this).append('<audio src="'+audioSrc+'" class="audios"></audio>');
+        });
+        
+        $('.play').on('click',function(){
+            let y = $('.play').index(this);
+            playAudio(y);
+        });
+        function playAudio(index){
+            let x = document.getElementsByClassName('audios');
+            x[index].play();
+        }
+    });
+</script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+
+  </body>
+</html>

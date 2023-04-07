@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <script
+      src="https://kit.fontawesome.com/e6184ace71.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+      integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
+      crossorigin="anonymous"
+    />
+    <title>အချိန်ပိုဆင်းခြင်း</title>
+    <style>
+        .play {
+        margin-left: 5px;
+        color: rgb(0, 23, 233);
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .play:active {
+        color: rgb(208, 209, 208);
+      }
+      h4 {
+        text-align: center;
+        padding: 5px;
+        margin-top: 5px;
+    
+      }
+     .table td{
+            position: relative !important;
+        }
+        .table tr:nth-child(even){
+            color: #181bc9;
+        }
+        .td{
+            width: 110px;
+        }
+       @media screen and (max-width:320px) {
+        .table td{
+            font-size: 0.8em;
+        }
+        .td{
+          width: 93px;
+        }
+    }
+        
+    </style>
+    </head>
+<body>
+    <div id="container">
+        <h4>အချိန်ပိုဆင်းခြင်း</h4>
+        <div class="table-responsive">
+          <table class="table table-borderless table-striped">
+            <tbody>
+                <tr><td> 미화</td><td> : 여보, 오늘 언제 와요?<i class="play far fa-play-circle"></i></td></tr>
+                <tr><td> မီဟွာ</td><td> : ယောင်္ကျား, ဒီနေ့ ဘယ်အချိန် ပြန်လာမှာလဲ။</td>                </tr>
+                <tr><td> 성일</td><td>: 오늘 늦을 거예요. <i class="play far fa-play-circle"></i></td></tr>
+                <tr><td class="td"> ဆေားင်အီးလ်</td><td> : ဒီနေ့ နောက်ကျမှာ။</td>                </tr>
+                <tr><td>미화</td><td> : 또 야근해요? <i class="play far fa-play-circle"></i></td></tr>
+                <tr><td> မီဟွာ</td><td> : ထပ်ပြီး ညဆိုင်းဆင်းရတာလား။</td>                </tr>
+                <tr><td> 성일</td><td> : 네. <i class="play far fa-play-circle"></i></td></tr>
+                <tr><td> ဆေားင်အီးလ်</td><td> : ဟုတ်တယ်</td>                </tr>
+                <tr><td> 미화</td><td> : 아휴. <i class="play far fa-play-circle"></i></td></tr>
+                <tr><td> မီဟွာ</td><td> : ဟူ။</td>                </tr>
+                <tr><td>성일</td><td> : 왜요? <i class="play far fa-play-circle"></i></td></tr>
+                <tr><td>ဆေားင်အီးလ်</td><td> : ဘာလို့လဲ။</td>                </tr>
+                <tr><td> 미화</td><td> : 오늘은 일찍 와요. 네?<i class="play far fa-play-circle"></i></td></tr>
+                <tr><td> မီဟွာ</td><td> : ဒီနေ့တော့ စောစောပြန်လာပါ ဟုတ်ပြီလား။</td>                </tr>
+                <tr><td> 성일</td><td> : 왜요?<i class="play far fa-play-circle"></i></td></tr>
+                <tr><td> ဆေားင်အီးလ်</td><td> : ဘာလို့လဲ။</td>                </tr>
+                <tr><td> 미화</td><td> : 진짜 몰라요?<i class="play far fa-play-circle"></i></td></tr>
+                <tr><td> မီဟွာ</td><td> : တကယ် မသိဘူးလား။</td>                </tr>
+                <tr><td> 성일</td><td> : 네. 몰라요. <i class="play far fa-play-circle"></i></td></tr>
+                <tr><td>ဆေားင်အီးလ်</td><td> : ဟုတ်တယ် မသိဘူး။</td>                </tr>
+                <tr><td>미화</td><td> : 오늘 우리 결혼기념일이에요. <i class="play far fa-play-circle"></i></td></tr>
+                <tr><td> မီဟွာ</td><td> : ဒီနေ့ ကျွန်မတို့ မင်္ဂလာနှစ်ပတ်လည်နေ့လေ။</td>                </tr>
+                <tr><td> 성일</td><td> : 네? 오늘이 며칠이에요?<i class="play far fa-play-circle"></i></td></tr>
+                <tr><td>ဆေားင်အီးလ်</td><td> : ဟမ်? ဒီနေ့ ဘယ်နှရက်နေ့လဲ။</td>                </tr>
+                <tr><td>미화</td><td> : 2월 23일이요.<i class="play far fa-play-circle"></i></td></tr>
+                <tr><td> မီဟွာ</td><td> : 2လ23ရက်နေ့။</td>                </tr>
+                <tr><td>성일</td><td> : 우리 결혼기념일은 2월 25 일이에요.<i class="play far fa-play-circle"></i></td></tr>
+                <tr><td> ဆေားင်အီးလ်</td><td>  : ကျွန်တော်တို့ မင်္ဂလာနှစ်ပတ်လည်နေ့က 2လ25ရက်နေ့လေ။</td>                </tr>
+                <tr><td>미화</td><td> : 네? 아… 미안해요.<i class="play far fa-play-circle"></i></td></tr>
+                <tr><td> မီဟွာ</td><td> : ဟင်။ Ah... တောင်းပန်ပါတယ်။</td>                </tr>
+                <tr><td>성일</td><td> : 오늘 야근해야 돼요. 25일 에는 일찍 갈게요.<i class="play far fa-play-circle"></i></td></tr>
+                <tr><td>ဆေားင်အီးလ်</td><td> : ဒီနေ့တော့ ညဆိုင်းဆင်းမှရမယ်။ 25ရက်နေ့ကျရင် စောစောပြန်လာမယ်။</td>                </tr>
+                <tr><td> 미화</td><td> : 네. <i class="play far fa-play-circle"></i></td></tr>
+                <tr><td> မီဟွာ</td><td> : ဟုတ်ပြီ။</td>                </tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+          let str =
+            'https://calamuseducation.com/easykorean/uploads/audios/conversation/conversation21/';
+          $('.play').each(function (index) {
+            let audioSrc = str + 'audio' + (index + 1) + '.mp3';
+            console.log(audioSrc);
+            $(this).append(
+              '<audio src="' + audioSrc + '" class="audios"></audio>'
+            );
+          });
+  
+          $('.play').on('click', function () {
+            let y = $('.play').index(this);
+            playAudio(y);
+          });
+          function playAudio(index) {
+            let x = document.getElementsByClassName("audios");
+            x[index].play();
+          }
+        });
+      </script>
+      <script
+        src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"
+      ></script>
+      <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+        crossorigin="anonymous"
+      ></script>
+</body>
+</html>

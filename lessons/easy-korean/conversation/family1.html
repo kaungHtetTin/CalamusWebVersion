@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <script
+      src="https://kit.fontawesome.com/e6184ace71.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+      integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
+      crossorigin="anonymous"
+    />
+    <title>အိပ်ရာထဖို့နိူးခြင်း</title>
+    <style>
+          .play {
+        margin-left: 5px;
+        color: rgb(0, 23, 233);
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .play:active {
+        color: rgb(208, 209, 208);
+      }
+      h4 {
+        text-align: center;
+        padding: 5px;
+        margin-top: 5px;
+    
+      }
+     .table td{
+            position: relative !important;
+        }
+    .table tr:nth-child(even){
+            color: #181bc9;
+        }
+        .td{
+            width: 88px;
+        }
+     @media screen and (max-width:320px) {
+        .table td{
+            font-size: 0.8em;
+        }
+        .td{
+            width: 75px;
+        }
+    }
+        
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h4>အိပ်ရာထဖို့နိူးခြင်း(Family)</h4>
+        <div class="table-responsive">
+            <table class="table table-borderless table-striped">
+                <tbody>
+                    <tr>
+                        <td>철수</td><td>: 엄마! 저 내일 여섯 시에 깨워 주세요.<i class="play far fa-play-circle"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="td">ချောလ်ဆူ</td><td>: အမေ သားကို မနက်ဖြန် ၆နာရီမှာ နှိုးပေးပါ။</td>
+                    </tr>
+                    <tr>
+                        <td>엄마</td><td>: 아침 여섯 시?<i class="play far fa-play-circle"></i></td>
+                    </tr>
+                    <tr>
+                        <td>အမေ</td><td>: မနက် ၆နာရီ။</td>
+                    </tr>
+                    <tr>
+                        <td>철수</td><td>: 네 . 아침 여섯 시에 일어나야 돼요.<i class="play far fa-play-circle"></i></td>
+                    </tr>
+                    <tr>
+                        <td>ချောလ်ဆူ</td> <td>: ဟုတ်။ မနက် 6နာရီမှာ ထမှရမှာ။</td>
+                    </tr><tr>
+                        <td>엄마</td> <td>: 왜 그렇게 일찍?<i class="play far fa-play-circle"></i></td>
+                    </tr>
+                    <tr>
+                        <td>အမေ</td> <td>: ဘာလို့ အဲ့လောက် အစောကြီးလဲ။</td>
+                    </tr><tr>
+                        <td>철수</td><td>: 내일 아침에 등산 갈 거예요.<i class="play far fa-play-circle"></i></td>
+                    </tr>
+                    <tr>
+                        <td>ချောလ်ဆူ</td><td>: မနက်ဖြန် မနက်မှာ တောင်တက်သွားမှာ။</td>
+                    </tr>
+                    <tr>
+                        <td>엄마</td><td>: 내일 너무 추워서 힘들 거야.<i class="play far fa-play-circle"></i></td>
+                    </tr>
+                    <tr>
+                        <td>အမေ</td><td>: မနက်ဖြန် အရမ်းအေးမှာမို့ ပင်ပန်းလိမ့်မယ်။</td>
+                    </tr><tr>
+                        <td>철수</td><td>: 괜찮아요. 할 수 있어요.<i class="play far fa-play-circle"></i></td>
+                    </tr>
+                    <tr>
+                        <td>ချောလ်ဆူ</td><td>: ရပါတယ်။ သားလုပ်နိုင်ပါတယ်။</td>
+                    </tr><tr>
+                        <td>엄마</td><td>: 누구하고 가?<i class="play far fa-play-circle"></i></td>
+                    </tr>
+                    <tr>
+                        <td>အမေ</td><td>: ဘယ်သူနဲ့ သွားမှာလဲ။</td>
+                    </tr><tr>
+                        <td>철수</td><td>: 친구들 세명이랑 같이 갈 거예요.<i class="play far fa-play-circle"></i></td>
+                    </tr>
+                    <tr>
+                        <td>ချောလ်ဆူ</td><td>: သူငယ်ချင်း သုံးယောက်နဲ့ အတူတူသွားမှာပါ။</td>
+                    </tr><tr>
+                        <td>엄마</td><td>: 나도 같이 가자.<i class="play far fa-play-circle"></i></td>
+                    </tr>
+                    <tr>
+                        <td>အမေ</td><td>: ငါလည်း အတူတူ လိုက်မယ်။</td>
+                    </tr><tr>
+                        <td>철수</td><td>: 안 돼요. 엄마는 힘들 거예요.<i class="play far fa-play-circle"></i></td>
+                    </tr>
+                    <tr>
+                        <td>ချောလ်ဆူ</td><td>: မဖြစ်ဘူး။ အမေ ပင်ပန်းလိမ့်မယ်။</td>
+                    </tr><tr>
+                        <td>엄마</td><td>: 나도 할 수 있어.<i class="play far fa-play-circle"></i></td>
+                    </tr>
+                    <tr>
+                        <td>အမေ </td><td>: ငါလည်း လုပ်နိုင်ပါတယ်။</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+          let str =
+            'https://calamuseducation.com/easykorean/uploads/audios/conversation/conversation7/';
+          $('.play').each(function (index) {
+            let audioSrc = str + 'audio' + (index + 1) + '.mp3';
+            console.log(audioSrc);
+            $(this).append(
+              '<audio src="' + audioSrc + '" class="audios"></audio>'
+            );
+          });
+  
+          $('.play').on('click', function () {
+            let y = $('.play').index(this);
+            playAudio(y);
+          });
+          function playAudio(index) {
+            let x = document.getElementsByClassName("audios");
+            x[index].play();
+          }
+        });
+      </script>
+      <script
+        src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"
+      ></script>
+      <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+        crossorigin="anonymous"
+      ></script>
+</body>
+</html>

@@ -1,12 +1,13 @@
 <?php
 include('classes/connect.php');
 include('classes/comment.php');
+include('classes/util.php');
  
-$Comment=new Comment();
-$result=$Comment->get(1,'095161017');
-
+$Util=new Util();
+$cmtTime=$Util->formatDateTime(1611317533884);
+ 
 echo "<pre>";
-print_r($result);
+print_r($cmtTime);
 echo "</pre>";
 
 ?>

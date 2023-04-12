@@ -6,6 +6,7 @@
     include ('classes/auth.php');
     include('classes/lesson_category.php');
     include('classes/comment.php');
+    include('classes/util.php');
  
     $page_title="Play";
     $user_id=$_SESSION['calamus_userid'];
@@ -18,13 +19,15 @@
     $Lesson=new Lesson();
     $LessonCategory=new LessonCategory();
     $Comment=new Comment();
-     
+    
+    $Util=new Util();
 
     $lessons=$Lesson->getLessonByCategory($category);
     $lessonCate=$LessonCategory->detail($category);
-    // $comments=$Comment->get($lessons[$_GET['index']]['post_id'],$user_id);
+    $comments=$Comment->get($lessons[$_GET['index']]['post_id'],$user_id);
 
-    // print_r($comments);
+   // print_r($comments);
+    
 
 ?>
 
@@ -105,6 +108,20 @@
                 margin-right:100px;
                 margin-left:20px;
             }
+            
+            .shimmer {
+                color: grey;
+                display:inline-block;
+                -webkit-mask:linear-gradient(-60deg,#000 30%,#0005,#000 70%) right/300% 100%;
+                background-repeat: no-repeat;
+                animation: shimmer 2.5s infinite;
+                font-size: 50px;
+                
+            }
+
+            @keyframes shimmer {
+                100% {-webkit-mask-position:left}
+            }
 
         </style>
 
@@ -166,6 +183,7 @@
                                                     <div class="">
                                                         <div class="">
                                                             <h5>Comments</h5>
+                                                            <br>
                                                         </div>
                                                         <div style="display:flex;position:relative;">
                                                             <div>
@@ -179,18 +197,30 @@
                                                         </div>
                                                     </div>
 
-                                                    <br>
+                                        
+                                                    <div id="comment_container" class="review_all120">
+                                                        
+                                    
+                                                       
+                                                        <div class="review_item">
+                                                            <a href="#" class="more_reviews">See More Comments</a>
+                                                        </div>
+                                                    </div>
 
                                                     <div class="review_all120">
+                                                        
+                                                        <?php 
+                                                        if($comments){
+                                                        foreach($comments as $comment){ ?>
                                                         <div class="review_item">
                                                             <div class="review_usr_dt">
-                                                                <img src="images/left-imgs/img-1.jpg" alt="">
+                                                                <img src="<?php echo $comment['learner_image']; ?>" style="width:50px; height:50px;" alt="">
                                                                 <div class="rv1458">
-                                                                    <h4 class="tutor_name1">John Doe</h4>
-                                                                    <span class="time_145">2 hour ago</span>
+                                                                    <h4 class="tutor_name1"><?php echo $comment['learner_name']; ?></h4>
+                                                                    <span class="time_145"><?php echo $Util->formatDateTime($comment['time']); ?></span>
                                                                 </div>
                                                             </div>
-                                                            <p class="rvds10">Nam gravida elit a velit rutrum, eget dapibus ex elementum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce lacinia, nunc sit amet tincidunt venenatis.</p>
+                                                            <p class="rvds10"><?php echo $comment['body']; ?></p>
                                                             <div class="rpt100">
                                                                 <span>Was this review helpful?</span>
                                                                 <div class="radio--group-inline-container">
@@ -206,6 +236,7 @@
                                                                 <a href="#" class="report145">Report</a>
                                                             </div>
                                                         </div>
+                                                        <?php }}?>
                                                        
                                                         <div class="review_item">
                                                             <a href="#" class="more_reviews">See More Comments</a>
@@ -389,6 +420,7 @@
 
             window.onload= playLesson(lessons[index]);
             adjustLayout();
+           
                       
             function playLesson(lesson){
                 console.log(lesson);
@@ -406,7 +438,7 @@
                 document.getElementById('tv_share').innerHTML=lesson.share_count;
                 document.getElementById('tv_title').innerHTML=lesson.lesson_title;
                 updateData(user_id,lesson.id,lesson.post_id);
-
+                loadCommentShimmer();
                
             }
 
@@ -465,6 +497,29 @@
                     footer2.setAttribute('style','display:none');
                     nav_bar_section.setAttribute('style','');
                     detail_section.setAttribute('style','');
+                }
+            }
+            
+            function loadCommentShimmer(){
+                var comment_container=document.getElementById('comment_container');
+                    comment_container.innerHTML="";
+                for(var i=0;i<3;i++){
+                    comment_container.innerHTML+=`
+                         <div class="review_item" style="width:100%;">
+                            <div class="shimmer" style="width:100%;">
+                                <div class="review_usr_dt">
+                                    <img src="https://www.calamuseducation.com/uploads/placeholder.png" style="width:50px; height:50px;" alt="">
+                                    <div class="rv1458">
+                                        <h4 class="tutor_name1" style="width:100px; height:20px; background:#ccc;border-radius:3px;"></h4>
+                                        <span class="time_145" style="width:50px; height:20px; background:#ccc;border-radius:3px;"></span>
+                                    </div>
+                                </div>
+                                <p class="rvds10" style="width:100%; height:20px; background:#ccc;border-radius:3px;"></p>
+                                 
+                            </div>
+                        </div>
+                    
+                    `;
                 }
             }
 

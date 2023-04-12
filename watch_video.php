@@ -130,12 +130,12 @@
 <body onresize="adjustLayout()">
     <div class="fixedLessonContainer">
     <div class="row">
-        <div class="col-lg-8 col-md-6">
-             <div id="video_player">
+        <div class="col-lg-8 col-md-6" style="padding-right:0px;">
+            <div id="video_player">
             </div>
             <script src="https://player.vimeo.com/api/player.js"></script>
             
-            <div id="course_display_1" class="_215b15 _byt1458">
+            <div id="course_display_1" class="_215b15 _byt1458" style="">
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-lg-12">
@@ -170,81 +170,42 @@
                 </div>
             </div>
 
-            <div id="detail-section" class="_215b17">
+            <div id="detail-section" class="_215b17" style="">
                 <div class="container-fluid">
                     <div class="row">
-                        <div class="col-lg-12">
-                            <div class="course_tab_content">
-                                <div class="tab-content" id="nav-tabContent">
-                                    <div class="tab-pane fade show active" id="nav-reviews" role="tabpanel">
-                                        <div class="student_reviews">
-                                            <div class="row">
-                                                <div class="col-lg-12">
-                                                    <div class="">
-                                                        <div class="">
-                                                            <h5>Comments</h5>
-                                                            <br>
-                                                        </div>
-                                                        <div style="display:flex;position:relative;">
-                                                            <div>
-                                                                <img style="width:50px;height:50px;border-radius:50%;" src="<?php echo $user['learner_image']; ?>" />
-                                                            </div>
-
-                                                            <input id="input_comment" type="text" placeholder="Add a comment"/>
-
-                                                            <button style="position:absolute;bottom:0;right:0" class="subscribe-btn">Add</button>
-
-                                                        </div>
-                                                    </div>
-
-                                        
-                                                    <div id="comment_container" class="review_all120">
-                                                        
-                                    
-                                                       
-                                                        <div class="review_item">
-                                                            <a href="#" class="more_reviews">See More Comments</a>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="review_all120">
-                                                        
-                                                        <?php 
-                                                        if($comments){
-                                                        foreach($comments as $comment){ ?>
-                                                        <div class="review_item">
-                                                            <div class="review_usr_dt">
-                                                                <img src="<?php echo $comment['learner_image']; ?>" style="width:50px; height:50px;" alt="">
-                                                                <div class="rv1458">
-                                                                    <h4 class="tutor_name1"><?php echo $comment['learner_name']; ?></h4>
-                                                                    <span class="time_145"><?php echo $Util->formatDateTime($comment['time']); ?></span>
-                                                                </div>
-                                                            </div>
-                                                            <p class="rvds10"><?php echo $comment['body']; ?></p>
-                                                            <div class="rpt100">
-                                                                <span>Was this review helpful?</span>
-                                                                <div class="radio--group-inline-container">
-                                                                    <div class="radio-item">
-                                                                        <input id="radio-1" name="radio" type="radio">
-                                                                        <label for="radio-1" class="radio-label">Yes</label>
-                                                                    </div>
-                                                                    <div class="radio-item">
-                                                                        <input id="radio-2" name="radio" type="radio">
-                                                                        <label  for="radio-2" class="radio-label">No</label>
-                                                                    </div>
-                                                                </div>
-                                                                <a href="#" class="report145">Report</a>
-                                                            </div>
-                                                        </div>
-                                                        <?php }}?>
-                                                       
-                                                        <div class="review_item">
-                                                            <a href="#" class="more_reviews">See More Comments</a>
-                                                        </div>
-                                                    </div>
+                        <div class="col-lg-12" style="padding-right:0px;">
+                            <div class="student_reviews" style="margin:0px;">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="">
+                                            <div class="">
+                                                <h5>Comments</h5>
+                                                <br>
+                                            </div>
+                                            <div style="display:flex;position:relative;">
+                                                <div>
+                                                    <img style="width:50px;height:50px;border-radius:50%;" src="<?php echo $user['learner_image']; ?>" />
                                                 </div>
+
+                                                <input id="input_comment" type="text" placeholder="Add a comment"/>
+
+                                                <button style="position:absolute;bottom:0;right:0" class="subscribe-btn">Add</button>
+
                                             </div>
                                         </div>
+
+                                        <br>
+
+                                        <div id="comment_container" class="review_all120">
+                                            
+                                        </div>
+
+                                        <!-- <div class="review_all120">
+                                            
+                                            <div class="review_item">
+                                                <a href="#" class="more_reviews">See More Comments</a>
+                                            </div>
+                                        </div> -->
                                     </div>
                                 </div>
                             </div>
@@ -316,29 +277,29 @@
 
         </div>
 
-        <div class="col-lg-4 col-md-6 scrollLessonContent fixContainer" id="lesson-section">
+        <div class="col-lg-4 col-md-6 scrollLessonContent fixContainer" id="lesson-section" style="padding-right:0px;">
             <div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">
                 <?php foreach($lessons as $key=>$lesson){ ?>
-                <a href="#video_player" onclick="playLesson(<?php echo $i?>,<?php echo $key; ?>)">
-                    <div style="display:flex"  id="lesson_item<?php echo $lesson['id'];?>">
+                <a href="#video_player" onclick="playVideo(<?php echo $key ?>)">
+                    <div class="lecture-container" style="display:flex"  id="lesson_item<?php echo $lesson['id'];?>">
 
-                        <a href="" style="text-decoration:none;">
-                            <div style="width:170px;height: 100px; position:relative;margin-right:10px;">
-                                <img src="<?php echo $lesson['thumbnail']; ?>" class="video-thumbnail"/>
-                                <div class="video_play_circle">
-                                    <i style="color:white;width:30px; height:30px;" class="uil uil-play"></i>
-                                </div>
-                                <div  style="position:absolute; bottom:15px;right: 5px;padding:5px; border-radius:3px; background:rgba(0, 0, 0, 0.384);color:white;font-size:10px;">
-                                    <?php echo $Lesson->formatVideoDuration($lesson['duration'])?>
-                                </div>
+                        <div style="width:170px;height: 100px; position:relative;margin-right:10px;">
+                            <img src="<?php echo $lesson['thumbnail']; ?>" class="video-thumbnail"/>
+                            <div class="video_play_circle">
+                                <i style="color:white;width:30px; height:30px;" class="uil uil-play"></i>
                             </div>
-                        </a>
+                            <div  style="position:absolute; bottom:15px;right: 5px;padding:5px; border-radius:3px; background:rgba(0, 0, 0, 0.384);color:white;font-size:10px;">
+                                <?php echo $Lesson->formatVideoDuration($lesson['duration'])?>
+                            </div>
+                        </div>
+                        
 
                         <div class="">
                             <div class="title">
                                 <div style="margin-bottom:5px;color:#333"><h5><?php echo $lesson['lesson_title']; ?></h5></div>
                                 <?php echo $channel_name; ?> <br>
                                 <?php echo $Lesson->formatViewCount($lesson['view_count']) ?>
+                               
                             
                             </div>
                             
@@ -415,15 +376,19 @@
             var lessons=<?php echo json_encode($lessons) ?>;
             var user_id=<?php echo $user['learner_phone'] ?>;
             var index=<?php echo $_GET['index']?>;
+            var comment_container=document.getElementById('comment_container');
 
-            console.log('lessons',lessons);
+          
 
-            window.onload= playLesson(lessons[index]);
+            window.onload=playVideo(index);
             adjustLayout();
-           
-                      
-            function playLesson(lesson){
-                console.log(lesson);
+                  
+            function playVideo(index){
+                
+                
+                var lesson=lessons[index];
+                
+               
                 highLightLessonItem('lesson_item'+lesson.id);
                 var video_player=document.getElementById('video_player');
                 video_player.innerHTML=`
@@ -438,7 +403,7 @@
                 document.getElementById('tv_share').innerHTML=lesson.share_count;
                 document.getElementById('tv_title').innerHTML=lesson.lesson_title;
                 updateData(user_id,lesson.id,lesson.post_id);
-                loadCommentShimmer();
+                fetchComments(user_id,lesson.post_id);
                
             }
 
@@ -463,7 +428,7 @@
                 for(var i=0;i<lessonItems.length;i++){
                     var item=lessonItems[i];
                     const ID=item.getAttribute("id");
-                    console.log("id",id,"ID",ID);
+                   
                     if(id==ID){
                         item.setAttribute('style','background:#ed292621');
                     }else{
@@ -499,10 +464,12 @@
                     detail_section.setAttribute('style','');
                 }
             }
+
+            
             
             function loadCommentShimmer(){
-                var comment_container=document.getElementById('comment_container');
-                    comment_container.innerHTML="";
+               
+                comment_container.innerHTML="";
                 for(var i=0;i<3;i++){
                     comment_container.innerHTML+=`
                          <div class="review_item" style="width:100%;">
@@ -520,6 +487,200 @@
                         </div>
                     
                     `;
+                }
+            }
+
+            function fetchComments(user_id,post_id){
+                console.log('post_id comment',post_id);
+                loadCommentShimmer();
+                var ajax=new XMLHttpRequest();
+                ajax.onload =function(){
+                    if(ajax.status==200 || ajax.readyState==4){
+                        var data=JSON.parse(ajax.responseText);
+                        var status=data.status;
+                      
+                        if(status=='success'){
+                            var comments=data.comments;
+                            comment_container.innerHTML="";
+                            for(var i=0;i<comments.length;i++){
+                                var comment=comments[i];
+                                comment_container.innerHTML+=commentComponent(comment); 
+                                if(comment.child){
+                                    var children=comment.child;
+                                    var child_container=document.getElementById('cmt_child_'+comment.time);
+                                    for(var j=0;j<children.length;j++){
+                                        var child=children[j];
+                                        child_container.innerHTML+= childComment(child);
+                                    }
+                                }   
+                            }
+                        }else{
+                            comment_container.innerHTML=`
+                            <div style="padding:20px; text-align:center">
+                                No comment
+                            </div>
+                            `;
+                        }
+                        
+                    }
+                };
+                ajax.open("GET",`api/comments/get.php?user_id=${user_id}&post_id=${post_id}`,true);
+                ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                ajax.send();
+            }
+
+            function commentComponent(comment){
+                console.log('comment ',comment);
+                return `
+                    <div class="review_item">
+                        <div class="review_usr_dt">
+                            <img src="${comment.learner_image}" style="width:50px; height:50px;" alt="">
+                            <div class="rv1458">
+                                <h4 class="tutor_name1">${comment.learner_name}</h4>
+                                <span class="time_145">${formatDateTime(comment.time)}</span>
+                            </div>
+                        </div>
+                        <p class="rvds10">${comment.body}</p>
+                        <div class="rpt100">
+                            <div class="radio--group-inline-container">
+                                <div class="radio-item">
+                                     <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeComment(${user_id},${comment.post_id},${comment.time},${comment.is_liked},${comment.likes})"> 
+                                        <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
+                                     </a>
+                                    <label for="cmt_like_${comment.time}" class="radio-label">
+                                        <span id="cmt_like_count_${comment.time}">${formatReact(comment.likes)}</span>
+                                    </label>
+                                </div>
+                                <div class="radio-item">
+                                    <a href="#" class="report145" id="cmt_reply_${comment.time}"><i class="uil uil-comments"></i></a>
+                                    <label  for="cmt_like_${comment.time}" class="radio-label">reply</label>
+                                </div>
+                            </div>
+                           
+                        </div>
+
+                        <div id="cmt_child_${comment.time}"></div>
+
+                    </div>
+                `;
+            }
+
+            function childComment(comment){
+              
+                return `
+                    <div class="review_item" style="margin-left:40px;">
+                        <div class="review_usr_dt">
+                            <img src="${comment.learner_image}" style="width:30px; height:30px;" alt="">
+                            <div class="rv1458">
+                                <h5 class="tutor_name1">${comment.learner_name}</h5>
+                                <span class="time_145">${formatDateTime(comment.time)}</span>
+                            </div>
+                        </div>
+                        <p class="rvds10">${comment.body}</p>
+                        <div class="rpt100">
+                            <div class="radio--group-inline-container">
+                                <div class="radio-item">
+                                     <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeComment(${user_id},${comment.post_id},${comment.time},${comment.is_liked},${comment.likes})"> 
+                                        <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
+                                     </a>
+                                    <label for="cmt_like_${comment.time}" class="radio-label">
+                                        <span id="cmt_like_count_${comment.time}">${formatReact(comment.likes)}</span>
+                                    </label>
+                                </div>
+                                <div class="radio-item">
+                                    <a href="#" class="report145" id="cmt_reply_${comment.time}"><i class="uil uil-comments"></i></a>
+                                    <label  for="cmt_like_${comment.time}" class="radio-label">reply</label>
+                                </div>
+                            </div>
+                           
+                        </div>
+
+                        <div id="cmt_child_${comment.time}"></div>
+
+                    </div>
+                `;
+            }
+
+            function formatDateTime(cmtTime){
+                var currentTime = Date.now();
+                var min=60;
+                var h=min*60;
+                var day=h*24;
+
+                var diff =currentTime-cmtTime
+                diff=diff/1000;
+                
+                if(diff<day*3){
+                    if(diff<min){
+                        return diff+"s ago";
+                    }else if(diff>=min&&diff<h){
+                        return Math.floor(diff/min)+'min ago';
+                    }else if(diff>=h&&diff<day){
+                        return Math.floor(diff/h)+'h ago';
+                    }else{
+                        return Math.floor(diff/day)+'d ago';
+                    }
+                }else{
+                    var date = new Date(Number(cmtTime));
+                    return date.toLocaleDateString("en-GB");
+                }
+            }
+
+            function defineLikeThumb(like){
+                if(like==1){
+                    return "color:red"
+                }else{
+                    return "";
+                }
+            }
+
+            function likeComment(user_id,post_id,comment_id,is_like,like_count){
+                var ajax=new XMLHttpRequest();
+                ajax.onload =function(){
+                    if(ajax.status==200 || ajax.readyState==4){
+                      
+                    }
+                };
+                ajax.open("POST","https://www.calamuseducation.com/calamus-v2/api/korea/comments/like",true);
+                ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                ajax.send(`user_id=${user_id}&post_id=${post_id}&comment_id=${comment_id}`);
+
+                var cmt_like_icon=document.getElementById('cmt_like_icon_'+comment_id);
+                var cmt_like_count=document.getElementById('cmt_like_count_'+comment_id);
+                if(is_like==1){
+                    cmt_like_icon.setAttribute('style','');
+                    cmt_like_count.innerHTML=formatReact(like_count-1);
+                }else{
+                    cmt_like_icon.setAttribute('style','color:red');
+                    cmt_like_count.innerHTML=formatReact(like_count+1);
+                }
+
+            }
+
+            function formatReact(like){
+
+                if(like>1 && like<1000){
+                   return like+" likes"
+                }
+
+                if(like>=1000&&like<1000000){
+                    like=like/1000;
+                    like= Math.round(like * 10) / 10
+                    return like+"k likes"; 
+                }
+
+                if(like>=1000000){
+                    like=like/1000000;
+                    like= Math.round(like * 10) / 10
+                    return like+"M likes"; 
+                }
+
+                if(like==1){
+                    return like +"like";
+                }
+
+                if(like==0){
+                    return "no like";
                 }
             }
 

@@ -129,13 +129,13 @@
 
 <body onresize="adjustLayout()">
     <div class="fixedLessonContainer">
-    <div class="row">
+    <div class="row"  style="padding-right:0px;">
         <div class="col-lg-8 col-md-6" style="padding-right:0px;">
             <div id="video_player">
             </div>
             <script src="https://player.vimeo.com/api/player.js"></script>
             
-            <div id="course_display_1" class="_215b15 _byt1458" style="">
+            <div id="course_display_1" class="_215b15 _byt1458">
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-lg-12">
@@ -173,7 +173,7 @@
             <div id="detail-section" class="_215b17" style="">
                 <div class="container-fluid">
                     <div class="row">
-                        <div class="col-lg-12" style="padding-right:0px;">
+                        <div class="col-lg-12" style="">
                             <div class="student_reviews" style="margin:0px;">
                                 <div class="row">
                                     <div class="col-lg-12">

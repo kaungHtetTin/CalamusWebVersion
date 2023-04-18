@@ -83,7 +83,7 @@
 
             .video_play_circle{
                 position:absolute; 
-                top: 25px;left:70px;
+                top: 17px;left:57px;
                 border-radius:50%;
                 background:rgba(0, 0, 0, 0.384);
                 padding:10px;
@@ -94,13 +94,13 @@
                 display:block;
             }
             .video-thumbnail{
-                width:160px;
-                height: 90px;
+                width:128px;
+                height: 72px;
                 border-radius:5px;
                 margin-left:10px;
             }
             #input_comment{
-                padding:7px;
+                
                 border-width:0 0 1px 0;
                 border-style:sold;
                 background: #00000000;
@@ -150,13 +150,16 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="user_dt_right">
+                                <div class="user_dt_right" style="text-align:center;">
                                     <ul>
                                         <li>
                                             <a href="#" class="lkcm152"><i class="uil uil-eye"></i><span id="tv_view"></span></a>
                                         </li>
                                         <li>
                                             <a href="#" class="lkcm152"><i class="uil uil-thumbs-up"></i><span id="tv_like"></span></a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="lkcm152"><i class="uil uil-comment-alt"></i><span id="tv_comment"></span></a>
                                         </li>
                                         <li>
                                             <a href="#" class="lkcm152"><i class="uil uil-share-alt"></i><span id="tv_share"></span></a>
@@ -184,12 +187,12 @@
                                             </div>
                                             <div style="display:flex;position:relative;">
                                                 <div>
-                                                    <img style="width:50px;height:50px;border-radius:50%;" src="<?php echo $user['learner_image']; ?>" />
+                                                    <img style="width:40px;height:40px;border-radius:50%;" src="<?php echo $user['learner_image']; ?>" />
                                                 </div>
 
                                                 <input id="input_comment" type="text" placeholder="Add a comment"/>
 
-                                                <button style="position:absolute;bottom:0;right:0" class="subscribe-btn">Add</button>
+                                                <button onclick="addComment()" style="position:absolute;bottom:0;right:0" class="subscribe-btn">Add</button>
 
                                             </div>
                                         </div>
@@ -283,8 +286,8 @@
                 <a href="#video_player" onclick="playVideo(<?php echo $key ?>)">
                     <div class="lecture-container" style="display:flex"  id="lesson_item<?php echo $lesson['id'];?>">
 
-                        <div style="width:170px;height: 100px; position:relative;margin-right:10px;">
-                            <img src="<?php echo $lesson['thumbnail']; ?>" class="video-thumbnail"/>
+                        <div style="width:138px;height: 72px; position:relative;margin-right:10px;">
+                            <img  src="<?php echo $lesson['thumbnail']; ?>" class="video-thumbnail"/>
                             <div class="video_play_circle">
                                 <i style="color:white;width:30px; height:30px;" class="uil uil-play"></i>
                             </div>
@@ -299,7 +302,6 @@
                                 <div style="margin-bottom:5px;color:#333"><h5><?php echo $lesson['lesson_title']; ?></h5></div>
                                 <?php echo $channel_name; ?> <br>
                                 <?php echo $Lesson->formatViewCount($lesson['view_count']) ?>
-                               
                             
                             </div>
                             
@@ -375,10 +377,11 @@
 
             var lessons=<?php echo json_encode($lessons) ?>;
             var user_id=<?php echo $user['learner_phone'] ?>;
+            var user=<?php echo json_encode($user); ?>;
             var index=<?php echo $_GET['index']?>;
             var comment_container=document.getElementById('comment_container');
-
-          
+            var currentVideo;
+            var comments;
 
             window.onload=playVideo(index);
             adjustLayout();
@@ -387,6 +390,7 @@
                 
                 
                 var lesson=lessons[index];
+                currentVideo=lesson;
                 
                
                 highLightLessonItem('lesson_item'+lesson.id);
@@ -402,6 +406,8 @@
                 document.getElementById('tv_like').innerHTML=lesson.post_like;
                 document.getElementById('tv_share').innerHTML=lesson.share_count;
                 document.getElementById('tv_title').innerHTML=lesson.lesson_title;
+                document.getElementById('tv_comment').innerHTML=lesson.comments;
+            
                 updateData(user_id,lesson.id,lesson.post_id);
                 fetchComments(user_id,lesson.post_id);
                
@@ -500,20 +506,8 @@
                         var status=data.status;
                       
                         if(status=='success'){
-                            var comments=data.comments;
-                            comment_container.innerHTML="";
-                            for(var i=0;i<comments.length;i++){
-                                var comment=comments[i];
-                                comment_container.innerHTML+=commentComponent(comment); 
-                                if(comment.child){
-                                    var children=comment.child;
-                                    var child_container=document.getElementById('cmt_child_'+comment.time);
-                                    for(var j=0;j<children.length;j++){
-                                        var child=children[j];
-                                        child_container.innerHTML+= childComment(child);
-                                    }
-                                }   
-                            }
+                            comments=data.comments;
+                            setComments(comments);
                         }else{
                             comment_container.innerHTML=`
                             <div style="padding:20px; text-align:center">
@@ -529,7 +523,23 @@
                 ajax.send();
             }
 
-            function commentComponent(comment){
+            function setComments(comments){
+                comment_container.innerHTML="";
+                for(var i=0;i<comments.length;i++){
+                    var comment=comments[i];
+                    comment_container.innerHTML+=commentComponent(comment,i); 
+                    if(comment.child){
+                        var children=comment.child;
+                        var child_container=document.getElementById('cmt_child_'+comment.time);
+                        for(var j=0;j<children.length;j++){
+                            var child=children[j];
+                            child_container.innerHTML+= childComment(child,i,j);
+                        }
+                    }   
+                }
+            }
+
+            function commentComponent(comment,index){
                 console.log('comment ',comment);
                 return `
                     <div class="review_item">
@@ -544,7 +554,7 @@
                         <div class="rpt100">
                             <div class="radio--group-inline-container">
                                 <div class="radio-item">
-                                     <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeComment(${user_id},${comment.post_id},${comment.time},${comment.is_liked},${comment.likes})"> 
+                                     <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeParentComment(${user_id},${comment.post_id},${comment.time},${index})"> 
                                         <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
                                      </a>
                                     <label for="cmt_like_${comment.time}" class="radio-label">
@@ -565,7 +575,7 @@
                 `;
             }
 
-            function childComment(comment){
+            function childComment(comment,index,j){
               
                 return `
                     <div class="review_item" style="margin-left:40px;">
@@ -580,7 +590,7 @@
                         <div class="rpt100">
                             <div class="radio--group-inline-container">
                                 <div class="radio-item">
-                                     <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeComment(${user_id},${comment.post_id},${comment.time},${comment.is_liked},${comment.likes})"> 
+                                     <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeChildComment(${user_id},${comment.post_id},${comment.time},${index},${j})"> 
                                         <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
                                      </a>
                                     <label for="cmt_like_${comment.time}" class="radio-label">
@@ -612,7 +622,7 @@
                 
                 if(diff<day*3){
                     if(diff<min){
-                        return diff+"s ago";
+                        return "a few second ago";
                     }else if(diff>=min&&diff<h){
                         return Math.floor(diff/min)+'min ago';
                     }else if(diff>=h&&diff<day){
@@ -634,7 +644,38 @@
                 }
             }
 
-            function likeComment(user_id,post_id,comment_id,is_like,like_count){
+            function likeParentComment(user_id,post_id,comment_id,index){
+                
+                console.log('index ',index);
+
+                likeComment(user_id,post_id,comment_id);
+                 if(comments[index].is_liked==1){
+                    comments[index].is_liked=0;
+                    comments[index].likes= comments[index].likes-1;
+                }else{
+                    comments[index].is_liked=1;
+                    comments[index].likes= comments[index].likes+1;
+                }
+                setComments(comments);
+            }
+
+            function likeChildComment(user_id,post_id,comment_id,index,j){
+                    
+                    console.log('children',comments[index].child);
+
+                    likeComment(user_id,post_id,comment_id);
+                    if(comments[index].child[j].is_liked==1){
+                        comments[index].child[j].is_liked=0;
+                        comments[index].child[j].likes= comments[index].child[j].likes-1;
+                    }else{
+                        comments[index].child[j].is_liked=1;
+                        comments[index].child[j].likes= comments[index].child[j].likes+1;
+                    }
+                    setComments(comments);
+            }
+
+            function likeComment(user_id,post_id,comment_id){
+                
                 var ajax=new XMLHttpRequest();
                 ajax.onload =function(){
                     if(ajax.status==200 || ajax.readyState==4){
@@ -645,16 +686,33 @@
                 ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                 ajax.send(`user_id=${user_id}&post_id=${post_id}&comment_id=${comment_id}`);
 
-                var cmt_like_icon=document.getElementById('cmt_like_icon_'+comment_id);
-                var cmt_like_count=document.getElementById('cmt_like_count_'+comment_id);
-                if(is_like==1){
-                    cmt_like_icon.setAttribute('style','');
-                    cmt_like_count.innerHTML=formatReact(like_count-1);
-                }else{
-                    cmt_like_icon.setAttribute('style','color:red');
-                    cmt_like_count.innerHTML=formatReact(like_count+1);
-                }
+            }
 
+
+            function addComment(){
+                var input_comment=document.getElementById('input_comment');
+                var body=input_comment.value;
+                input_comment.value="";
+                var post_id=currentVideo.post_id;
+                sentComment(post_id,user_id,10000,body,0,0);
+               
+            }
+
+            function sentComment(post_id,writer_id,owner_id,body,parent,action){
+                
+                var ajax=new XMLHttpRequest();
+                ajax.onload =function(){
+                    if(ajax.status==200 || ajax.readyState==4){
+                        var newCmt=JSON.parse(ajax.responseText);
+                        newCmt.learner_image=user.learner_image;
+                        newCmt.learner_name=user.learner_name;
+                        comments.push(newCmt);
+                        setComments(comments);
+                    }
+                };
+                ajax.open("POST","https://www.calamuseducation.com/calamus-v2/api/korea/comments/add",true);
+                ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                ajax.send(`post_id=${post_id}&writer_id=${writer_id}&owner_id=${owner_id}&body=${body}&parent=${parent}&action=${action}`);
             }
 
             function formatReact(like){

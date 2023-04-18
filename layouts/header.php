@@ -222,6 +222,7 @@
 
 				</ul>
 			</div>
+			
 			<div class="left_section">
 				<h6 class="left_title">ADMIN  TEAM</h6>
 				<ul>

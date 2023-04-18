@@ -65,7 +65,8 @@ class Lesson{
             posts.vimeo,
             posts.view_count,
             posts.share_count,
-            posts.post_like
+            posts.post_like,
+            posts.comments
             FROM lessons
             JOIN posts ON lessons.date=posts.post_id
             WHERE category_id=$category_id

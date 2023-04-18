@@ -22,7 +22,6 @@
     $teachers=$Teacher->index();
     $app=$App->getRand();
     
-        
     include('layouts/header.php');
 ?>
 	<!-- Body Start -->
@@ -36,9 +35,7 @@
                         <a href="explore.php" class="see150">See all</a>
                         <div class="la5lo1">
                             <div class="owl-carousel featured_courses owl-theme">
-
                                 <?php foreach($feature_courses as $course){ ?>
-
                                 <div class="item">
                                     <div class="fcrse_1 mb-20">
                                         <a href="course_detail.php?course_id=<?php echo $course['course_id']; ?>" class="fcrse_img">

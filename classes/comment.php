@@ -41,6 +41,19 @@ class Comment{
         $DB=new Database();
         $result=$DB->read();
     }
+
+    function updateComment($data){
+        $comment_id=$data['comment_id'];
+        $body=$data['body'];
+        $body=addslashes($body);
+        
+        $query="UPDATE comment SET body='$body' where time=$comment_id";
+        $DB=new Database();
+        $result=$DB->save($query);
+
+        return $result;
+
+    }
 }
 
 ?>

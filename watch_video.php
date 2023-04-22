@@ -99,7 +99,7 @@
                 border-radius:5px;
                 margin-left:10px;
             }
-            #input_comment{
+            input{
                 
                 border-width:0 0 1px 0;
                 border-style:sold;
@@ -117,6 +117,11 @@
                 animation: shimmer 2.5s infinite;
                 font-size: 50px;
                 
+            }
+            .cmt-reply{
+                display:flex;
+                position:relative; 
+                margin-left:40px;
             }
 
             @keyframes shimmer {
@@ -310,6 +315,11 @@
                 </a>
                 <?php }?>
             </div>
+
+            <div id="modalContainer">
+
+            </div>
+
             <!-- <a class="btn1458" href="#">20 More Sections</a> -->
             <footer id="footer2" style="display:none" class="footer mt-30">
                 <div class="container">
@@ -457,6 +467,7 @@
 
                 if(w<=w_lesson_section){
                     lesson_section.setAttribute('class','col-lg-4 col-md-6 scrollLessonContent');
+                    lesson_section.setAttribute('style','display:none');
                     
                     footer.setAttribute('style','display:none');
                     footer2.setAttribute('style','display:block');
@@ -464,15 +475,14 @@
                     detail_section.setAttribute('style','display:none');
                 }else{
                     lesson_section.setAttribute('class','col-lg-4 col-md-6 scrollLessonContent fixContainer');
+                    lesson_section.setAttribute('style','display:block');
                     footer.setAttribute('style','');
                     footer2.setAttribute('style','display:none');
                     nav_bar_section.setAttribute('style','');
                     detail_section.setAttribute('style','');
                 }
             }
-
-            
-            
+   
             function loadCommentShimmer(){
                
                 comment_container.innerHTML="";
@@ -514,6 +524,7 @@
                                 No comment
                             </div>
                             `;
+                            comments=[];
                         }
                         
                     }
@@ -540,33 +551,78 @@
             }
 
             function commentComponent(comment,index){
-                console.log('comment ',comment);
+               
+                var editMenu="";
+                if(comment.writer_id==user_id){
+                    editMenu =`
+                    <br>
+                    <div class="eps_dots more_dropdown">
+                        <a href="javascript:void(0)"><i class="uil uil-ellipsis-v"></i></a>
+                        <div class="dropdown-content">
+                            <span onclick="showCmtEditInput(${comment.time})"><i class='uil uil-comment-alt-edit'></i>Edit</span>
+                            <span onclick="showCmtDelDiague(${comment.time},${index})"><i class='uil uil-trash-alt'></i>Delete</span>
+                        </div>																											
+                    </div>
+                    `;
+                }
+
                 return `
-                    <div class="review_item">
+                    <div class="review_item" style="padding-top:10px;padding-bottom:10px;">
                         <div class="review_usr_dt">
                             <img src="${comment.learner_image}" style="width:50px; height:50px;" alt="">
                             <div class="rv1458">
                                 <h4 class="tutor_name1">${comment.learner_name}</h4>
                                 <span class="time_145">${formatDateTime(comment.time)}</span>
                             </div>
+
+                            ${editMenu}
+
                         </div>
-                        <p class="rvds10">${comment.body}</p>
-                        <div class="rpt100">
-                            <div class="radio--group-inline-container">
-                                <div class="radio-item">
-                                     <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeParentComment(${user_id},${comment.post_id},${comment.time},${index})"> 
-                                        <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
-                                     </a>
-                                    <label for="cmt_like_${comment.time}" class="radio-label">
-                                        <span id="cmt_like_count_${comment.time}">${formatReact(comment.likes)}</span>
-                                    </label>
+
+                        <div id="cmt_body_${comment.time}">
+                            <div class="rvds10" style="margin-top: 7px;">${comment.body}</div>
+                            <div class="rpt100">
+                                <div class="radio--group-inline-container">
+                                    <div class="radio-item">
+                                        <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeParentComment(${user_id},${comment.post_id},${comment.time},${index})"> 
+                                            <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
+                                            <label for="cmt_like_${comment.time}" class="radio-label">
+                                                <span id="cmt_like_count_${comment.time}">${formatReact(comment.likes)}</span>
+                                            </label>
+                                        </a>
+                                    </div>
+                                    <div class="radio-item" >
+                                        <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="showReplyInput(${comment.time});"> 
+                                            <i class="uil uil-comments"></i>
+                                            <label  for="cmt_like_${comment.time}" class="radio-label">reply</label>
+                                        </a>
+                                    </div>
                                 </div>
-                                <div class="radio-item">
-                                    <a href="#" class="report145" id="cmt_reply_${comment.time}"><i class="uil uil-comments"></i></a>
-                                    <label  for="cmt_like_${comment.time}" class="radio-label">reply</label>
-                                </div>
+                            
                             </div>
-                           
+                        </div>
+                        
+                        <div id="edit_input_container_${comment.time}" style="display:none">
+                            <div class="cmt-reply">
+                                <input  id="input_edit_${comment.time}" type="text" placeholder="Enter comment" value="${comment.body}" style="margin-right:200px;padding:5px;"/>
+                                <button onclick="cancelEditCmt(${comment.time})" style="position:absolute;bottom:0;right:100px;" class="btn">Cancel</button>
+                                <button onclick="updateComment(${comment.time},${index})" style="position:absolute;bottom:0;right:0" class="subscribe-btn">Save</button>
+
+                            </div>
+                        </div>
+
+
+                        <div id="reply_input_container_${comment.time}" style="display:none;">
+                            <div class="cmt-reply">
+                                <div>
+                                    <img style="width:30px;height:30px;border-radius:50%;" src="${user.learner_image}" />
+                                </div>
+
+                                <input  id="input_reply_${comment.time}" type="text" placeholder="Reply the comment"/>
+
+                                <button onclick="addReply(${comment.time})" style="position:absolute;bottom:0;right:0" class="subscribe-btn">Add</button>
+
+                            </div>
                         </div>
 
                         <div id="cmt_child_${comment.time}"></div>
@@ -575,40 +631,149 @@
                 `;
             }
 
+            function showCmtDelDiague(cmtId,index,j){
+                var modalContainer=document.getElementById('modalContainer');
+                modalContainer.innerHTML=`
+                <div id="myModal" class="modal">
+                    <div class="modal-content" style="width:50%;margin:auto;margin-top:70px;">
+            
+                        <h4 style="margin: 30px;">Do you really want to delete?</h4>
+                        <br>
+                        <div style="margin:30px; padding-left:10%;padding-right:10%;">
+                            <button class="btn btn-primary" id="modalCanel" style="float:left">Cancel</button>
+                            <button class="btn btn-danger" onclick="deleteComment(${cmtId},${index},${j})" id="modalDelete" style="float:right">Delete</button>
+                        </div>
+
+                    </div>
+                </div>
+                `;
+
+                $('#myModal').modal('show');
+                $("#modalCanel").click(function () {
+                    
+                });
+            }
+
+            function deleteComment(cmtId,index,j){
+
+                if(j===undefined){
+                    comments.splice(index,1);
+                }else{
+                    var children=comments[index].child;
+                    children.splice(j,1);
+                }
+                setComments(comments);
+
+                var ajax=new XMLHttpRequest();
+                ajax.onload =function(){
+                    if(ajax.status==200 || ajax.readyState==4){
+                        
+                    }
+                };
+                ajax.open("POST","https://www.calamuseducation.com/calamus-v2/api/korea/comments/delete",true);
+                ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                ajax.send(`postId=${currentVideo.post_id}&time=${cmtId}`);
+            }
+
             function childComment(comment,index,j){
+
+                var editMenu="";
+                if(comment.writer_id==user_id){
+                    editMenu =`
+                    <br>
+                    <div class="eps_dots more_dropdown">
+                        <a href="javascript:void(0)"><i class="uil uil-ellipsis-v"></i></a>
+                        <div class="dropdown-content">
+                            <span onclick="showCmtEditInput(${comment.time})"><i class='uil uil-comment-alt-edit'></i>Edit</span>
+                            <span onclick="showCmtDelDiague(${comment.time},${index})"><i class='uil uil-trash-alt'></i>Delete</span>
+                        </div>																											
+                    </div>
+                    `;
+                }
               
                 return `
-                    <div class="review_item" style="margin-left:40px;">
+                    <div style="margin-left:40px;padding:7px;">
                         <div class="review_usr_dt">
                             <img src="${comment.learner_image}" style="width:30px; height:30px;" alt="">
                             <div class="rv1458">
                                 <h5 class="tutor_name1">${comment.learner_name}</h5>
                                 <span class="time_145">${formatDateTime(comment.time)}</span>
                             </div>
+                            ${editMenu}
                         </div>
-                        <p class="rvds10">${comment.body}</p>
-                        <div class="rpt100">
-                            <div class="radio--group-inline-container">
-                                <div class="radio-item">
-                                     <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeChildComment(${user_id},${comment.post_id},${comment.time},${index},${j})"> 
-                                        <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
-                                     </a>
-                                    <label for="cmt_like_${comment.time}" class="radio-label">
-                                        <span id="cmt_like_count_${comment.time}">${formatReact(comment.likes)}</span>
-                                    </label>
+                        <div id="cmt_body_${comment.time}">
+                            <div class="rvds10" style="margin-top: 7px;">${comment.body}</div>
+                            <div class="rpt100">
+                                <div class="radio--group-inline-container">
+                                    <div class="radio-item">
+                                        <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeChildComment(${user_id},${comment.post_id},${comment.time},${index},${j})"> 
+                                            <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
+                                        </a>
+                                        <label for="cmt_like_${comment.time}" class="radio-label">
+                                            <span id="cmt_like_count_${comment.time}">${formatReact(comment.likes)}</span>
+                                        </label>
+                                    </div>
                                 </div>
-                                <div class="radio-item">
-                                    <a href="#" class="report145" id="cmt_reply_${comment.time}"><i class="uil uil-comments"></i></a>
-                                    <label  for="cmt_like_${comment.time}" class="radio-label">reply</label>
-                                </div>
+                            
                             </div>
-                           
                         </div>
 
+                        <div id="edit_input_container_${comment.time}" style="display:none">
+                            <div class="cmt-reply">
+                                <input  id="input_edit_${comment.time}" type="text" placeholder="Enter comment" value="${comment.body}" style="margin-right:200px;padding:5px;"/>
+                                <button onclick="cancelEditCmt(${comment.time})" style="position:absolute;bottom:0;right:100px;" class="btn">Cancel</button>
+                                <button onclick="updateComment(${comment.time},${index},${j})" style="position:absolute;bottom:0;right:0" class="subscribe-btn">Save</button>
+
+                            </div>
+                        </div>
+                       
                         <div id="cmt_child_${comment.time}"></div>
 
                     </div>
                 `;
+            }
+
+            function showReplyInput(id){
+                var reply_input=document.getElementById("reply_input_container_"+id);
+                reply_input.setAttribute('style','display:block');
+            }
+
+            function showCmtEditInput(id){
+                var edit_container=document.getElementById("edit_input_container_"+id);
+                var cmtBody=document.getElementById('cmt_body_'+id);
+                edit_container.setAttribute('style','display:block');
+                cmtBody.setAttribute('style','display:none');
+
+            }
+
+            function cancelEditCmt(id){
+                var edit_container=document.getElementById("edit_input_container_"+id);
+                var cmtBody=document.getElementById('cmt_body_'+id);
+                edit_container.setAttribute('style','display:none');
+                cmtBody.setAttribute('style','display:block');
+            }
+
+            function updateComment(id,index,childIndex){
+                var input_edit=document.getElementById("input_edit_"+id);
+                var body=input_edit.value;
+
+                var ajax=new XMLHttpRequest();
+                ajax.onload =function(){
+                    if(ajax.status==200 || ajax.readyState==4){
+                        console.log(ajax.responseText);
+                        
+                        if(childIndex===undefined){
+                            comments[index].body=body;
+                        }else{
+                            comments[index].child[childIndex].body=body;
+                        }
+                        setComments(comments);
+                    }
+                };
+                ajax.open("POST","api/comments/update.php",true);
+                ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                ajax.send(`comment_id=${id}&body=${body}`);
+
             }
 
             function formatDateTime(cmtTime){
@@ -694,20 +859,43 @@
                 var body=input_comment.value;
                 input_comment.value="";
                 var post_id=currentVideo.post_id;
-                sentComment(post_id,user_id,10000,body,0,0);
+                sentComment(post_id,user_id,10000,body,0,0,(newCmt)=>{
+                    newCmt.learner_image=user.learner_image;
+                    newCmt.learner_name=user.learner_name;
+                    comments.push(newCmt);
+                    setComments(comments);
+                });
                
             }
 
-            function sentComment(post_id,writer_id,owner_id,body,parent,action){
+            function addReply(parentId){
+                var input_reply=document.getElementById('input_reply_'+parentId);
+                var body=input_reply.value;
+                input_reply.value="";
+                var post_id=currentVideo.post_id;
+
+                sentComment(post_id,user_id,10000,body,parentId,1,(newCmt)=>{
+                    newCmt.learner_image=user.learner_image;
+                    newCmt.learner_name=user.learner_name;
+                    console.log('parent id id ',parentId);
+                    var parentCmt=comments.find(o=> o.time==parentId)
+                    if(parentCmt.child){
+                        parentCmt.child.push(newCmt);
+                    }else{
+                        var arr=[newCmt];
+                        parentCmt.child=arr;
+                    }
+                    setComments(comments);
+                });
+            }
+
+            function sentComment(post_id,writer_id,owner_id,body,parent,action,callback){
                 
                 var ajax=new XMLHttpRequest();
                 ajax.onload =function(){
                     if(ajax.status==200 || ajax.readyState==4){
                         var newCmt=JSON.parse(ajax.responseText);
-                        newCmt.learner_image=user.learner_image;
-                        newCmt.learner_name=user.learner_name;
-                        comments.push(newCmt);
-                        setComments(comments);
+                        callback(newCmt);
                     }
                 };
                 ajax.open("POST","https://www.calamuseducation.com/calamus-v2/api/korea/comments/add",true);

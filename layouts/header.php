@@ -40,19 +40,8 @@
 			<span class="collapse_menu--label"></span>
 		</button>
 		<div class="main_logo" id="logo">
-			<a href="index.html"><img src="assets/images/calamuslogo.png" alt="" style="height:40px"></a>
-			<a href="index.html"><img class="logo-inverse" src="images/ct_logo.svg" alt=""></a>
-		</div>
-		<div class="top-category">
-			<div class="ui compact menu cate-dpdwn">
-				<div class="ui simple dropdown item">
-					<a href="#" class="option_links p-0" title="categories"><i class="uil uil-apps"></i></a>
-					<div class="menu dropdown_category5">
-						<a href="#" class="item channel_item">English Language</a>
-						<a href="#" class="item channel_item">Korean Language</a>
-					</div>
-				</div>
-			</div>
+			<a href="index.php"><img src="assets/images/calamuslogo.png" alt="" style="height:40px"></a>
+			<a href="index.php"><img class="logo-inverse" src="images/ct_logo.svg" alt=""></a>
 		</div>
 		<div class="search120">
 			<div class="ui search">
@@ -64,9 +53,6 @@
 		</div>
 		<div class="header_right">
 			<ul>
-				<li>
-					<a href="shopping_cart.html" class="option_links" title="cart"><i class='uil uil-shopping-cart-alt'></i><span class="noti_count">2</span></a>
-				</li>
 				<li class="ui dropdown">
 					<a href="#" class="option_links" title="Messages"><i class='uil uil-envelope-alt'></i><span class="noti_count">3</span></a>
 					<div class="menu dropdown_ms">
@@ -102,44 +88,69 @@
 						</a>
 						<a class="vbm_btn" href="instructor_messages.html">View All <i class='uil uil-arrow-right'></i></a>
 					</div>
-				</li>
+				</li>				
 
-				
-
-				<li class="ui dropdown">
-					<a href="#" class="option_links" title="Notifications"><i class='uil uil-bell'></i><span class="noti_count">3</span></a>
-					<div class="menu dropdown_mn">
-						<a href="#" class="channel_my item">
-							<div class="profile_link">
-								<img src="images/left-imgs/img-1.jpg" alt="">
-								<div class="pd_content">
-									<h6>Rock William</h6>
-									<p>Like Your Comment On Video <strong>How to create sidebar menu</strong>.</p>
-									<span class="nm_time">2 min ago</span>
-								</div>							
-							</div>							
-						</a>
-						<a href="#" class="channel_my item">
-							<div class="profile_link">
-								<img src="images/left-imgs/img-2.jpg" alt="">
-								<div class="pd_content">
-									<h6>Jassica Smith</h6>
-									<p>Added New Review In Video <strong>Full Stack PHP Developer</strong>.</p>
-									<span class="nm_time">12 min ago</span>
-								</div>							
-							</div>							
-						</a>
-						<a href="#" class="channel_my item">
-							<div class="profile_link">
-								<img src="images/left-imgs/img-9.jpg" alt="">
-								<div class="pd_content">
-									<p> Your Membership Approved <strong>Upload Video</strong>.</p>
-									<span class="nm_time">20 min ago</span>
-								</div>							
-							</div>							
-						</a>
-						<a class="vbm_btn" href="instructor_notifications.html">View All <i class='uil uil-arrow-right'></i></a>
+				<li class="ui dropdown" onclick="fetchNoti()">
+					<a href="javascript:void(0)" onclick="fetchNoti()" class="option_links" title="Notifications"><i class='uil uil-bell'></i><span class="noti_count">3</span></a>
+					<div class="menu dropdown_mn" style="height:400px;overflow:auto;" id='notification_container' >
+						
 					</div>
+
+					<script>
+						var noti_container=document.getElementById('notification_container');
+
+						function fetchNoti(){
+
+							noti_container.innerHTML=`
+								<div class="col-md-12 channel_my item">
+									<div class="main-loader mt-50">													
+										<div class="spinner">
+											<div class="bounce1"></div>
+											<div class="bounce2"></div>
+											<div class="bounce3"></div>
+										</div>																										
+									</div>
+								</div>
+							`;
+
+							var ajax=new XMLHttpRequest();
+							ajax.onload =function(){
+								if(ajax.status==200 || ajax.readyState==4){
+									var notifications=JSON.parse(ajax.responseText);
+									noti_container.innerHTML="";
+								
+									for(var i=0;i<notifications.length;i++){
+										var notification=notifications[i];
+										noti_container.innerHTML+=notificationComponent(notification);
+									}
+								}
+							};
+							ajax.open("GET","api/notifications/get.php?user_id=<?php echo $_SESSION['calamus_userid'] ?>",true);
+							ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+							ajax.send();
+						}
+
+						function notificationComponent(notification){
+							var body=notification.body;
+							if(body.length>50){
+								body=body.substr(0,50)+":";
+							}
+							return `
+								<a href="#" class="channel_my item">
+									<div class="profile_link">
+										<img src="${notification.writer_image}" alt="">
+										<div class="pd_content">
+											<h6>${notification.writer_name}</h6>
+											<p>${notification.takingAction} <strong>${body} </strong>.</p>
+											<span class="nm_time">2 min ago</span>
+										</div>							
+									</div>							
+								</a>
+							`;
+						}
+
+					</script>
+
 				</li>
 				
 				<li class="ui dropdown">

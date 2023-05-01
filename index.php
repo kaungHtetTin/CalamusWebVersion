@@ -29,6 +29,7 @@
     <div class="sa4d25">
         <div class="container-fluid">	
             <div class="row">
+                
                 <div class="col-xl-9 col-lg-8">
                     <div class="section3125">
                         <h4 class="item_title">Featured Courses</h4>
@@ -224,6 +225,8 @@
                         </div>
                     </div>	
                 </div>
+
+
                 <div class="col-xl-3 col-lg-4">
                     <div class="right_side">
 

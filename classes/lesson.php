@@ -17,6 +17,7 @@ class Lesson{
             posts.view_count,
             posts.share_count,
             posts.post_like,
+            posts.comments,
             CASE
             WHEN  EXISTS (SELECT NULL FROM studies std 
             WHERE std.learner_id ='$user_id'and std.lesson_id =study_plan.lesson_id) THEN 1

@@ -192,7 +192,7 @@
                                             </div>
                                             <div style="display:flex;position:relative;">
                                                 <div>
-                                                    <img style="width:40px;height:40px;border-radius:50%;" src="<?php echo $user['learner_image']; ?>" />
+                                                    <img style="width:35px;height:35px;border-radius:50%;" src="<?php echo $user['learner_image']; ?>" />
                                                 </div>
 
                                                 <input id="input_comment" type="text" placeholder="Add a comment"/>
@@ -382,7 +382,7 @@
                 </div>
             </footer>
         </div>
-        
+        <script>console.log('log from comment')</script>
         <script>
 
             var lessons=<?php echo json_encode($lessons) ?>;
@@ -551,7 +551,6 @@
             }
 
             function commentComponent(comment,index){
-               
                 var editMenu="";
                 if(comment.writer_id==user_id){
                     editMenu =`
@@ -569,39 +568,39 @@
                 return `
                     <div class="review_item" style="padding-top:10px;padding-bottom:10px;">
                         <div class="review_usr_dt">
-                            <img src="${comment.learner_image}" style="width:50px; height:50px;" alt="">
+                            <img src="${comment.learner_image}" style="width:35px; height:35px;" alt="">
                             <div class="rv1458">
                                 <h4 class="tutor_name1">${comment.learner_name}</h4>
                                 <span class="time_145">${formatDateTime(comment.time)}</span>
-                            </div>
 
-                            ${editMenu}
-
-                        </div>
-
-                        <div id="cmt_body_${comment.time}">
-                            <div class="rvds10" style="margin-top: 7px;">${comment.body}</div>
-                            <div class="rpt100">
-                                <div class="radio--group-inline-container">
-                                    <div class="radio-item">
-                                        <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeParentComment(${user_id},${comment.post_id},${comment.time},${index})"> 
-                                            <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
-                                            <label for="cmt_like_${comment.time}" class="radio-label">
-                                                <span id="cmt_like_count_${comment.time}">${formatReact(comment.likes)}</span>
-                                            </label>
-                                        </a>
+                                <div  id="cmt_body_${comment.time}">
+                                <div class="rvds10" style="margin-top: 7px;">${comment.body}</div>
+                                <div class="rpt100">
+                                    <div class="radio--group-inline-container">
+                                        <div class="radio-item">
+                                            <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeParentComment(${user_id},${comment.post_id},${comment.time},${index})"> 
+                                                <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
+                                                <label for="cmt_like_${comment.time}" class="radio-label">
+                                                    <span id="cmt_like_count_${comment.time}">${formatReact(comment.likes)}</span>
+                                                </label>
+                                            </a>
+                                        </div>
+                                        <div class="radio-item" >
+                                            <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="showReplyInput(${comment.time});"> 
+                                                <i class="uil uil-comments"></i>
+                                                <label  for="cmt_like_${comment.time}" class="radio-label">reply</label>
+                                            </a>
+                                        </div>
                                     </div>
-                                    <div class="radio-item" >
-                                        <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="showReplyInput(${comment.time});"> 
-                                            <i class="uil uil-comments"></i>
-                                            <label  for="cmt_like_${comment.time}" class="radio-label">reply</label>
-                                        </a>
-                                    </div>
+                                
                                 </div>
-                            
                             </div>
+
+                            </div>
+                            ${editMenu}
                         </div>
-                        
+
+                    
                         <div id="edit_input_container_${comment.time}" style="display:none">
                             <div class="cmt-reply">
                                 <input  id="input_edit_${comment.time}" type="text" placeholder="Enter comment" value="${comment.body}" style="margin-right:200px;padding:5px;"/>
@@ -630,7 +629,6 @@
                     </div>
                 `;
             }
-
             function showCmtDelDiague(cmtId,index,j){
                 var modalContainer=document.getElementById('modalContainer');
                 modalContainer.innerHTML=`
@@ -676,7 +674,6 @@
             }
 
             function childComment(comment,index,j){
-
                 var editMenu="";
                 if(comment.writer_id==user_id){
                     editMenu =`
@@ -690,33 +687,37 @@
                     </div>
                     `;
                 }
-              
+            
                 return `
                     <div style="margin-left:40px;padding:7px;">
                         <div class="review_usr_dt">
-                            <img src="${comment.learner_image}" style="width:30px; height:30px;" alt="">
+                            <img src="${comment.learner_image}" style="width:27px; height:27px;" alt="">
                             <div class="rv1458">
                                 <h5 class="tutor_name1">${comment.learner_name}</h5>
                                 <span class="time_145">${formatDateTime(comment.time)}</span>
+                            
+                                <div id="cmt_body_${comment.time}">
+                                    <div class="rvds10" style="margin-top: 7px;">${comment.body}</div>
+                                    
+                                    <div class="rpt100">
+                                        <div class="radio--group-inline-container">
+                                            <div class="radio-item">
+                                                <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeChildComment(${user_id},${comment.post_id},${comment.time},${index},${j})"> 
+                                                    <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
+                                                </a>
+                                                <label for="cmt_like_${comment.time}" class="radio-label">
+                                                    <span id="cmt_like_count_${comment.time}">${formatReact(comment.likes)}</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    
+                                    </div>
+                                </div>
+
                             </div>
                             ${editMenu}
                         </div>
-                        <div id="cmt_body_${comment.time}">
-                            <div class="rvds10" style="margin-top: 7px;">${comment.body}</div>
-                            <div class="rpt100">
-                                <div class="radio--group-inline-container">
-                                    <div class="radio-item">
-                                        <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeChildComment(${user_id},${comment.post_id},${comment.time},${index},${j})"> 
-                                            <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
-                                        </a>
-                                        <label for="cmt_like_${comment.time}" class="radio-label">
-                                            <span id="cmt_like_count_${comment.time}">${formatReact(comment.likes)}</span>
-                                        </label>
-                                    </div>
-                                </div>
-                            
-                            </div>
-                        </div>
+                        
 
                         <div id="edit_input_container_${comment.time}" style="display:none">
                             <div class="cmt-reply">
@@ -726,7 +727,7 @@
 
                             </div>
                         </div>
-                       
+                    
                         <div id="cmt_child_${comment.time}"></div>
 
                     </div>
@@ -902,7 +903,7 @@
                 ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                 ajax.send(`post_id=${post_id}&writer_id=${writer_id}&owner_id=${owner_id}&body=${body}&parent=${parent}&action=${action}`);
             }
-
+ 
             function formatReact(like){
 
                 if(like>1 && like<1000){

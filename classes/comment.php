@@ -46,6 +46,7 @@ class Comment{
         $comment_id=$data['comment_id'];
         $body=$data['body'];
         $body=addslashes($body);
+        $body=htmlspecialchars($body);
         
         $query="UPDATE comment SET body='$body' where time=$comment_id";
         $DB=new Database();

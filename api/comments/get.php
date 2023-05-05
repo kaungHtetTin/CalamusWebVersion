@@ -9,6 +9,9 @@ $Comment=new Comment();
 
 $comments=$Comment->get($post_id,$user_id);
 
+// echo json_encode($comments);
+// return;
+
 if(!$comments){
  $response['status']='fail';
  echo json_encode($response);

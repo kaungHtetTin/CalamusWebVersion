@@ -210,7 +210,7 @@
 						</a>
 					</li>
 					<li class="menu--item menu--item__has_sub_menu">
-						<label class="menu--link" title="Categories">
+						<label class="menu--link" title="Video Channel">
 							<i class='uil uil-play-circle menu--icon'></i>
 							<span class="menu--label">Video Channels</span>
 						</label>
@@ -224,12 +224,22 @@
 						</ul>
 					</li>
 
-					<li class="menu--item">
-						<a href="saved_courses.html" class="menu--link" title="Saved Courses">
-						  <i class="uil uil-heart-alt menu--icon"></i>
-						  <span class="menu--label">Saved Courses</span>
-						</a>
+					<li class="menu--item menu--item__has_sub_menu">
+						<label class="menu--link <?php if($page_title=='Discussion') echo 'active' ?>" title="Discussion">
+							<i class="uil uil-document-layout-left menu--icon"></i>
+							<span class="menu--label">Discussion</span>
+						</label>
+						<ul class="sub_menu">
+							<li class="sub_menu--item">
+								<a href="discuss.php?mcode=ee&category=english" class="sub_menu--link">Easy English</a>
+							</li>
+							<li class="sub_menu--item">
+								<a href="discuss.php?mcode=ko&category=korea" class="sub_menu--link">Easy Korean</a>
+							</li>
+						</ul>
 					</li>
+
+					 
 
 				</ul>
 			</div>

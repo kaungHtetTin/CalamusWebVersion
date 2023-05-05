@@ -90,21 +90,12 @@
                                                     </div>
                                                 </a>
                                                 <div class="fcrse_content">
-                                                    <div class="eps_dots more_dropdown">
-                                                        <a href="#"><i class="uil uil-ellipsis-v"></i></a>
-                                                        <div class="dropdown-content">
-                                                            <span><i class='uil uil-share-alt'></i>Share</span>
-                                                            <span><i class="uil uil-heart"></i>Save</span>
-                                                            <span><i class='uil uil-ban'></i>Not Interested</span>
-                                                            <span><i class="uil uil-windsock"></i>Report</span>
-                                                        </div>																											
-                                                    </div>
                                                     <div class="vdtodt">
-                                                        <span class="vdt14">109k views</span>
+                                                        <span class="vdt14"><?php echo $Lesson->formatViewCount($lesson['view_count'])?> </span>
                                             
                                                     </div>
-                                                    <a href="" class="crse14s"><?php echo $lesson['lesson_title']; ?></a>
-                                                    <a href="" class="crse-cate"><?php echo $channel['category_title'] ?></a>
+                                                    <a href="watch_video.php?index=<?php echo $index?>&channel_id=<?php echo $channel['id']; ?>&channel=<?php echo $app['name']; ?>" class="crse14s"><?php echo $lesson['lesson_title']; ?></a>
+                                                     <?php echo $channel['category_title'] ?> 
                                                 
                                                 </div>
                                             </div>

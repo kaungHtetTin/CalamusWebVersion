@@ -76,6 +76,36 @@
                 bottom: 0;
                 right: 0;
             }
+
+             input{
+                
+                border-width:0 0 1px 0;
+                border-style:sold;
+                background: #00000000;
+                flex:1;
+                margin-right:100px;
+                margin-left:20px;
+            }
+            
+            .shimmer {
+                color: grey;
+                display:inline-block;
+                -webkit-mask:linear-gradient(-60deg,#000 30%,#0005,#000 70%) right/300% 100%;
+                background-repeat: no-repeat;
+                animation: shimmer 2.5s infinite;
+                font-size: 50px;
+                
+            }
+            .cmt-reply{
+                display:flex;
+                position:relative; 
+                margin-left:40px;
+            }
+
+            @keyframes shimmer {
+                100% {-webkit-mask-position:left}
+            }
+
         </style>
 
 	</head>
@@ -112,295 +142,52 @@
                                                 <a href="#" class="lkcm152"><i class="uil uil-thumbs-up"></i><span id="tv_like"></span></a>
                                             </li>
                                             <li>
-                                                <a href="#" class="lkcm152"><i class="uil uil-share-alt"></i><span id="tv_share"></span></a>
+                                                <a href="#" class="lkcm152"><i class="uil uil-comment-alt"></i><span id="tv_comment"></span></a>
                                             </li>
                                         </ul>
                                     </div>
-                                </div>
-                                <div class="course_tabs" id="nav-bar-section">
-                                    <nav>
-                                        <div class="nav nav-tabs tab_crse justify-content-center" id="nav-tab" role="tablist">
-                                            <a class="nav-item nav-link active" id="nav-about-tab" data-toggle="tab" href="#nav-about" role="tab" aria-selected="true">About</a>
-                                            <a class="nav-item nav-link" id="nav-reviews-tab" data-toggle="tab" href="#nav-reviews" role="tab" aria-selected="false">Reviews</a>
-                                        </div>
-                                    </nav>						
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="detail-section" class="_215b17">
+                <div id="detail-section" class="_215b17" style="">
                     <div class="container-fluid">
                         <div class="row">
-                            <div class="col-lg-12">
-                                <div class="course_tab_content">
-                                    <div class="tab-content" id="nav-tabContent">
-                                        <div class="tab-pane fade show active" id="nav-about" role="tabpanel">
-                                            <?php
-                                                include("course-abouts/$course_id.php");
-                                            ?>
-                                        </div>
+                            <div class="col-lg-12" style="">
+                                <div class="student_reviews" style="margin:0px;">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="">
+                                                <div class="">
+                                                    <h5>Comments</h5>
+                                                    <br>
+                                                </div>
+                                                <div style="display:flex;position:relative;">
+                                                    <div>
+                                                        <img style="width:35px;height:35px;border-radius:50%;" src="<?php echo $user['learner_image']; ?>" />
+                                                    </div>
 
-                                        <div class="tab-pane fade" id="nav-reviews" role="tabpanel">
-                                            <div class="student_reviews">
-                                                <div class="row">
-                                                    <div class="col-lg-5">
-                                                        <div class="reviews_left">
-                                                            <h3>Student Feedback</h3>
-                                                            <div class="total_rating">
-                                                                <div class="_rate001">4.6</div>														
-                                                                <div class="rating-box">
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star half-star"></span>
-                                                                </div>
-                                                                <div class="_rate002">Course Rating</div>	
-                                                            </div>
-                                                            <div class="_rate003">
-                                                                <div class="_rate004">
-                                                                    <div class="progress progress1">
-                                                                        <div class="progress-bar w-70" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                    </div>
-                                                                    <div class="rating-box">
-                                                                        <span class="rating-star full-star"></span>
-                                                                        <span class="rating-star full-star"></span>
-                                                                        <span class="rating-star full-star"></span>
-                                                                        <span class="rating-star full-star"></span>
-                                                                        <span class="rating-star full-star"></span>
-                                                                    </div>
-                                                                    <div class="_rate002">70%</div>
-                                                                </div>
-                                                                <div class="_rate004">
-                                                                    <div class="progress progress1">
-                                                                        <div class="progress-bar w-30" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                    </div>
-                                                                    <div class="rating-box">
-                                                                        <span class="rating-star full-star"></span>
-                                                                        <span class="rating-star full-star"></span>
-                                                                        <span class="rating-star full-star"></span>
-                                                                        <span class="rating-star full-star"></span>
-                                                                        <span class="rating-star empty-star"></span>
-                                                                    </div>
-                                                                    <div class="_rate002">40%</div>
-                                                                </div>
-                                                                <div class="_rate004">
-                                                                    <div class="progress progress1">
-                                                                        <div class="progress-bar w-5" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                    </div>
-                                                                    <div class="rating-box">
-                                                                        <span class="rating-star full-star"></span>
-                                                                        <span class="rating-star full-star"></span>
-                                                                        <span class="rating-star full-star"></span>
-                                                                        <span class="rating-star empty-star"></span>
-                                                                        <span class="rating-star empty-star"></span>
-                                                                    </div>
-                                                                    <div class="_rate002">5%</div>
-                                                                </div>
-                                                                <div class="_rate004">
-                                                                    <div class="progress progress1">
-                                                                        <div class="progress-bar w-2" role="progressbar" aria-valuenow="2" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                    </div>
-                                                                    <div class="rating-box">
-                                                                        <span class="rating-star full-star"></span>
-                                                                        <span class="rating-star full-star"></span>
-                                                                        <span class="rating-star empty-star"></span>
-                                                                        <span class="rating-star empty-star"></span>
-                                                                        <span class="rating-star empty-star"></span>
-                                                                    </div>
-                                                                    <div class="_rate002">1%</div>
-                                                                </div>
-                                                                <div class="_rate004">
-                                                                    <div class="progress progress1">
-                                                                        <div class="progress-bar w-1" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                    </div>
-                                                                    <div class="rating-box">
-                                                                        <span class="rating-star full-star"></span>
-                                                                        <span class="rating-star empty-star"></span>
-                                                                        <span class="rating-star empty-star"></span>
-                                                                        <span class="rating-star empty-star"></span>
-                                                                        <span class="rating-star empty-star"></span>
-                                                                    </div>
-                                                                    <div class="_rate002">1%</div>
-                                                                </div>
-                                                            </div>
-                                                        </div>												
-                                                    </div>
-                                                    <div class="col-lg-7">
-                                                        <div class="review_right">
-                                                            <div class="review_right_heading">
-                                                                <h3>Reviews</h3>
-                                                                <div class="review_search">
-                                                                    <input class="rv_srch" type="text" placeholder="Search reviews...">
-                                                                    <button class="rvsrch_btn"><i class='uil uil-search'></i></button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="review_all120">
-                                                            <div class="review_item">
-                                                                <div class="review_usr_dt">
-                                                                    <img src="images/left-imgs/img-1.jpg" alt="">
-                                                                    <div class="rv1458">
-                                                                        <h4 class="tutor_name1">John Doe</h4>
-                                                                        <span class="time_145">2 hour ago</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="rating-box mt-20">
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star half-star"></span>
-                                                                </div>
-                                                                <p class="rvds10">Nam gravida elit a velit rutrum, eget dapibus ex elementum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce lacinia, nunc sit amet tincidunt venenatis.</p>
-                                                                <div class="rpt100">
-                                                                    <span>Was this review helpful?</span>
-                                                                    <div class="radio--group-inline-container">
-                                                                        <div class="radio-item">
-                                                                            <input id="radio-1" name="radio" type="radio">
-                                                                            <label for="radio-1" class="radio-label">Yes</label>
-                                                                        </div>
-                                                                        <div class="radio-item">
-                                                                            <input id="radio-2" name="radio" type="radio">
-                                                                            <label  for="radio-2" class="radio-label">No</label>
-                                                                        </div>
-                                                                    </div>
-                                                                    <a href="#" class="report145">Report</a>
-                                                                </div>
-                                                            </div>
-                                                            <div class="review_item">
-                                                                <div class="review_usr_dt">
-                                                                    <img src="images/left-imgs/img-2.jpg" alt="">
-                                                                    <div class="rv1458">
-                                                                        <h4 class="tutor_name1">Jassica William</h4>
-                                                                        <span class="time_145">12 hour ago</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="rating-box mt-20">
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star empty-star"></span>
-                                                                </div>
-                                                                <p class="rvds10">Nam gravida elit a velit rutrum, eget dapibus ex elementum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce lacinia, nunc sit amet tincidunt venenatis.</p>
-                                                                <div class="rpt100">
-                                                                    <span>Was this review helpful?</span>
-                                                                    <div class="radio--group-inline-container">
-                                                                        <div class="radio-item">
-                                                                            <input id="radio-3" name="radio1" type="radio">
-                                                                            <label for="radio-3" class="radio-label">Yes</label>
-                                                                        </div>
-                                                                        <div class="radio-item">
-                                                                            <input id="radio-4" name="radio1" type="radio">
-                                                                            <label  for="radio-4" class="radio-label">No</label>
-                                                                        </div>
-                                                                    </div>
-                                                                    <a href="#" class="report145">Report</a>
-                                                                </div>
-                                                            </div>
-                                                            <div class="review_item">
-                                                                <div class="review_usr_dt">
-                                                                    <img src="images/left-imgs/img-3.jpg" alt="">
-                                                                    <div class="rv1458">
-                                                                        <h4 class="tutor_name1">Albert Dua</h4>
-                                                                        <span class="time_145">5 days ago</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="rating-box mt-20">
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star half-star"></span>
-                                                                    <span class="rating-star empty-star"></span>
-                                                                </div>
-                                                                <p class="rvds10">Nam gravida elit a velit rutrum, eget dapibus ex elementum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce lacinia, nunc sit amet tincidunt venenatis.</p>
-                                                                <div class="rpt100">
-                                                                    <span>Was this review helpful?</span>
-                                                                    <div class="radio--group-inline-container">
-                                                                        <div class="radio-item">
-                                                                            <input id="radio-5" name="radio2" type="radio">
-                                                                            <label for="radio-5" class="radio-label">Yes</label>
-                                                                        </div>
-                                                                        <div class="radio-item">
-                                                                            <input id="radio-6" name="radio2" type="radio">
-                                                                            <label  for="radio-6" class="radio-label">No</label>
-                                                                        </div>
-                                                                    </div>
-                                                                    <a href="#" class="report145">Report</a>
-                                                                </div>
-                                                            </div>
-                                                            <div class="review_item">
-                                                                <div class="review_usr_dt">
-                                                                    <img src="images/left-imgs/img-4.jpg" alt="">
-                                                                    <div class="rv1458">
-                                                                        <h4 class="tutor_name1">Zoena Singh</h4>
-                                                                        <span class="time_145">15 days ago</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="rating-box mt-20">
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                </div>
-                                                                <p class="rvds10">Nam gravida elit a velit rutrum, eget dapibus ex elementum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce lacinia, nunc sit amet tincidunt venenatis.</p>
-                                                                <div class="rpt100">
-                                                                    <span>Was this review helpful?</span>
-                                                                    <div class="radio--group-inline-container">
-                                                                        <div class="radio-item">
-                                                                            <input id="radio-7" name="radio3" type="radio">
-                                                                            <label for="radio-7" class="radio-label">Yes</label>
-                                                                        </div>
-                                                                        <div class="radio-item">
-                                                                            <input id="radio-8" name="radio3" type="radio">
-                                                                            <label  for="radio-8" class="radio-label">No</label>
-                                                                        </div>
-                                                                    </div>
-                                                                    <a href="#" class="report145">Report</a>
-                                                                </div>
-                                                            </div>
-                                                            <div class="review_item">
-                                                                <div class="review_usr_dt">
-                                                                    <img src="images/left-imgs/img-5.jpg" alt="">
-                                                                    <div class="rv1458">
-                                                                        <h4 class="tutor_name1">Joy Dua</h4>
-                                                                        <span class="time_145">20 days ago</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="rating-box mt-20">
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star full-star"></span>
-                                                                    <span class="rating-star empty-star"></span>
-                                                                    <span class="rating-star empty-star"></span>
-                                                                </div>
-                                                                <p class="rvds10">Nam gravida elit a velit rutrum, eget dapibus ex elementum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce lacinia, nunc sit amet tincidunt venenatis.</p>
-                                                                <div class="rpt100">
-                                                                    <span>Was this review helpful?</span>
-                                                                    <div class="radio--group-inline-container">
-                                                                        <div class="radio-item">
-                                                                            <input id="radio-9" name="radio4" type="radio">
-                                                                            <label for="radio-9" class="radio-label">Yes</label>
-                                                                        </div>
-                                                                        <div class="radio-item">
-                                                                            <input id="radio-10" name="radio4" type="radio">
-                                                                            <label  for="radio-10" class="radio-label">No</label>
-                                                                        </div>
-                                                                    </div>
-                                                                    <a href="#" class="report145">Report</a>
-                                                                </div>
-                                                            </div>
-                                                            <div class="review_item">
-                                                                <a href="#" class="more_reviews">See More Reviews</a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    <input id="input_comment" type="text" placeholder="Add a comment"/>
+
+                                                    <button onclick="addComment()" style="position:absolute;bottom:0;right:0" class="subscribe-btn">Add</button>
+
                                                 </div>
                                             </div>
+
+                                            <br>
+
+                                            <div id="comment_container" class="review_all120">
+                                                
+                                            </div>
+
+                                            <!-- <div class="review_all120">
+                                                
+                                                <div class="review_item">
+                                                    <a href="#" class="more_reviews">See More Comments</a>
+                                                </div>
+                                            </div> -->
                                         </div>
                                     </div>
                                 </div>
@@ -473,6 +260,7 @@
             </div>
 
             <div class="col-lg-4 col-md-6 scrollLessonContent fixContainer" id="lesson-section">
+                <br>
                 <div class="user_cntnt"><h4>Course content</h4></div>
                 <div class="_112456">
                     <ul class="accordion-expand-holder">
@@ -529,7 +317,9 @@
                                                             
                 </div>
                 <?php } ?>
-        
+
+                <div id="modalContainer">
+                </div>
 
                     <!-- <a class="btn1458" href="#">20 More Sections</a> -->
                 <footer id="footer2" style="display:none" class="footer mt-30">
@@ -598,6 +388,10 @@
 
                 var days=<?php echo json_encode($days) ?>;
                 var user_id=<?php echo $user['learner_phone'] ?>;
+                var user=<?php echo json_encode($user); ?>;
+                var comment_container=document.getElementById('comment_container');
+                var currentVideo;
+                var comments;
 
                 window.onload= playLesson(<?php echo $_GET['outer']?>,<?php echo $_GET['inner'];?>);
                 adjustLayout();
@@ -605,7 +399,7 @@
                 function playLesson(outerIndex,innerIndex){
                     
                     var lesson=days[outerIndex][innerIndex];
-                    console.log(lesson);
+                    currentVideo=lesson;
                     highLightLessonItem('lesson_item'+lesson.id);
                     if(lesson.isVideo==1){
                         var video_player=document.getElementById('video_player');
@@ -618,10 +412,10 @@
 
                         document.getElementById('tv_view').innerHTML=lesson.view_count;
                         document.getElementById('tv_like').innerHTML=lesson.post_like;
-                        document.getElementById('tv_share').innerHTML=lesson.share_count;
+                         document.getElementById('tv_comment').innerHTML=lesson.comments;
                         document.getElementById('tv_title').innerHTML=lesson.lesson_title;
                         updateData(user_id,lesson.id,lesson.post_id);
-
+                        fetchComments(user_id,lesson.post_id);
                     }else{
                         loadBlogLesson(lesson.link);
                         updateData(user_id,lesson.id,null);
@@ -650,7 +444,7 @@
                     for(var i=0;i<lessonItems.length;i++){
                         var item=lessonItems[i];
                         const ID=item.getAttribute("id");
-                        console.log("id",id,"ID",ID);
+                        //console.log("id",id,"ID",ID);
                         if(id==ID){
                             item.setAttribute('style','background:#ed292621');
                         }else{
@@ -669,7 +463,7 @@
                     var detail_section=document.getElementById('detail-section');
 
                     var w_lesson_section=lesson_section.offsetWidth;
-                    console.log('windown',w,'lesson section',w_lesson_section);
+                    //console.log('windown',w,'lesson section',w_lesson_section);
 
                     if(w<=w_lesson_section){
                         lesson_section.setAttribute('class','col-lg-4 col-md-6 scrollLessonContent');
@@ -686,6 +480,458 @@
                         detail_section.setAttribute('style','');
                     }
                 }
+
+
+
+                function loadCommentShimmer(){
+                    comment_container.innerHTML="";
+                    for(var i=0;i<3;i++){
+                        comment_container.innerHTML+=`
+                            <div class="review_item" style="width:100%;">
+                                <div class="shimmer" style="width:100%;">
+                                    <div class="review_usr_dt">
+                                        <img src="https://www.calamuseducation.com/uploads/placeholder.png" style="width:50px; height:50px;" alt="">
+                                        <div class="rv1458">
+                                            <h4 class="tutor_name1" style="width:100px; height:20px; background:#ccc;border-radius:3px;"></h4>
+                                            <span class="time_145" style="width:50px; height:20px; background:#ccc;border-radius:3px;"></span>
+                                        </div>
+                                    </div>
+                                    <p class="rvds10" style="width:100%; height:20px; background:#ccc;border-radius:3px;"></p>
+                                    
+                                </div>
+                            </div>
+                        
+                        `;
+                    }
+                }
+
+                function fetchComments(user_id,post_id){
+                    console.log('post_id comment',post_id);
+                    loadCommentShimmer();
+                    var ajax=new XMLHttpRequest();
+                    ajax.onload =function(){
+                        if(ajax.status==200 || ajax.readyState==4){
+                            var data=JSON.parse(ajax.responseText);
+                            var status=data.status;
+                        
+                            if(status=='success'){
+                                comments=data.comments;
+                                setComments(comments);
+                            }else{
+                                comment_container.innerHTML=`
+                                <div style="padding:20px; text-align:center">
+                                    No comment
+                                </div>
+                                `;
+                                comments=[];
+                            }
+                            
+                        }
+                    };
+                    ajax.open("GET",`api/comments/get.php?user_id=${user_id}&post_id=${post_id}`,true);
+                    ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    ajax.send();
+                }
+
+                function setComments(comments){
+                    comment_container.innerHTML="";
+                    for(var i=0;i<comments.length;i++){
+                        var comment=comments[i];
+                        comment_container.innerHTML+=commentComponent(comment,i); 
+                        if(comment.child){
+                            var children=comment.child;
+                            var child_container=document.getElementById('cmt_child_'+comment.time);
+                            for(var j=0;j<children.length;j++){
+                                var child=children[j];
+                                child_container.innerHTML+= childComment(child,i,j);
+                            }
+                        }   
+                    }
+                }
+
+                function commentComponent(comment,index){
+                
+                    var editMenu="";
+                    if(comment.writer_id==user_id){
+                        editMenu =`
+                        <br>
+                        <div class="eps_dots more_dropdown">
+                            <a href="javascript:void(0)"><i class="uil uil-ellipsis-v"></i></a>
+                            <div class="dropdown-content">
+                                <span onclick="showCmtEditInput(${comment.time})"><i class='uil uil-comment-alt-edit'></i>Edit</span>
+                                <span onclick="showCmtDelDiague(${comment.time},${index})"><i class='uil uil-trash-alt'></i>Delete</span>
+                            </div>																											
+                        </div>
+                        `;
+                    }
+
+                    return `
+                        <div class="review_item" style="padding-top:10px;padding-bottom:10px;">
+                            <div class="review_usr_dt">
+                                <img src="${comment.learner_image}" style="width:35px; height:35px;" alt="">
+                                <div class="rv1458">
+                                    <h4 class="tutor_name1">${comment.learner_name}</h4>
+                                    <span class="time_145">${formatDateTime(comment.time)}</span>
+
+                                    <div  id="cmt_body_${comment.time}">
+                                    <div class="rvds10" style="margin-top: 7px;">${comment.body}</div>
+                                    <div class="rpt100">
+                                        <div class="radio--group-inline-container">
+                                            <div class="radio-item">
+                                                <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeParentComment(${user_id},${comment.post_id},${comment.time},${index})"> 
+                                                    <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
+                                                    <label for="cmt_like_${comment.time}" class="radio-label">
+                                                        <span id="cmt_like_count_${comment.time}">${formatReact(comment.likes)}</span>
+                                                    </label>
+                                                </a>
+                                            </div>
+                                            <div class="radio-item" >
+                                                <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="showReplyInput(${comment.time});"> 
+                                                    <i class="uil uil-comments"></i>
+                                                    <label  for="cmt_like_${comment.time}" class="radio-label">reply</label>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    
+                                    </div>
+                                </div>
+
+                                </div>
+                                ${editMenu}
+                            </div>
+
+                        
+                            <div id="edit_input_container_${comment.time}" style="display:none">
+                                <div class="cmt-reply">
+                                    <input  id="input_edit_${comment.time}" type="text" placeholder="Enter comment" value="${comment.body}" style="margin-right:200px;padding:5px;"/>
+                                    <button onclick="cancelEditCmt(${comment.time})" style="position:absolute;bottom:0;right:100px;" class="btn">Cancel</button>
+                                    <button onclick="updateComment(${comment.time},${index})" style="position:absolute;bottom:0;right:0" class="subscribe-btn">Save</button>
+
+                                </div>
+                            </div>
+
+
+                            <div id="reply_input_container_${comment.time}" style="display:none;">
+                                <div class="cmt-reply">
+                                    <div>
+                                        <img style="width:30px;height:30px;border-radius:50%;" src="${user.learner_image}" />
+                                    </div>
+
+                                    <input  id="input_reply_${comment.time}" type="text" placeholder="Reply the comment"/>
+
+                                    <button onclick="addReply(${comment.time})" style="position:absolute;bottom:0;right:0" class="subscribe-btn">Add</button>
+
+                                </div>
+                            </div>
+
+                            <div id="cmt_child_${comment.time}"></div>
+
+                        </div>
+                    `;
+                }
+
+                function showCmtDelDiague(cmtId,index,j){
+                    var modalContainer=document.getElementById('modalContainer');
+                    modalContainer.innerHTML=`
+                    <div id="myModal" class="modal">
+                        <div class="modal-content" style="width:50%;margin:auto;margin-top:70px;">
+                
+                            <h4 style="margin: 30px;">Do you really want to delete?</h4>
+                            <br>
+                            <div style="margin:30px; padding-left:10%;padding-right:10%;">
+                                <button class="btn btn-primary" id="modalCanel" style="float:left">Cancel</button>
+                                <button class="btn btn-danger" onclick="deleteComment(${cmtId},${index},${j})" id="modalDelete" style="float:right">Delete</button>
+                            </div>
+
+                        </div>
+                    </div>
+                    `;
+
+                    $('#myModal').modal('show');
+                    $("#modalCanel").click(function () {
+                        
+                    });
+                }
+
+                function deleteComment(cmtId,index,j){
+
+                    if(j===undefined){
+                        comments.splice(index,1);
+                    }else{
+                        var children=comments[index].child;
+                        children.splice(j,1);
+                    }
+                    setComments(comments);
+
+                    var ajax=new XMLHttpRequest();
+                    ajax.onload =function(){
+                        if(ajax.status==200 || ajax.readyState==4){
+                            
+                        }
+                    };
+                    ajax.open("POST","https://www.calamuseducation.com/calamus-v2/api/korea/comments/delete",true);
+                    ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    ajax.send(`postId=${currentVideo.post_id}&time=${cmtId}`);
+                }
+
+                function childComment(comment,index,j){
+
+                    var editMenu="";
+                    if(comment.writer_id==user_id){
+                        editMenu =`
+                        <br>
+                        <div class="eps_dots more_dropdown">
+                            <a href="javascript:void(0)"><i class="uil uil-ellipsis-v"></i></a>
+                            <div class="dropdown-content">
+                                <span onclick="showCmtEditInput(${comment.time})"><i class='uil uil-comment-alt-edit'></i>Edit</span>
+                                <span onclick="showCmtDelDiague(${comment.time},${index})"><i class='uil uil-trash-alt'></i>Delete</span>
+                            </div>																											
+                        </div>
+                        `;
+                    }
+                
+                    return `
+                        <div style="margin-left:40px;padding:7px;">
+                            <div class="review_usr_dt">
+                                <img src="${comment.learner_image}" style="width:27px; height:27px;" alt="">
+                                <div class="rv1458">
+                                    <h5 class="tutor_name1">${comment.learner_name}</h5>
+                                    <span class="time_145">${formatDateTime(comment.time)}</span>
+                                
+                                    <div id="cmt_body_${comment.time}">
+                                        <div class="rvds10" style="margin-top: 7px;">${comment.body}</div>
+                                        <div class="rpt100">
+                                            <div class="radio--group-inline-container">
+                                                <div class="radio-item">
+                                                    <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeChildComment(${user_id},${comment.post_id},${comment.time},${index},${j})"> 
+                                                        <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
+                                                    </a>
+                                                    <label for="cmt_like_${comment.time}" class="radio-label">
+                                                        <span id="cmt_like_count_${comment.time}">${formatReact(comment.likes)}</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        
+                                        </div>
+                                    </div>
+
+                                </div>
+                                ${editMenu}
+                            </div>
+                            
+
+                            <div id="edit_input_container_${comment.time}" style="display:none">
+                                <div class="cmt-reply">
+                                    <input  id="input_edit_${comment.time}" type="text" placeholder="Enter comment" value="${comment.body}" style="margin-right:200px;padding:5px;"/>
+                                    <button onclick="cancelEditCmt(${comment.time})" style="position:absolute;bottom:0;right:100px;" class="btn">Cancel</button>
+                                    <button onclick="updateComment(${comment.time},${index},${j})" style="position:absolute;bottom:0;right:0" class="subscribe-btn">Save</button>
+
+                                </div>
+                            </div>
+                        
+                            <div id="cmt_child_${comment.time}"></div>
+
+                        </div>
+                    `;
+                }
+
+                function showReplyInput(id){
+                    var reply_input=document.getElementById("reply_input_container_"+id);
+                    reply_input.setAttribute('style','display:block');
+                }
+
+                function showCmtEditInput(id){
+                    var edit_container=document.getElementById("edit_input_container_"+id);
+                    var cmtBody=document.getElementById('cmt_body_'+id);
+                    edit_container.setAttribute('style','display:block');
+                    cmtBody.setAttribute('style','display:none');
+
+                }
+
+                function cancelEditCmt(id){
+                    var edit_container=document.getElementById("edit_input_container_"+id);
+                    var cmtBody=document.getElementById('cmt_body_'+id);
+                    edit_container.setAttribute('style','display:none');
+                    cmtBody.setAttribute('style','display:block');
+                }
+
+                function updateComment(id,index,childIndex){
+                    var input_edit=document.getElementById("input_edit_"+id);
+                    var body=input_edit.value;
+
+                    var ajax=new XMLHttpRequest();
+                    ajax.onload =function(){
+                        if(ajax.status==200 || ajax.readyState==4){
+                            console.log(ajax.responseText);
+                            
+                            if(childIndex===undefined){
+                                comments[index].body=body;
+                            }else{
+                                comments[index].child[childIndex].body=body;
+                            }
+                            setComments(comments);
+                        }
+                    };
+                    ajax.open("POST","api/comments/update.php",true);
+                    ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    ajax.send(`comment_id=${id}&body=${body}`);
+
+                }
+
+                function formatDateTime(cmtTime){
+                    var currentTime = Date.now();
+                    var min=60;
+                    var h=min*60;
+                    var day=h*24;
+
+                    var diff =currentTime-cmtTime
+                    diff=diff/1000;
+                    
+                    if(diff<day*3){
+                        if(diff<min){
+                            return "a few second ago";
+                        }else if(diff>=min&&diff<h){
+                            return Math.floor(diff/min)+'min ago';
+                        }else if(diff>=h&&diff<day){
+                            return Math.floor(diff/h)+'h ago';
+                        }else{
+                            return Math.floor(diff/day)+'d ago';
+                        }
+                    }else{
+                        var date = new Date(Number(cmtTime));
+                        return date.toLocaleDateString("en-GB");
+                    }
+                }
+
+                function defineLikeThumb(like){
+                    if(like==1){
+                        return "color:red"
+                    }else{
+                        return "";
+                    }
+                }
+
+                function likeParentComment(user_id,post_id,comment_id,index){
+                    
+                    console.log('index ',index);
+
+                    likeComment(user_id,post_id,comment_id);
+                    if(comments[index].is_liked==1){
+                        comments[index].is_liked=0;
+                        comments[index].likes= comments[index].likes-1;
+                    }else{
+                        comments[index].is_liked=1;
+                        comments[index].likes= comments[index].likes+1;
+                    }
+                    setComments(comments);
+                }
+
+                function likeChildComment(user_id,post_id,comment_id,index,j){
+                        
+                        console.log('children',comments[index].child);
+
+                        likeComment(user_id,post_id,comment_id);
+                        if(comments[index].child[j].is_liked==1){
+                            comments[index].child[j].is_liked=0;
+                            comments[index].child[j].likes= comments[index].child[j].likes-1;
+                        }else{
+                            comments[index].child[j].is_liked=1;
+                            comments[index].child[j].likes= comments[index].child[j].likes+1;
+                        }
+                        setComments(comments);
+                }
+
+                function likeComment(user_id,post_id,comment_id){
+                    
+                    var ajax=new XMLHttpRequest();
+                    ajax.onload =function(){
+                        if(ajax.status==200 || ajax.readyState==4){
+                        
+                        }
+                    };
+                    ajax.open("POST","https://www.calamuseducation.com/calamus-v2/api/korea/comments/like",true);
+                    ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    ajax.send(`user_id=${user_id}&post_id=${post_id}&comment_id=${comment_id}`);
+
+                }
+
+
+                function addComment(){
+                    var input_comment=document.getElementById('input_comment');
+                    var body=input_comment.value;
+                    input_comment.value="";
+                    var post_id=currentVideo.post_id;
+                    sentComment(post_id,user_id,10000,body,0,0,(newCmt)=>{
+                        newCmt.learner_image=user.learner_image;
+                        newCmt.learner_name=user.learner_name;
+                        comments.push(newCmt);
+                        setComments(comments);
+                    });
+                
+                }
+
+                function addReply(parentId){
+                    var input_reply=document.getElementById('input_reply_'+parentId);
+                    var body=input_reply.value;
+                    input_reply.value="";
+                    var post_id=currentVideo.post_id;
+
+                    sentComment(post_id,user_id,10000,body,parentId,1,(newCmt)=>{
+                        newCmt.learner_image=user.learner_image;
+                        newCmt.learner_name=user.learner_name;
+                        console.log('parent id id ',parentId);
+                        var parentCmt=comments.find(o=> o.time==parentId)
+                        if(parentCmt.child){
+                            parentCmt.child.push(newCmt);
+                        }else{
+                            var arr=[newCmt];
+                            parentCmt.child=arr;
+                        }
+                        setComments(comments);
+                    });
+                }
+
+                function sentComment(post_id,writer_id,owner_id,body,parent,action,callback){
+                    
+                    var ajax=new XMLHttpRequest();
+                    ajax.onload =function(){
+                        if(ajax.status==200 || ajax.readyState==4){
+                            var newCmt=JSON.parse(ajax.responseText);
+                            callback(newCmt);
+                        }
+                    };
+                    ajax.open("POST","https://www.calamuseducation.com/calamus-v2/api/korea/comments/add",true);
+                    ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    ajax.send(`post_id=${post_id}&writer_id=${writer_id}&owner_id=${owner_id}&body=${body}&parent=${parent}&action=${action}`);
+                }
+    
+                function formatReact(like){
+
+                    if(like>1 && like<1000){
+                    return like+" likes"
+                    }
+
+                    if(like>=1000&&like<1000000){
+                        like=like/1000;
+                        like= Math.round(like * 10) / 10
+                        return like+"k likes"; 
+                    }
+
+                    if(like>=1000000){
+                        like=like/1000000;
+                        like= Math.round(like * 10) / 10
+                        return like+"M likes"; 
+                    }
+
+                    if(like==1){
+                        return like +"like";
+                    }
+
+                    if(like==0){
+                        return "no like";
+                    }
+                }
+
 
             </script>
 

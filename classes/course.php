@@ -90,6 +90,26 @@ class Course {
         return $result[0]['duration'];
     }
 
+    function learnningCourse($user_id){
+        $query="SELECT
+            courses.course_id,
+            courses.cover_url,
+            courses.background_color,
+            courses.fee,
+            courses.major,
+            courses.title,
+            lessons_count
+            FROM courses
+            JOIN VipUsers ON courses.course_id=VipUsers.course_id
+            WHERE VipUsers.phone=$user_id 
+            GROUP BY courses.course_id
+            ORDER BY courses.major ASC
+        ";
+        $DB=new Database();
+        $result=$DB->read($query);
+        return $result;
+    }
+
 }
 
 ?>

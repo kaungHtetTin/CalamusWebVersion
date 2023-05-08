@@ -6,6 +6,7 @@
     include('classes/teacher.php');
     include ('classes/auth.php');
     include('classes/app.php');
+    include('classes/study.php');
 
     $page_title="Home";
     
@@ -16,9 +17,11 @@
     $Course=new Course();
     $Teacher=new Teacher();
     $App=new App();
+    $Study=new Study();
 
     $feature_courses=$Course->getFeatureCourses();
     $new_courses=$Course->getNewCourses();
+    $my_learning_courses=$Course->learnningCourse($user['learner_phone']);
     $teachers=$Teacher->index();
     $app=$App->getRand();
     
@@ -44,7 +47,7 @@
                                                 <img src="<?php echo $course['cover_url'];?>"style="height:150px; width: 150px; position: absolute;bottom:0; left:70px;" alt="">
                                             </div>
                                             <div class="course-overlay">
-                                                <div class="badge_seller">Bestseller</div>
+                                                <div class="badge_seller"><?php echo ucfirst($course['major']) ?></div>
                                                 <div class="crse_reviews">
                                                     <i class='uil uil-star'></i> <?php echo $course['rating']; ?>
                                                 </div>
@@ -96,7 +99,7 @@
                                                 <img src="<?php echo $course['cover_url'];?>"style="height:150px; width: 150px; position: absolute;bottom:0; left:70px;" alt="">
                                             </div>
                                             <div class="course-overlay">
-                                                <div class="badge_seller">Bestseller</div>
+                                                <div class="badge_seller"><?php echo ucfirst($course['major']) ?></div>
                                                 <div class="crse_reviews">
                                                     <i class='uil uil-star'></i> <?php echo $course['rating']; ?>
                                                 </div>
@@ -132,54 +135,6 @@
                                 </div>
                                 <?php }?>
 
-                            </div>
-                        </div>
-                    </div>
-                    <div class="section3126">
-                        <div class="row">
-                            <div class="col-xl-6 col-lg-12 col-md-6">
-                                <div class="value_props">
-                                    <div class="value_icon">
-                                        <i class='uil uil-history'></i>
-                                    </div>
-                                    <div class="value_content">
-                                        <h4>Go at your own pace</h4>
-                                        <p>Enjoy lifetime access to courses on Edututs+'s website</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-6 col-lg-12 col-md-6">
-                                <div class="value_props">
-                                    <div class="value_icon">
-                                        <i class='uil uil-user-check'></i>
-                                    </div>
-                                    <div class="value_content">
-                                        <h4>Learn from industry experts</h4>
-                                        <p>Select from top instructors around the world</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-6 col-lg-12 col-md-6">
-                                <div class="value_props">
-                                    <div class="value_icon">
-                                        <i class='uil uil-play-circle'></i>
-                                    </div>
-                                    <div class="value_content">
-                                        <h4>Find video courses on almost any topic</h4>
-                                        <p>Build your library for your career and personal growth</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-6 col-lg-12 col-md-6">
-                                <div class="value_props">
-                                    <div class="value_icon">
-                                        <i class='uil uil-presentation-play'></i>
-                                    </div>
-                                    <div class="value_content">
-                                        <h4>100,000 online courses</h4>
-                                        <p>Explore a variety of fresh topics</p>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -229,6 +184,39 @@
 
                 <div class="col-xl-3 col-lg-4">
                     <div class="right_side">
+
+                        <h4>My Learning</h4>
+                        <?php foreach($my_learning_courses as $course){
+                            $learned_count=$Study->getCount($user['learner_phone'],$course['course_id']);
+                            if($course['lessons_count']==0){
+                                $progress=0;
+                            }else{
+                                $progress=($learned_count/$course['lessons_count'])*100;
+                                $progress=round($progress);
+                            }
+                            
+                            ?>
+                            <a href="course_detail.php?course_id=<?php echo $course['course_id']; ?>">
+                                <div class="fcrse_3" style="background:<?php echo $course['background_color']?>;color:white">
+                                    <div style="display:flex;">
+                                        <div style="width:70px;">
+                                            <img src="<?php echo $course['cover_url'] ?>" alt="" style="height:70px;margin-top:20px;margin-left:10px;margin-right:10px;margin-bottom:-10px;">
+                                        </div>
+
+                                        <div style="flex:1;margin-right:10px;">
+                                            <h6 style="margin-top:15px;overflow:hidden;height:17px;"> <?php echo $course['title']; ?> </h6>
+                                            <?php echo ucfirst($course['major'])  ?>
+                                            <div style="width:100%;background:white;border-radius:3px; padding:2px;margin-top:3px;"> 
+                                                <div style="width:<?php echo $progress?>%;padding: 3px; background:<?php echo $course['background_color'] ?>;text-align:center;border-radius:3px;">
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </a>
+                        <?php } ?>
 
                         <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easyenglish_vip.png"/>
                         <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easykoreanvipbanner.png"/>

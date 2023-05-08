@@ -51,17 +51,22 @@
         
     }
 
+    .react-icon{
+        width:20px;
+        height:20px;
+    }
+
 </style>
 
 	<!-- Body Start -->
-<div class="wrapper">
+<div class="wrapper" onresize="adjustLayout()">
     <div class="sa4d25">
         <div class="container-fluid">	
             <div class="row">
                 
-                <div align="center" class="col-xl-9 col-lg-8">
+                <div align="center" class="col-xl-9 col-lg-8" id="post-section">
                  
-                    <div class="container" style="padding-left:50px;padding-right:50px;">
+                    <div class="" style="padding-left:20px;padding-right:20px;">
                         <div class="cmmnt_1526">
                             <div class="cmnt_group">
                                 <div class="img160">
@@ -140,7 +145,7 @@
                 </div>
 
 
-                <div class="col-xl-3 col-lg-3 scrollLessonContent fixContainer">
+                <div class="col-xl-3 col-lg-3 scrollLessonContent fixContainer" id="right-section">
                     <div class="right_side">
                         <br><br><br><br><br>
                         <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easyenglish_vip.png"/>
@@ -191,6 +196,26 @@
         page++;
         fetchPost(page);
     }
+    adjustLayout()
+
+    function adjustLayout(){
+        var w = window.innerWidth;
+        var right_section=document.getElementById('right-section');
+        var post_section=document.getElementById('post-section');
+
+        var w_post_section=post_section.offsetWidth;
+       
+        console.log('width ',w, 'post ',w_post_section);
+
+        if(w<=w_post_section){
+           
+            right_section.setAttribute('style','display:none');
+        
+        }else{
+            
+             post_section.setAttribute('style','padding-left:70px;padding-right:70px;');
+        }
+    }
 
     function fetchPost(page){
         var url=`https://www.calamuseducation.com/calamus-v2/api/${category}/posts?mCode=${mCode}&userId=${userid}&page=${page}`;
@@ -220,6 +245,11 @@
             `;
         }
 
+        var likeIcon=`<img class="react-icon" src="icon/icon_post_normal_react.png"/>`;
+        if(post.is_liked==1){
+            likeIcon=`<img class="react-icon" src="icon/icon_post_reacted.png"/>`;
+        }
+
         return `
             <div class="review_all120 post">
                 <div class="">
@@ -242,18 +272,29 @@
                     <p style="margin-left:15px;margin-right:15px;" class="rvds10">${post.body}</p>
                     ${image}
                     <div class="rpt100" style="margin:15px;">
-                        <span>Was this review helpful?</span>
                         <div class="radio--group-inline-container">
                             <div class="radio-item">
-                                <input id="radio-1" name="radio" type="radio">
-                                <label for="radio-1" class="radio-label">Yes</label>
+                                <a href="javascript:void(0)">
+                                    ${likeIcon}
+                                    <span for="radio-1" class="radio-label"> ${formatReact(post.postLikes)}</span>
+                                </a>
                             </div>
+
                             <div class="radio-item">
-                                <input id="radio-2" name="radio" type="radio">
-                                <label  for="radio-2" class="radio-label">No</label>
+                                <a href="javascript:void(0)">
+                                    <img class="react-icon" src="icon/icon_post_comment.png"/>
+                                    <span for="radio-1" class="radio-label"> ${formatReact(post.comments)}</span>
+                                </a>
+                            </div>
+
+                            <div class="radio-item">
+                                <a href="javascript:void(0)">
+                                    <img class="react-icon" src="icon/icon_post_share.png"/>
+                                    <span for="radio-1" class="radio-label"> ${formatReact(post.shareCount)}</span>
+                                </a>
                             </div>
                         </div>
-                        <a href="#" class="report145">Report</a>
+                        
                     </div>
                 </div>
             </div>
@@ -282,6 +323,33 @@
         }else{
             var date = new Date(Number(cmtTime));
             return date.toLocaleDateString("en-GB");
+        }
+    }
+
+    function likePost(){
+        alert('like post');
+    }
+
+    function formatReact(like){
+
+        if(like>0 && like<1000){
+            return like
+        }
+
+        if(like>=1000&&like<1000000){
+            like=like/1000;
+            like= Math.round(like * 10) / 10
+            return like+"k"; 
+        }
+
+        if(like>=1000000){
+            like=like/1000000;
+            like= Math.round(like * 10) / 10
+            return like+"M"; 
+        }
+
+        if(like==0){
+            return "";
         }
     }
 

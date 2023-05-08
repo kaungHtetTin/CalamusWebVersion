@@ -97,7 +97,7 @@
                             </div>
 
                             <div class="course-overlay">
-                                <div class="badge_seller">Bestseller</div>
+                                <div class="badge_seller">${course.major}</div>
                                 <div class="crse_reviews">
                                     <i class="uil uil-star"></i>${formatRating(course.rating,1)}
                                 </div>

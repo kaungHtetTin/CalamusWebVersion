@@ -131,22 +131,52 @@
 						}
 
 						function notificationComponent(notification){
+							 
 							var body=notification.body;
 							if(body.length>50){
 								body=body.substr(0,50)+":";
 							}
+							var seen="";
+							if(notification.seen==0){
+								seen="background:#E7F3FF"
+							}
 							return `
-								<a href="#" class="channel_my item">
+								<a href="#" class="channel_my item" style="${seen}" >
 									<div class="profile_link">
 										<img src="${notification.writer_image}" alt="">
 										<div class="pd_content">
 											<h6>${notification.writer_name}</h6>
 											<p>${notification.takingAction} <strong>${body} </strong>.</p>
-											<span class="nm_time">2 min ago</span>
+											<span class="nm_time">${formatDateTime(notification.time)}</span>
 										</div>							
 									</div>							
 								</a>
 							`;
+						}
+
+						function formatDateTime(cmtTime){
+							var currentTime = Date.now();
+							var min=60;
+							var h=min*60;
+							var day=h*24;
+
+							var diff =currentTime-cmtTime
+							diff=diff/1000;
+							
+							if(diff<day*3){
+								if(diff<min){
+									return "a few second ago";
+								}else if(diff>=min&&diff<h){
+									return Math.floor(diff/min)+'min ago';
+								}else if(diff>=h&&diff<day){
+									return Math.floor(diff/h)+'h ago';
+								}else{
+									return Math.floor(diff/day)+'d ago';
+								}
+							}else{
+								var date = new Date(Number(cmtTime));
+								return date.toLocaleDateString("en-GB");
+							}
 						}
 
 					</script>

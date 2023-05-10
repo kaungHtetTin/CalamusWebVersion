@@ -5,6 +5,10 @@ include('../../classes/notification.php');
 $Notification=new Notification();
 $notifications=$Notification->get($_GET);
 
-echo json_encode($notifications);
+$unreadCount=$Notification->unreadCount($_GET['user_id']);
+
+$response['notifications']=$notifications;
+$response['unread']=$unreadCount;
+echo json_encode($response);
 
 ?>

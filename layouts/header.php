@@ -1,3 +1,12 @@
+<?php
+include('classes/notification.php');
+
+$Notification=new Notification();
+
+$unreadCount=$Notification->unreadCount($user['learner_phone']);
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -26,6 +35,7 @@
 		<link href="assets/vendor/OwlCarousel/assets/owl.theme.default.min.css" rel="stylesheet">
 		<link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="assets/vendor/semantic/semantic.min.css">	
+		<script src="assets/js/jquery-3.3.1.min.js"></script>
 		
 	</head>
 
@@ -91,7 +101,12 @@
 				</li>				
 
 				<li class="ui dropdown" onclick="fetchNoti()">
-					<a href="javascript:void(0)" onclick="fetchNoti()" class="option_links" title="Notifications"><i class='uil uil-bell'></i><span class="noti_count">3</span></a>
+					<a href="javascript:void(0)" onclick="fetchNoti()" class="option_links" title="Notifications">
+						<i class='uil uil-bell'></i>
+						<?php if($unreadCount>0) {?>
+						<span id="unread_count" class="noti_count" <?php if($unreadCount>10) echo "style='width:20px;'"?> > <?php echo $unreadCount ?> </span>
+						<?php }?>
+					</a>
 					<div class="menu dropdown_mn" style="height:400px;overflow:auto;" id='notification_container' >
 						
 					</div>
@@ -116,9 +131,12 @@
 							var ajax=new XMLHttpRequest();
 							ajax.onload =function(){
 								if(ajax.status==200 || ajax.readyState==4){
-									var notifications=JSON.parse(ajax.responseText);
+									var data=JSON.parse(ajax.responseText);
+									var notifications=data.notifications;
+									var unread=data.unread;
 									noti_container.innerHTML="";
-								
+									
+									$('#unread_count').text(unread);
 									for(var i=0;i<notifications.length;i++){
 										var notification=notifications[i];
 										noti_container.innerHTML+=notificationComponent(notification);

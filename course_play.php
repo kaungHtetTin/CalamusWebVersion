@@ -482,7 +482,6 @@
                 }
 
 
-
                 function loadCommentShimmer(){
                     comment_container.innerHTML="";
                     for(var i=0;i<3;i++){
@@ -821,7 +820,7 @@
                         comments[index].likes= comments[index].likes-1;
                     }else{
                         comments[index].is_liked=1;
-                        comments[index].likes= comments[index].likes+1;
+                        comments[index].likes= parseInt(comments[index].likes)+1;
                     }
                     setComments(comments);
                 }
@@ -836,7 +835,7 @@
                             comments[index].child[j].likes= comments[index].child[j].likes-1;
                         }else{
                             comments[index].child[j].is_liked=1;
-                            comments[index].child[j].likes= comments[index].child[j].likes+1;
+                            comments[index].child[j].likes= parseInt(comments[index].child[j].likes)+1;
                         }
                         setComments(comments);
                 }

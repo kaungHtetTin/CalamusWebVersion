@@ -56,6 +56,8 @@
         height:20px;
     }
 
+    
+
 </style>
 
 	<!-- Body Start -->
@@ -72,9 +74,21 @@
                                 <div class="img160">
                                     <img src="<?php echo $user['learner_image'] ?>" alt="">										
                                 </div>
-                                <textarea class="_cmnt001" placeholder="Add a new post"></textarea>
+                                <textarea id="post_input" class="_cmnt001" placeholder="Add a new post"></textarea>
                             </div>
-                            <button class="cmnt-btn" type="submit">Add</button>
+                            <button  class="cmnt-btn" onclick="addPost()" >Add</button>
+                        </div>
+
+                        <div id="post_adding">
+                            <div class="col-md-12 channel_my item">
+                                <div class="main-loader">													
+                                    <div class="spinner">
+                                        <div class="bounce1"></div>
+                                        <div class="bounce2"></div>
+                                        <div class="bounce3"></div>
+                                    </div>																										
+                                </div>
+                            </div>
                         </div>
 
                         <div id="post_container">
@@ -93,7 +107,7 @@
                                             </div>
                                             
                                         </div>
-                                        <p class="rvds10" style="width:100%; height:60px; background:#ddd;border-radius:3px;"></p>
+                                        <p class="rvds10" style="width:100%; height:150px; background:#ddd;border-radius:3px;"></p>
                                         
                                     </div>
                                 </div>
@@ -110,7 +124,7 @@
                                             </div>
                                             
                                         </div>
-                                        <p class="rvds10" style="width:100%; height:60px; background:#ddd;border-radius:3px;"></p>
+                                        <p class="rvds10" style="width:100%; height:150px; background:#ddd;border-radius:3px;"></p>
                                         
                                     </div>
                                 </div>
@@ -127,7 +141,7 @@
                                             </div>
                                             
                                         </div>
-                                        <p class="rvds10" style="width:100%; height:60px; background:#ddd;border-radius:3px;"></p>
+                                        <p class="rvds10" style="width:100%; height:150px; background:#ddd;border-radius:3px;"></p>
                                         
                                     </div>
                                 </div>
@@ -179,16 +193,23 @@
             </div>
         </div>
     </div>
+    <div id="modalContainer"></div>
 </div>
 
 <!-- Body End -->
 <script>
     var mCode="<?php echo $_GET['mcode']; ?>";
     var userid=<?php echo $user['learner_phone']; ?>;
-    var category="<?php echo $_GET['category']?> ";
+    var currentUser=<?php echo json_encode($user) ?>;
+    var category="<?php echo $_GET['category']?>";
+
+    console.log(currentUser);
+
     var page=1;
+    var postArr=[];
     $(document).ready(function(){
         fetchPost(page);
+        $('#post_adding').hide();
     });
 
     function loadMore(){
@@ -222,9 +243,12 @@
         $.get(url,function(data,status){
             var posts=data.posts;
             $('#shimmer').hide();
-            posts.map((post)=>{
-                console.log(post);
-                 $('#post_container').append(postComponent(post));
+            posts.map((post,index)=>{
+                postArr.push(post);
+                if(post.hidden!=1 && post.blocked!=1){
+                    $('#post_container').append(postComponent(post));
+                }
+                 
             })
         })
     }
@@ -236,12 +260,24 @@
             blueMark=`<i style="color:#1da1f2" class='uil uil-check-circle'></i>`;
         }
 
-        var image="";
+        var media="";
         if(post.postImage!==""){
-            image=`
-            <div>
-                <img style="width:100%" src="${post.postImage}"/>
-            </div>
+            media=`
+                <div>
+                    <img style="width:100%" src="${post.postImage}"/>
+                </div>
+            `;
+        }
+
+        if(post.has_video==1){
+            media=`
+                <div id="video_player">
+                     <div style="padding:56.25% 0 0 0;position:relative;">
+                        <iframe src="${post.vimeo}" 
+                            frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Lesson 6 Rules for word stress"></iframe>
+                    </div>
+                </div>
+                
             `;
         }
 
@@ -250,9 +286,41 @@
             likeIcon=`<img class="react-icon" src="icon/icon_post_reacted.png"/>`;
         }
 
+        var editMenu="";
+        if(post.userId==userid){
+            editMenu =`
+            <br>
+            <div class="eps_dots more_dropdown" align="left">
+                <a href="javascript:void(0)"><i class="uil uil-ellipsis-v"></i></a>
+                <div class="dropdown-content">
+                    <span onclick=""><i class='uil uil-comment-alt-edit'></i>Edit</span>
+                    <span onclick="showPostDelDiague(${post.postId})"><i class='uil uil-trash-alt'></i>Delete</span>
+                    <span onclick=""><i class='uil uil-exclamation-circle'></i>Report</span>
+                    <span onclick=""><i class='uil uil-arrow-circle-down'></i>Save</span>
+                    <span onclick=""><i class='uil uil-heart-sign'></i>Reacts</span>
+                </div>																											
+            </div>
+            `;
+        }else{
+            editMenu =`
+            <br>
+            <div class="eps_dots more_dropdown" align="left">
+                <a href="javascript:void(0)"><i class="uil uil-ellipsis-v"></i></a>
+                <div class="dropdown-content">
+                    <span onclick="showPostHideDiague(${post.postId})"><i class='uil uil-eye-slash'></i>Hide</span>
+                    <span onclick="report()"><i class='uil uil-exclamation-circle'></i>Report</span>
+                    <span onclick="savePost()"><i class='uil uil-arrow-circle-down'></i>Save</span>
+                    <span onclick=""><i class='uil uil-heart-sign'></i>Reacts</span>
+
+                </div>																											
+            </div>
+            `;
+        }
+
         return `
-            <div class="review_all120 post">
+            <div class="review_all120 post" id="post_${post.postId}">
                 <div class="">
+                
                     <div class="review_usr_dt" style="margin:15px;">
                         <img src="${post.userImage}" style="width:40px;height:40px;" alt="">
                         <div class="rv1458" align="left">
@@ -261,27 +329,21 @@
                             </h4>
                             <span class="time_145">${formatDateTime(post.postId)}</span>
                         </div>
-                        <div class="eps_dots more_dropdown">
-                            <a href="#"><i class="uil uil-ellipsis-v"></i></a>
-                            <div class="dropdown-content">
-                                <span><i class='uil uil-comment-alt-edit'></i>Edit</span>
-                                <span><i class='uil uil-trash-alt'></i>Delete</span>
-                            </div>																											
-                        </div>
+                        ${editMenu}
                     </div>
                     <p style="margin-left:15px;margin-right:15px;" class="rvds10">${post.body}</p>
-                    ${image}
+                    ${media}
                     <div class="rpt100" style="margin:15px;">
                         <div class="radio--group-inline-container">
                             <div class="radio-item">
-                                <a href="javascript:void(0)">
+                                <a href="javascript:void(0)" onclick="likePost(${post.postId})">
                                     ${likeIcon}
                                     <span for="radio-1" class="radio-label"> ${formatReact(post.postLikes)}</span>
                                 </a>
                             </div>
 
                             <div class="radio-item">
-                                <a href="javascript:void(0)">
+                                <a href="discuss_detail.php?mCode=${mCode}&category=${category}&post_id=${post.postId}">
                                     <img class="react-icon" src="icon/icon_post_comment.png"/>
                                     <span for="radio-1" class="radio-label"> ${formatReact(post.comments)}</span>
                                 </a>
@@ -293,6 +355,8 @@
                                     <span for="radio-1" class="radio-label"> ${formatReact(post.shareCount)}</span>
                                 </a>
                             </div>
+
+                            
                         </div>
                         
                     </div>
@@ -326,8 +390,134 @@
         }
     }
 
-    function likePost(){
-        alert('like post');
+    function addPost(){
+        var link=`https://www.calamuseducation.com/calamus-v2/api/${category}/posts/add`;
+        var body=$('#post_input').val();
+         
+        var data={
+            "learner_id":userid,
+            "body":body,
+            "major":category,
+            "hasVideo":0
+        }
+
+        $('#post_adding').show();
+        $('#post_input').val("");
+        $.post(link,data,(post)=>{
+            $('#post_adding').hide();
+            post.userName=currentUser.learner_name;
+            post.userId=currentUser.learner_phone;
+            post.userImage=currentUser.learner_image;
+            post.vip=0;
+            post.hidden=0;
+            post.block;
+            post.postImage=post.image;
+            post.postLikes=0;
+            post.comments=0;
+            post.shareCount=0;
+            console.log(post);
+            $('#post_container').prepend(postComponent(post));
+            
+        })
+
+
+    }
+
+    function likePost(postId){
+        postArr.find(post=>{
+            if(post.postId==postId){
+                if(post.is_liked==0){
+                    post.is_liked=1;
+                    post.postLikes=parseInt(post.postLikes)+1;
+                }else{
+                    post.is_liked=0;
+                    post.postLikes=post.postLikes-1;
+                }
+                
+                var link=`https://www.calamuseducation.com/calamus-v2/api/${category}/posts/like`;
+                var data={
+                    "user_id":userid,
+                    "post_id":post.postId,
+                }
+                $.post(link,data,()=>{
+                    
+                })
+
+               $(`#post_${post.postId}`).html(postComponent(post));
+                
+            }
+        })
+    }
+
+    function showPostDelDiague(postId){
+        var modalContainer=document.getElementById('modalContainer');
+        modalContainer.innerHTML=`
+            <div id="myModal" class="modal">
+                <div class="modal-content" style="width:50%;margin:auto;margin-top:70px;">
+        
+                    <h4 style="margin: 30px;">Do you really want to delete?</h4>
+                    <br>
+                    <div style="margin:30px; padding-left:10%;padding-right:10%;">
+                        <button class="btn btn-primary" id="modalCanel" style="float:left">Cancel</button>
+                        <button class="btn btn-danger" onclick="deletePost(${postId})" id="modalDelete" style="float:right">Delete</button>
+                    </div>
+
+                </div>
+            </div>
+            `;
+
+            $('#myModal').modal('show');
+            $("#modalCanel").click(function () {
+                
+            });
+    }
+
+    function deletePost(postId){
+        var link=`https://www.calamuseducation.com/calamus-v2/api/${category}/posts/delete`;
+        var data={
+            "postId":postId
+        };
+
+        $(`#post_${postId}`).empty();
+        $.post(link,data,()=>{
+            console.log('post deleted');
+        })
+    }
+
+    function showPostHideDiague(postId){
+        var modalContainer=document.getElementById('modalContainer');
+        modalContainer.innerHTML=`
+        <div id="myModal" class="modal">
+            <div class="modal-content" style="width:50%;margin:auto;margin-top:70px;">
+    
+                <h4 style="margin: 30px;">Do you really want to hide?</h4>
+                <br>
+                <div style="margin:30px; padding-left:10%;padding-right:10%;">
+                    <button class="btn btn-primary" id="modalCanel" style="float:left">Cancel</button>
+                    <button class="btn btn-danger" onclick="hidePost(${postId})" id="modalDelete" style="float:right">Hide</button>
+                </div>
+
+            </div>
+        </div>
+        `;
+
+        $('#myModal').modal('show');
+        $("#modalCanel").click(function () {
+            
+        });
+    }
+
+    function hidePost(postId){
+        var link=`https://www.calamuseducation.com/calamus-v2/api/${category}/posts/hide`;
+        var data={
+            "post_id":postId,
+            "user_id":userid
+        };
+
+        $(`#post_${postId}`).empty();
+        $.post(link,data,()=>{
+            console.log('post hidden');
+        })
     }
 
     function formatReact(like){
@@ -354,9 +544,17 @@
     }
 
 
+    function savePost(){
+        alert('Post Saved');
+    }
+   
+     
+   
+
+
 </script>
 
-
+<script src="https://player.vimeo.com/api/player.js"></script>
 <script src="assets/js/vertical-responsive-menu.min.js"></script>
 <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="assets/vendor/OwlCarousel/owl.carousel.js"></script>

@@ -488,16 +488,16 @@
                 comment_container.innerHTML="";
                 for(var i=0;i<3;i++){
                     comment_container.innerHTML+=`
-                         <div class="review_item" style="width:100%;">
+                        <div class="review_item" style="width:100%;">
                             <div class="shimmer" style="width:100%;">
                                 <div class="review_usr_dt">
-                                    <img src="https://www.calamuseducation.com/uploads/placeholder.png" style="width:50px; height:50px;" alt="">
+                                    <img src="https://www.calamuseducation.com/uploads/placeholder.png" style="width:35px; height:35px;" alt="">
                                     <div class="rv1458">
-                                        <h4 class="tutor_name1" style="width:100px; height:20px; background:#ccc;border-radius:3px;"></h4>
-                                        <span class="time_145" style="width:50px; height:20px; background:#ccc;border-radius:3px;"></span>
+                                        <h4 class="tutor_name1" style="width:100px; height:15px; background:#ccc;border-radius:3px;"></h4>
+                                        <span class="time_145" style="width:50px; height:15px; background:#ccc;border-radius:3px;"></span>
                                     </div>
                                 </div>
-                                <p class="rvds10" style="width:100%; height:20px; background:#ccc;border-radius:3px;"></p>
+                                <p class="rvds10" style="width:100%; height:15px; background:#ccc;border-radius:3px;"></p>
                                  
                             </div>
                         </div>
@@ -629,6 +629,7 @@
                     </div>
                 `;
             }
+            
             function showCmtDelDiague(cmtId,index,j){
                 var modalContainer=document.getElementById('modalContainer');
                 modalContainer.innerHTML=`
@@ -820,7 +821,7 @@
                     comments[index].likes= comments[index].likes-1;
                 }else{
                     comments[index].is_liked=1;
-                    comments[index].likes= comments[index].likes+1;
+                    comments[index].likes= parseInt(comments[index].likes)+1;
                 }
                 setComments(comments);
             }

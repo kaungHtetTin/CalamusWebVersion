@@ -29,5 +29,12 @@ class Notification {
 
         return $DB->read($query);
     }
+
+    function unreadCount($user_id){
+        $query="SELECT count(*) as count from notification WHERE seen =0 AND owner_id=$user_id ORDER BY notification.time DESC limit 100";
+        $DB=new Database();
+        $result=$DB->read($query);
+        return $result[0]['count'];
+    }
 }
 ?>

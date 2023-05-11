@@ -14,6 +14,7 @@ class Course {
         courses.fee,
         courses.major,
         courses.teacher_id,
+        courses.lessons_count,
         teachers.name as teacher_name
         From courses 
         JOIN teachers ON teachers.id=courses.teacher_id";
@@ -34,6 +35,7 @@ class Course {
         courses.fee,
         courses.major,
         courses.teacher_id,
+        courses.lessons_count,
         teachers.name as teacher_name
         From courses 
         JOIN teachers ON teachers.id=courses.teacher_id
@@ -55,6 +57,7 @@ class Course {
         courses.fee,
         courses.major,
         courses.teacher_id,
+        courses.lessons_count,
         teachers.name as teacher_name
         From courses 
         JOIN teachers ON teachers.id=courses.teacher_id

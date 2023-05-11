@@ -53,7 +53,7 @@
                                             <img src="<?php echo $course['cover_url'];?>"style="height:100px; width: 100px; position: absolute;bottom:0; left:30px;" alt="">
                                         </div>
                                         <div class="course-overlay">
-                                            <div class="badge_seller">Bestseller</div>
+                                             
                                             <span class="play_btn1"><i class="uil uil-play"></i></span>
                                             <span class="_215b02">Preview this course</span>
                                         </div>
@@ -88,10 +88,7 @@
                                         English
                                     </div>
                                 </div>
-                                <div class="_215b05">										
-                                    Last updated 1/2020
-                                </div>
-                                
+
                                 <?php if($isRegister){ ?>
                                     <div class="_215b05">										
                                         <div style="width:100%;background:#444;border-radius:3px;"> 

@@ -48,17 +48,7 @@
                 <div class="col-md-12">
                     <div class="_14d25">
                         <div class="row" id="course_container">
-                           
 
-                            <!-- <div class="col-md-12">
-                                <div class="main-loader mt-50">													
-                                    <div class="spinner">
-                                        <div class="bounce1"></div>
-                                        <div class="bounce2"></div>
-                                        <div class="bounce3"></div>
-                                    </div>																										
-                                </div>
-                            </div> -->
                         </div>				
                     </div>				
                 </div>				
@@ -103,28 +93,19 @@
                                 </div>
                                 <span class="play_btn1"><i class="uil uil-play"></i></span>
                                 <div class="crse_timer">
-                                    25 hours
+                                    ${course.lessons_count} lectures
                                 </div>
                             </div>
                         </a>
                         <div class="fcrse_content">
-                            <div class="eps_dots more_dropdown">
-                                <a href="#"><i class="uil uil-ellipsis-v"></i></a>
-                                <div class="dropdown-content">
-                                    <span><i class='uil uil-share-alt'></i>Share</span>
-                                    <span><i class="uil uil-heart"></i>Save</span>
-                                    <span><i class='uil uil-ban'></i>Not Interested</span>
-                                    <span><i class="uil uil-windsock"></i>Report</span>
-                                </div>																											
-                            </div>
                             <div class="vdtodt">
-                                <span class="vdt14">109k views</span>
+                                
                                 <span class="vdt14">${course.duration} Days</span>
                             </div>
                             <a href="course_detail.php?course_id=${course.course_id}" class="crse14s">${course.title}</a>
                             <a href="course_detail.php?course_id=${course.course_id}" class="crse-cate">${course.major} | ${course.description}</a>
                             <div class="auth1lnkprce">
-                                <p class="cr1fot">By <a href="#">${course.teacher_name}</a></p>
+                                <p class="cr1fot">By <a href="instructor_profile.php?teacher_id=${course.teacher_id}">${course.teacher_name}</a></p>
                                 <div class="prce142">${course.fee} MMK</div>
                                 <button class="shrt-cart-btn" title="cart"><i class="uil uil-shopping-cart-alt"></i></button>
                             </div>

@@ -27,9 +27,7 @@
 						<div class="section3125 rpt145">							
 							<div class="row">						
 								<div class="col-lg-7">
-									<a href="#" class="_216b22">										
-										<span><i class="uil uil-windsock"></i></span>Report Profile
-									</a>
+									 
 									<div class="dp_dt150">						
 										<div class="img148">
 											<img src="<?php echo $profile['profile']; ?>" alt="">										
@@ -42,7 +40,7 @@
 									<ul class="_ttl120">
 										<li>
 											<div class="_ttl121">
-												<div class="_ttl122">Enroll Students</div>
+												<div class="_ttl122">Students</div>
 												<div class="_ttl123"><?php echo $Teacher->getNumberOfStudent($teacher_id); ?></div>
 											</div>
 										</li>
@@ -67,9 +65,7 @@
 									</ul>
 								</div>
 								<div class="col-lg-5">
-									<a href="#" class="_216b12">										
-										<span><i class="uil uil-windsock"></i></span>Report Profile
-									</a>
+									
 									<div class="rgt-145">
 										<ul class="tutor_social_links">
 											<li><a href="#" class="fb"><i class="fab fa-facebook-f"></i></a></li>
@@ -97,9 +93,9 @@
 						<div class="course_tabs">
 							<nav>
 								<div class="nav nav-tabs tab_crse" id="nav-tab" role="tablist">
-									<a class="nav-item nav-link active" id="nav-about-tab" data-toggle="tab" href="#nav-about" role="tab" aria-selected="true">About</a>
-									<a class="nav-item nav-link" id="nav-courses-tab" data-toggle="tab" href="#nav-courses" role="tab" aria-selected="false">Courses</a>
-									<a class="nav-item nav-link" id="nav-reviews-tab" data-toggle="tab" href="#nav-reviews" role="tab" aria-selected="false">Discussion</a>
+									
+									<a class="nav-item nav-link active" id="nav-courses-tab" data-toggle="tab" href="#nav-courses" role="tab" aria-selected="false">Courses</a>
+									<a class="nav-item nav-link" id="nav-about-tab" data-toggle="tab" href="#nav-about" role="tab" aria-selected="true">About</a>
 								</div>
 							</nav>						
 						</div>
@@ -113,7 +109,7 @@
 					<div class="col-lg-12">
 						<div class="course_tab_content">
 							<div class="tab-content" id="nav-tabContent">
-								<div class="tab-pane fade show active" id="nav-about" role="tabpanel">
+								<div class="tab-pane fade " id="nav-about" role="tabpanel">
 									<div class="_htg451">
 										<div class="_htg452">
 											<h3>About Me</h3>
@@ -121,7 +117,7 @@
 										</div>																	
 									</div>							
 								</div>
-								<div class="tab-pane fade" id="nav-courses" role="tabpanel">
+								<div class="tab-pane fade show active" id="nav-courses" role="tabpanel">
 									<div class="crse_content">
 										<h3>My courses (<?php echo $profile['total_course'] ?>)</h3>
 										<div class="_14d25">
@@ -135,34 +131,26 @@
                                                                 </div>
 
                                                                 <div class="course-overlay">
-                                                                    <div class="badge_seller">Bestseller</div>
+                                                                    <div class="badge_seller"><?php echo ucfirst($course['major']) ?></div>
                                                                     <div class="crse_reviews">
                                                                         <i class="uil uil-star"></i><?php echo round($course['rating'],1); ?>
                                                                     </div>
                                                                     <span class="play_btn1"><i class="uil uil-play"></i></span>
                                                                     <div class="crse_timer">
-                                                                        25 hours
+                                                                        <?php echo $course['lessons_count']; ?> lectures
                                                                     </div>
                                                                 </div>
                                                             </a>
                                                             <div class="fcrse_content">
-                                                                <div class="eps_dots more_dropdown">
-                                                                    <a href="#"><i class="uil uil-ellipsis-v"></i></a>
-                                                                    <div class="dropdown-content">
-                                                                        <span><i class='uil uil-share-alt'></i>Share</span>
-                                                                        <span><i class="uil uil-heart"></i>Save</span>
-                                                                        <span><i class='uil uil-ban'></i>Not Interested</span>
-                                                                        <span><i class="uil uil-windsock"></i>Report</span>
-                                                                    </div>																											
-                                                                </div>
+                                                                
                                                                 <div class="vdtodt">
-                                                                    <span class="vdt14">109k views</span>
+                                                                    
                                                                     <span class="vdt14"><?php echo $course['duration'] ?> Days</span>
                                                                 </div>
                                                                 <a href="course_detail.php?course_id=<?php echo $course['course_id']; ?>" class="crse14s"><?php echo $course['title']; ?></a>
                                                                 <a href="course_detail.php?course_id=<?php echo $course['course_id']; ?>" class="crse-cate"><?php echo ucfirst($course['major'])." | ".$course['description']; ?></a>
                                                                 <div class="auth1lnkprce">
-                                                                    <p class="cr1fot">By <a href="#"><?php echo $course['teacher_name']; ?></a></p>
+                                                                    <p class="cr1fot">By <b><?php echo $course['teacher_name']; ?></b></p>
                                                                     <div class="prce142"><?php echo $course['fee']." MMK"; ?></div>
                                                                     <button class="shrt-cart-btn" title="cart"><i class="uil uil-shopping-cart-alt"></i></button>
                                                                 </div>
@@ -172,77 +160,6 @@
                                                 <?php }?>
 											</div>		
 										</div>		
-									</div>
-								</div>
-								<div class="tab-pane fade" id="nav-reviews" role="tabpanel">
-									<div class="student_reviews">
-										<div class="row">
-											<div class="col-lg-12">
-												<div class="review_right">
-													<div class="review_right_heading">
-														<h3>Discussions</h3>
-													</div>
-												</div>
-												<div class="cmmnt_1526">
-													<div class="cmnt_group">
-														<div class="img160">
-															<img src="images/left-imgs/img-1.jpg" alt="">										
-														</div>
-														<textarea class="_cmnt001" placeholder="Add a public comment"></textarea>
-													</div>
-													<button class="cmnt-btn" type="submit">Comment</button>
-												</div>
-												<div class="review_all120">
-													<div class="review_item">
-														<div class="review_usr_dt">
-															<img src="images/left-imgs/img-1.jpg" alt="">
-															<div class="rv1458">
-																<h4 class="tutor_name1">John Doe</h4>
-																<span class="time_145">2 hour ago</span>
-															</div>
-															<div class="eps_dots more_dropdown">
-																<a href="#"><i class="uil uil-ellipsis-v"></i></a>
-																<div class="dropdown-content">
-																	<span><i class='uil uil-comment-alt-edit'></i>Edit</span>
-																	<span><i class='uil uil-trash-alt'></i>Delete</span>
-																</div>																											
-															</div>
-														</div>
-														<p class="rvds10">Nam gravida elit a velit rutrum, eget dapibus ex elementum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce lacinia, nunc sit amet tincidunt venenatis.</p>
-														<div class="rpt101">
-															<a href="#" class="report155"><i class='uil uil-thumbs-up'></i> 10</a>
-															<a href="#" class="report155"><i class='uil uil-thumbs-down'></i> 1</a>
-															<a href="#" class="report155"><i class='uil uil-heart'></i></a>
-															<a href="#" class="report155 ml-3">Reply</a>
-														</div>
-													</div>
-													<div class="review_reply">
-														<div class="review_item">
-															<div class="review_usr_dt">
-																<img src="images/left-imgs/img-3.jpg" alt="">
-																<div class="rv1458">
-																	<h4 class="tutor_name1">Rock Doe</h4>
-																	<span class="time_145">1 hour ago</span>
-																</div>
-																<div class="eps_dots more_dropdown">
-																	<a href="#"><i class="uil uil-ellipsis-v"></i></a>
-																	<div class="dropdown-content">
-																		<span><i class='uil uil-trash-alt'></i>Delete</span>
-																	</div>																											
-																</div>
-															</div>
-															<p class="rvds10">Fusce lacinia, nunc sit amet tincidunt venenatis.</p>
-															<div class="rpt101">
-																<a href="#" class="report155"><i class='uil uil-thumbs-up'></i> 4</a>
-																<a href="#" class="report155"><i class='uil uil-thumbs-down'></i> 2</a>
-																<a href="#" class="report155"><i class='uil uil-heart'></i></a>
-																<a href="#" class="report155 ml-3">Reply</a>
-															</div>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
 									</div>
 								</div>
 							</div>

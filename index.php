@@ -53,22 +53,12 @@
                                                 </div>
                                                 <span class="play_btn1"><i class="uil uil-play"></i></span>
                                                 <div class="crse_timer">
-                                                    25 hours
+                                                    <?php echo $course['lessons_count'] ?> lectures
                                                 </div>
                                             </div>
                                         </a>
                                         <div class="fcrse_content">
-                                            <div class="eps_dots more_dropdown">
-                                                <a href="#"><i class='uil uil-ellipsis-v'></i></a>
-                                                <div class="dropdown-content">
-                                                    <span><i class='uil uil-share-alt'></i>Share</span>
-                                                    <span><i class="uil uil-heart"></i>Save</span>
-                                                    <span><i class='uil uil-ban'></i>Not Interested</span>
-                                                    <span><i class="uil uil-windsock"></i>Report</span>
-                                                    </div>																										
-                                            </div>
                                             <div class="vdtodt">
-                                                <span class="vdt14">109k views</span>
                                                 <span class="vdt14"><?php echo $course['duration']; ?> Days</span>
                                             </div>
                                             <a href="course_detail.php?course_id=<?php echo $course['course_id']; ?>" class="crse14s"><?php echo $course['title'];?></a>
@@ -105,22 +95,13 @@
                                                 </div>
                                                 <span class="play_btn1"><i class="uil uil-play"></i></span>
                                                 <div class="crse_timer">
-                                                    25 hours
+                                                    <?php echo $course['lessons_count'] ?> lectures
                                                 </div>
                                             </div>
                                         </a>
                                         <div class="fcrse_content">
-                                            <div class="eps_dots more_dropdown">
-                                                <a href="#"><i class='uil uil-ellipsis-v'></i></a>
-                                                <div class="dropdown-content">
-                                                    <span><i class='uil uil-share-alt'></i>Share</span>
-                                                    <span><i class="uil uil-heart"></i>Save</span>
-                                                    <span><i class='uil uil-ban'></i>Not Interested</span>
-                                                    <span><i class="uil uil-windsock"></i>Report</span>
-                                                    </div>																										
-                                            </div>
                                             <div class="vdtodt">
-                                                <span class="vdt14">109k views</span>
+                                                
                                                 <span class="vdt14"><?php echo $course['duration']; ?> Days</span>
                                             </div>
                                             <a href="course_detail.php?course_id=<?php echo $course['course_id']; ?>" class="crse14s"><?php echo $course['title'];?></a>

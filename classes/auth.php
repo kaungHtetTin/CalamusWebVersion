@@ -15,6 +15,14 @@
                 $hashed_password=$learner[0]['password'];
                 if(password_verify($password,$hashed_password)){
                    $_SESSION['calamus_userid']=$phone;
+                    
+                   if($data['remember_me']=='on'){
+                        $token=$this->base64UrlEncode($phone.$password.time());
+                        $query="UPDATE learners SET auth_token='$token' WHERE learner_phone=$phone";
+                        $DB->save($query);
+                        setcookie("calamus_token", $token, time() + (86400 * 30), "/");
+                        setcookie("calamus_userid", $phone, time() + (86400 * 30), "/");
+                   }
 
                 }else{
                     $result="Incorrect Password!";
@@ -23,6 +31,24 @@
                 $result="This phone number has not registered yet!. Please try again using another phone number.";
             }
 
+            return $result;
+
+        }
+
+        function checkByToken($phone,$token){
+            $DB=new Database();
+            $query="SELECT * FROM learners where learner_phone=$phone limit 1";
+            $learner=$DB->read($query)[0];
+            $result="";
+
+            if($learner){
+                if($learner['auth_token']==$token){
+                    $_SESSION['calamus_userid']=$phone;
+                }else{
+                    $result="Auth Fail";
+                   
+                }
+            }
             return $result;
 
         }
@@ -60,6 +86,15 @@
             }else{
                 return true;
             }
+        }
+
+        function base64UrlEncode($text)
+        {
+            return str_replace(
+                ['+', '/', '='],
+                ['-', '_', ''],
+                base64_encode($text)
+            );
         }
     }
 ?>

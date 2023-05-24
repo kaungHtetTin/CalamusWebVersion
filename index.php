@@ -12,7 +12,12 @@
     
 
     $Auth=new Auth();
-    $user =$Auth->check_login($_SESSION['calamus_userid']);
+    if(isset($_SESSION['calamus_userid'])){
+        $user =$Auth->check_login($_SESSION['calamus_userid']);
+    }else{
+        header('Location:login.php');
+    }
+    
 
     $Course=new Course();
     $Teacher=new Teacher();

@@ -36,6 +36,8 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 		<link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="assets/vendor/semantic/semantic.min.css">	
 		<script src="assets/js/jquery-3.3.1.min.js"></script>
+
+			<!-- Stylesheets -->
 		
 	</head>
 
@@ -63,43 +65,6 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 		</div>
 		<div class="header_right">
 			<ul>
-				<li class="ui dropdown">
-					<a href="#" class="option_links" title="Messages"><i class='uil uil-envelope-alt'></i><span class="noti_count">3</span></a>
-					<div class="menu dropdown_ms">
-						<a href="#" class="channel_my item">
-							<div class="profile_link">
-								<img src="images/left-imgs/img-6.jpg" alt="">
-								<div class="pd_content">
-									<h6>Zoena Singh</h6>
-									<p>Hi! Sir, How are you. I ask you one thing please explain it this video price.</p>
-									<span class="nm_time">2 min ago</span>
-								</div>							
-							</div>							
-						</a>
-						<a href="#" class="channel_my item">
-							<div class="profile_link">
-								<img src="assets/images/left-imgs/img-5.jpg" alt="">
-								<div class="pd_content">
-									<h6>Joy Dua</h6>
-									<p>Hello, I paid you video tutorial but did not play error 404.</p>
-									<span class="nm_time">10 min ago</span>
-								</div>							
-							</div>							
-						</a>
-						<a href="#" class="channel_my item">
-							<div class="profile_link">
-								<img src="images/left-imgs/img-8.jpg" alt="">
-								<div class="pd_content">
-									<h6>Jass</h6>
-									<p>Thanks Sir, Such a nice video.</p>
-									<span class="nm_time">25 min ago</span>
-								</div>							
-							</div>							
-						</a>
-						<a class="vbm_btn" href="instructor_messages.html">View All <i class='uil uil-arrow-right'></i></a>
-					</div>
-				</li>				
-
 				<li class="ui dropdown" onclick="fetchNoti()">
 					<a href="javascript:void(0)" onclick="fetchNoti()" class="option_links" title="Notifications">
 						<i class='uil uil-bell'></i>
@@ -159,7 +124,7 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 								seen="background:#E7F3FF"
 							}
 							return `
-								<a href="#" class="channel_my item" style="${seen}" >
+								<a href="discuss_detail.php?post_id=${notification.post_id}&check=${notification.time}" class="channel_my item" style="${seen}" >
 									<div class="profile_link">
 										<img src="${notification.writer_image}" alt="">
 										<div class="pd_content">
@@ -232,7 +197,7 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 						<a href="setting.html" class="item channel_item">Setting</a>
 						<a href="help.html" class="item channel_item">Help</a>
 						<a href="feedback.html" class="item channel_item">Send Feedback</a>
-						<a href="sign_in.html" class="item channel_item">Sign Out</a>
+						<a href="signout.php" class="item channel_item">Sign Out</a>
 					</div>
 				</li>
 			</ul>
@@ -296,16 +261,16 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 				<h6 class="left_title">ADMIN  TEAM</h6>
 				<ul>
 					<li class="menu--item">
-						<a href="instructor_profile_view.html" class="menu--link user_img">
-							<img src="images/left-imgs/img-1.jpg" alt="">
-							Teacher 
+						<a style="padding-top:5px;" href="admin_team.php?team=english" class="menu--link user_img <?php if($page_title=='Admin Team - English') echo 'active' ?>">
+							<img src="icon/easyenglish_icon.png" alt="">
+							Easy English 
 							<div class="alrt_dot"></div>
 						</a>
 					</li>
 					<li class="menu--item">
-						<a href="instructor_profile_view.html" class="menu--link user_img">
-							<img src="images/left-imgs/img-2.jpg" alt="">
-							Developer
+						<a style="padding-top:5px;" href="admin_team.php?team=korea"  class="menu--link user_img <?php if($page_title=='Admin Team - Korea') echo 'active' ?>">
+							<img src="icon/easykorean_icon.png" alt="">
+							Easy Korean
 						</a>
 						<div class="alrt_dot"></div>
 					</li>

@@ -5,10 +5,10 @@
     include ("classes/connect.php");
     include ("classes/auth.php");
     
-   
+   	$login=new Auth();
     if($_SERVER['REQUEST_METHOD']=='POST'){
         
-        $login=new Auth();
+        
         $result=$login->login($_POST);
         
         if($result!=""){
@@ -23,7 +23,20 @@
           //  echo "login access";
         }
         
-    }
+    }else{
+		if(isset($_COOKIE['calamus_token'])){
+			$phone=$_COOKIE['calamus_userid'];
+			$token=$_COOKIE['calamus_token'];
+			$result=$login->checkByToken($phone,$token);
+			if($result==""){
+				header("Location: index.php");
+            	die;
+			}
+
+		}
+	}
+
+	
 
 ?>
 <!DOCTYPE html>
@@ -89,7 +102,7 @@
 							<div class="ui form mt-30 checkbox_sign">
 								<div class="inline field">
 									<div class="ui checkbox mncheck">
-										<input type="checkbox" tabindex="0" class="hidden">
+										<input type="checkbox" name="remember_me" tabindex="0" class="hidden">
 										<label>Remember Me</label>
 									</div>
 								</div>

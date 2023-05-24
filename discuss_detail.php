@@ -222,8 +222,28 @@
     var post_id=<?php echo $_GET['post_id'] ?>;
     var currentUser=<?php echo json_encode($user) ?>;
      
-    var mCode="<?php echo $_GET['mCode']; ?>";
-    var category="<?php echo $_GET['category']?>";
+    var mCode="<?php 
+        if(isset($_GET['mCode'])){
+            echo $_GET['mCode'];
+        }else{
+            echo 'ee';
+        }
+    ?>";
+    var category="<?php 
+        if(isset($_GET['category'])){
+            echo $_GET['category'];
+        }else{
+            echo 'english';
+        }
+    ?>";
+
+    var checkTime="<?php 
+        if(isset($_GET['check'])){
+            echo $_GET['check'];
+        }else{
+            echo 0;
+        }
+    ?>";
     var post;
     var comments;
     
@@ -256,7 +276,7 @@
     }
 
     function fetchPost(){
-        var url=`https://www.calamuseducation.com/calamus-v2/api/${category}/comments?mCode=${mCode}&postId=${post_id}&time=0&userId=${userid}`;
+        var url=`https://www.calamuseducation.com/calamus-v2/api/${category}/comments?mCode=${mCode}&postId=${post_id}&time=${checkTime}&userId=${userid}`;
         $.get(url,function(data,status){
             post=data.post[0];
             $('#shimmer').hide();
@@ -264,9 +284,6 @@
 
             comments=arrangeComment(data.comments);;
             setComments(comments);
-
-            
-
         })
     }
 

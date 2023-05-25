@@ -135,7 +135,7 @@
 <body onresize="adjustLayout()">
     <div class="fixedLessonContainer">
     <div class="row"  style="padding-right:0px;">
-        <div class="col-lg-8 col-md-6" style="padding-right:0px;">
+        <div class="col-lg-8 col-md-6" style="padding-right:0px;" id="player-section">
             <div id="video_player">
             </div>
             <script src="https://player.vimeo.com/api/player.js"></script>
@@ -456,30 +456,29 @@
 
             function adjustLayout(){
                 var w = window.innerWidth;
+                var player_section=document.getElementById('player-section');
                 var lesson_section=document.getElementById('lesson-section');
                 var footer=document.getElementById('footer');
                 var footer2=document.getElementById('footer2');
                 var nav_bar_section=document.getElementById('nav-bar-section');
                 var detail_section=document.getElementById('detail-section');
 
-                var w_lesson_section=lesson_section.offsetWidth;
-                console.log('windown',w,'lesson section',w_lesson_section);
+                var w_player_section=player_section.offsetWidth;
+                console.log('windown',w,'player section',w_player_section);
 
-                if(w<=w_lesson_section){
+                if(w<=w_player_section+200){
                     lesson_section.setAttribute('class','col-lg-4 col-md-6 scrollLessonContent');
                     lesson_section.setAttribute('style','display:none');
                     
                     footer.setAttribute('style','display:none');
                     footer2.setAttribute('style','display:block');
-                    nav_bar_section.setAttribute('style','display:none');
-                    detail_section.setAttribute('style','display:none');
+                 
                 }else{
                     lesson_section.setAttribute('class','col-lg-4 col-md-6 scrollLessonContent fixContainer');
                     lesson_section.setAttribute('style','display:block');
                     footer.setAttribute('style','');
                     footer2.setAttribute('style','display:none');
-                    nav_bar_section.setAttribute('style','');
-                    detail_section.setAttribute('style','');
+                 
                 }
             }
    

@@ -8,7 +8,6 @@
    	$login=new Auth();
     if($_SERVER['REQUEST_METHOD']=='POST'){
         
-        
         $result=$login->login($_POST);
         
         if($result!=""){
@@ -102,7 +101,7 @@
 							<div class="ui form mt-30 checkbox_sign">
 								<div class="inline field">
 									<div class="ui checkbox mncheck">
-										<input type="checkbox" name="remember_me" tabindex="0" class="hidden">
+										<input type="checkbox" name="remember_me" tabindex="0" class="hidden" checked>
 										<label>Remember Me</label>
 									</div>
 								</div>
@@ -110,7 +109,7 @@
 							<button class="login-btn" type="submit">Sign In</button>
 						</form>
 						<p class="sgntrm145">Or <a href="forgot_password.html">Forgot Password</a>.</p>
-						<p class="mb-0 mt-30 hvsng145">Don't have an account? <a href="signup.php">Sign Up</a></p>
+						<p class="mb-0 mt-30 hvsng145">Don't have an account? <a href="signup.php">Join the admin team</a></p>
 					</div>
 					<div class="sign_footer"><img src="images/logo.png" alt="" style="width:50px;">© 2023 <strong>Calamuseducation</strong>. All Rights Reserved.</div>
 				</div>				
@@ -118,6 +117,10 @@
 		</div>				
 	</div>
 	<!-- Signup End -->	
+
+	<script>
+
+	</script>
 
 	<script src="assets/js/jquery-3.3.1.min.js"></script>
 	<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>

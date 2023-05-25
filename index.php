@@ -29,6 +29,8 @@
     $my_learning_courses=$Course->learnningCourse($user['learner_phone']);
     $teachers=$Teacher->index();
     $app=$App->getRand();
+
+    
     
     include('layouts/header.php');
 ?>
@@ -77,7 +79,6 @@
                                     </div>
                                 </div>
                                 <?php }?>
-
                             </div>
                         </div>
                     </div>

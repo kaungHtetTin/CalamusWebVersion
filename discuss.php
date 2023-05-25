@@ -4,6 +4,7 @@
     include('classes/connect.php');
     include ('classes/auth.php');
     include('classes/app.php');
+    include('classes/post.php');
 
     $page_title="Discussion";
     
@@ -13,6 +14,12 @@
 
     $App=new App();
     $app=$App->getRand();
+
+    $Post=new Post();
+    $blogs=$Post->getBlogPost();
+
+    $mCode=$_GET['mcode'];
+    $category=$_GET['category'];
     
     include('layouts/header.php');
 ?>
@@ -66,7 +73,7 @@
         <div class="container-fluid">	
             <div class="row">
                 
-                <div align="center" class="col-xl-9 col-lg-8" id="post-section">
+                <div align="center" class="col-xl-9 col-lg-9" id="post-section">
                  
                     <div class="" style="padding-left:20px;padding-right:20px;">
                         <div class="cmmnt_1526">
@@ -78,6 +85,35 @@
                             </div>
                             <button  class="cmnt-btn" onclick="addPost()" >Add</button>
                         </div>
+                        <div class="section3125">
+                            <h6 class="item_title">Pinned Blog</h6>
+                            <a href="explore.php" class="see150">See all</a>
+                            <div class="la5lo1">
+                                <div class="owl-carousel featured_courses owl-theme">
+                                    <?php foreach($blogs as $blog){ 
+                                        $post_id=$blog['post_id'];
+                                        ?>
+                                    <div class="item">
+                                        <div class="fcrse_1 mb-20">
+                                            <a href="blog_single_view.html" class="hf_img">
+                                            <img src="<?php echo $blog['image']; ?>" alt="" style="height:100px;">
+                                                <div class="course-overlay"></div>
+                                            </a>
+                                            <div class="hs_content">
+                                                <div class="vdtodt">
+                                                    <span class="vdt14"><?php echo $Post->formatDateTime($blog['post_id']) ?></span>
+                                                </div>
+                                                <a href="blog_single_view.html" class="crse14s title900"><?php echo $blog['blog_title'] ?></a>
+                                                <p class="blog_des"><?php echo $blog['body']; ?></p>
+                                                <a href="<?php echo "discuss_detail.php?mCode=$mCode&category=$category&post_id=$post_id" ?>" class="view-blog-link">Read More<i class="uil uil-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php }?>
+                                </div>
+                            </div>
+                        </div>
+                         
 
                         <div id="post_adding">
                             <div class="col-md-12 channel_my item">
@@ -162,6 +198,7 @@
                 <div class="col-xl-3 col-lg-3 scrollLessonContent fixContainer" id="right-section">
                     <div class="right_side">
                         <br><br><br><br><br>
+
                         <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easyenglish_vip.png"/>
                         <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easykoreanvipbanner.png"/>
                          

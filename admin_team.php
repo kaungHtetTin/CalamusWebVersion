@@ -244,7 +244,6 @@
 
 		function scrollToBottom() {
 			const element = document.getElementById('chat_box');
-			console.log('animate start');
 			element.scrollTop = element.scrollHeight;
 
 		}

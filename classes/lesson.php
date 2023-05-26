@@ -18,6 +18,7 @@ class Lesson{
             posts.share_count,
             posts.post_like,
             posts.comments,
+            lessons_categories.category_title,
             CASE
             WHEN  EXISTS (SELECT NULL FROM studies std 
             WHERE std.learner_id ='$user_id'and std.lesson_id =study_plan.lesson_id) THEN 1
@@ -25,6 +26,7 @@ class Lesson{
             END as learned
             FROM study_plan
             JOIN lessons ON lessons.id=study_plan.lesson_id
+            JOIN lessons_categories ON lessons_categories.id=lessons.category_id
             LEFT JOIN posts ON lessons.date=posts.post_id
             WHERE study_plan.course_id=$course_id
             ORDER BY day ASC , study_plan.id ASC

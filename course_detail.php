@@ -59,14 +59,7 @@
                                         </div>
                                     </a>
                                 </div>
-                                <div class="_215b10">										
-                                    <a href="#" class="_215b11">										
-                                        <span><i class="uil uil-heart"></i></span>Save
-                                    </a>
-                                    <a href="#" class="_215b12">										
-                                        <span><i class="uil uil-windsock"></i></span>Report abuse
-                                    </a>
-                                </div>
+                                 
                             </div>
                             <div class="col-xl-8 col-lg-7 col-md-6">
                                 <div class="_215b03">
@@ -82,12 +75,7 @@
                                 <div class="_215b05">										
                                     <?php echo $enrollStudents; ?> students enrolled
                                 </div>
-                                <div class="_215b06">										
-                                    <div class="_215b07">										
-                                        <span><i class='uil uil-comment'></i></span>
-                                        English
-                                    </div>
-                                </div>
+                                
 
                                 <?php if($isRegister){ ?>
                                     <div class="_215b05">										
@@ -224,7 +212,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="details">
-                                                        
+                                                        <?php echo $lesson['category_title']; ?>
                                                         <span class="content-summary">
                                                             <?php echo $Lesson->formatDuration($lesson['duration']); ?>
                                                         </span>

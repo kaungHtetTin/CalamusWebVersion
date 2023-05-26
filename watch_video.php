@@ -208,12 +208,7 @@
                                             
                                         </div>
 
-                                        <!-- <div class="review_all120">
-                                            
-                                            <div class="review_item">
-                                                <a href="#" class="more_reviews">See More Comments</a>
-                                            </div>
-                                        </div> -->
+                                        
                                     </div>
                                 </div>
                             </div>

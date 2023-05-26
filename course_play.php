@@ -182,12 +182,11 @@
                                                 
                                             </div>
 
-                                            <!-- <div class="review_all120">
-                                                
+                                            <div id="load_more_cmt" class="review_all120" onclick="loadMoreComment()">
                                                 <div class="review_item">
                                                     <a href="#" class="more_reviews">See More Comments</a>
                                                 </div>
-                                            </div> -->
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -304,13 +303,17 @@
                                         <?php }else{ ?>
                                             <i class='uil uil-file icon_142'></i>
                                         <?php } ?>
-                                    
-                                        <?php echo $Lesson->formatDuration($lesson['duration']); ?>
+                                        
+                                        <?php echo $Lesson->formatDuration($lesson['duration']); ?> . <?php echo $lesson['category_title']; ?>
+                                         
                                     
                                     </div>
-                                    
                                 </div>
+
+                                
+                                
                             </div>
+                            
                         </a>
                         <?php }?>
                     </div>
@@ -392,6 +395,7 @@
                 var comment_container=document.getElementById('comment_container');
                 var currentVideo;
                 var comments;
+                var commentPage=10;
 
                 window.onload= playLesson(<?php echo $_GET['outer']?>,<?php echo $_GET['inner'];?>);
                 adjustLayout();
@@ -409,12 +413,14 @@
                                     frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Lesson 6 Rules for word stress"></iframe>
                             </div>
                         `;
-
+                        document.getElementById('tv_course_title').innerHTML=lesson.category_title
                         document.getElementById('tv_view').innerHTML=lesson.view_count;
                         document.getElementById('tv_like').innerHTML=lesson.post_like;
-                         document.getElementById('tv_comment').innerHTML=lesson.comments;
+                        document.getElementById('tv_comment').innerHTML=lesson.comments;
                         document.getElementById('tv_title').innerHTML=lesson.lesson_title;
                         updateData(user_id,lesson.id,lesson.post_id);
+                        commentPage=10;
+                        
                         fetchComments(user_id,lesson.post_id);
                     }else{
                         loadBlogLesson(lesson.link);
@@ -460,24 +466,24 @@
                     var lesson_section=document.getElementById('lesson-section');
                     var footer=document.getElementById('footer');
                     var footer2=document.getElementById('footer2');
-                    var nav_bar_section=document.getElementById('nav-bar-section');
+                 
                     var detail_section=document.getElementById('detail-section');
 
                     var w_player_section=player_section.offsetWidth;
                     //console.log('windown',w,'lesson section',w_lesson_section);
 
-                    if(w<=w_player_section){
+                    if(w<=w_player_section+250){
                         lesson_section.setAttribute('class','col-lg-4 col-md-6 scrollLessonContent');
                         
                         footer.setAttribute('style','display:none');
                         footer2.setAttribute('style','display:block');
-                        nav_bar_section.setAttribute('style','display:none');
+                   
                         detail_section.setAttribute('style','display:none');
                     }else{
                         lesson_section.setAttribute('class','col-lg-4 col-md-6 scrollLessonContent fixContainer');
                         footer.setAttribute('style','');
                         footer2.setAttribute('style','display:none');
-                        nav_bar_section.setAttribute('style','');
+
                         detail_section.setAttribute('style','');
                     }
                 }
@@ -533,9 +539,30 @@
                     ajax.send();
                 }
 
+                function loadMoreComment(){
+                    commentPage=commentPage+10;
+                    setComments(comments);
+                }
+
                 function setComments(comments){
                     comment_container.innerHTML="";
-                    for(var i=0;i<comments.length;i++){
+                    if(comments.length<=10){
+                        loopComment(comments,0,comments.length);
+                    }else{
+                        if(commentPage<=comments.length){
+                            loopComment(comments,0,commentPage);
+                            if(commentPage==comments.length){
+                                $('#load_more_cmt').hide();
+                            }
+                        }else{
+                              $('#load_more_cmt').hide();
+                        }
+                    }
+                    
+                }
+
+                function loopComment(comments,start,end){
+                    for(var i=start;i<end;i++){
                         var comment=comments[i];
                         comment_container.innerHTML+=commentComponent(comment,i); 
                         if(comment.child){

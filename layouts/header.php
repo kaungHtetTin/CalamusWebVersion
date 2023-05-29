@@ -194,7 +194,7 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 								</span>
 							</a>
 						</div>
-						<a href="setting.html" class="item channel_item">Setting</a>
+						<a href="setting.php" class="item channel_item">Setting</a>
 						<a href="help.html" class="item channel_item">Help</a>
 						<a href="feedback.html" class="item channel_item">Send Feedback</a>
 						<a href="signout.php" class="item channel_item">Sign Out</a>
@@ -279,7 +279,7 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 			<div class="left_section pt-2">
 				<ul>
 					<li class="menu--item">
-						<a href="setting.html" class="menu--link" title="Setting">
+						<a href="setting.php" class="menu--link" title="Setting">
 							<i class='uil uil-cog menu--icon'></i>
 							<span class="menu--label">Setting</span>
 						</a>

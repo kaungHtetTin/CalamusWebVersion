@@ -64,7 +64,7 @@
 					<div class="col-12">
 						<div class="all_msg_bg">
 							<div class="row no-gutters">
-								<div class="col-xl-4 col-lg-5 col-md-12">					
+								<div class="col-xl-4 col-lg-5 col-md-5 col-sm-12">					
 									<div class="">
 										<div class="group_messages">
 											<div class="chat__message__dt active" id="teacher">
@@ -92,7 +92,7 @@
 										</div>
 									</div>					
 								</div>
-								<div class="col-xl-8 col-lg-7 col-md-12">			
+								<div class="col-xl-8 col-lg-7 col-md-7 col-sm-12">			
 									<div>
 										
 										<div style="width: 100%;padding: 15px 20px;border-bottom: 1px solid #efefef;">

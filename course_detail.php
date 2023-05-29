@@ -93,8 +93,8 @@
                                     </div>
                                 <?php } else { ?>
                                     <ul class="_215b31">										
-                                        <li><button class="btn_adcart">Add to Cart</button></li>
-                                        <li><button class="btn_buy">Buy Now</button></li>
+                                        <li><button onclick="location.href='vip_plan.php'" class="btn_adcart" >Buy Now</button></li>
+
                                     </ul>
                                 <?php } ?>
 

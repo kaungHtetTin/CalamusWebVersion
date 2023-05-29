@@ -101,7 +101,7 @@
 							<div class="ui form mt-30 checkbox_sign">
 								<div class="inline field">
 									<div class="ui checkbox mncheck">
-										<input type="checkbox" name="remember_me" tabindex="0" class="hidden" checked>
+										<input type="checkbox" name="remember_me" tabindex="0" class="hidden">
 										<label>Remember Me</label>
 									</div>
 								</div>

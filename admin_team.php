@@ -49,6 +49,44 @@
 		.online {
 			background-color: #40d04f;
 		}
+
+		.image-upload{
+			background:rgb(245,245,245);
+ 
+			padding:10px;
+			border-radius:50%;
+			cursor: pointer;
+			margin-right:3px;
+		}
+
+		.image-upload:hover{
+			color:#555;
+			background:rgb(240,240,240);
+			
+		}
+
+		#preview-img{
+			width:100px;
+			border-radius:5px;
+		}
+
+		.cancel{
+			padding:3px;
+			border-radius:50%;
+			margin-left:3px;
+			color:red;
+			position:absolute;
+			top: 0;
+			left:100px;
+			cursor: pointer;
+			 
+		}
+
+		.cancel:hover{
+			background:red;
+			color:white;
+		}
+
 	</style>
 
 	<!-- Body Start -->
@@ -112,12 +150,23 @@
 										</div>
 
 										<div class="message-send-area">
+											<!-- uploads/chats/IMG_3165.jpeg -->
+											<div style="position:relative;">
+												<img src="" alt="" id="preview-img">
+												<span id="unselect" class="cancel"><i class="uil  uil-minus-circle"></i> </span>
+											</div>
+
 											<div class="mf-field">
-												<div class="ui search focus input__msg">
-													<div class="ui left icon input swdh19">
-														<input class="prompt srch_explore" type="text" id="input_msg" placeholder="Write a message...">
+												<form enctype="multipart/form-data">
+													<div class="ui search focus input__msg">
+														<div class="ui left icon input swdh19">
+															<span class="image-upload" id="select_image"><i style="font-size:15px;color:#444" class="uil uil-image-upload"></i></span>
+															<input class="prompt srch_explore" type="text" id="input_msg" placeholder="Write a message...">
+														</div>
+														<input type="file" id="my_file" style="display: none;" accept="image/*" />
 													</div>
-												</div>
+												</form>
+												
 												<button href="javascript:void(0)" class="add_msg" id="btn_send"><i class="uil uil-message"></i></button>
 											</div>
 										</div>
@@ -136,6 +185,7 @@
 		var userid=user.learner_phone;
 		var major="<?php echo $_GET['team'] ?>";
 		var team="Teacher";
+		let hasImage=false;
 
 		const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 	
@@ -165,6 +215,7 @@
 		const app = initializeApp(firebaseConfig);
 		const analytics = getAnalytics(app);
 		const database = getDatabase(app);
+
 
 		const db = getDatabase();
 		fetchMessage();
@@ -269,23 +320,85 @@
             })
 
 			$('#btn_send').click(()=>{
-				let msgVal=$('#input_msg').val();
-				$('#input_msg').val("");
-				let time=Date.now();
-				var messageSet={
-					imageUrl:"",
-					msg:msgVal,
-					seen:0,
-					senderId:userid,
-					time:time
-				};
-				
-				writeUserData(team,messageSet);
+				if(hasImage){
+					uploadImage();
+				}else{
+					sendMessage("");
+				}
 			})
 
 			fetchConversation();
 
+			$('#select_image').click(()=>{
+				$('#my_file').click();
+			});
+
+			$('#unselect').hide();
+
+			$('#unselect').click(()=>{
+				$('#preview-img').attr('src','');
+				$('#unselect').hide();
+				hasImage=false;
+			});
+
+			$('#my_file').change(()=>{
+				var files=$('#my_file').prop('files');
+				var file=files[0];
+				 
+				var reader = new FileReader();
+
+				reader.onload = function (e) {
+					$('#preview-img').attr('src', e.target.result);
+					$('#unselect').show();
+					hasImage=true;
+				};
+
+				reader.readAsDataURL(file);
+				  
+			});
         });
+
+		 
+		function uploadImage(){
+			var files=$('#my_file').prop('files');
+			var file=files[0];
+			var form_data = new FormData();
+                form_data.append('file',file);
+				 
+				var ajax=new XMLHttpRequest();
+                ajax.onload =function(){
+                    if(ajax.status==200 || ajax.readyState==4){
+                        var response=JSON.parse(ajax.responseText);
+						if(response.status=="success"){
+							sendMessage(response.image);
+							 
+						}
+                    }
+                };
+                ajax.open("post",`api/chats/upload-image.php`,true);
+				ajax.upload.onprogress = e => {
+					if (e.lengthComputable) {
+						const percentComplete = (e.loaded / e.total) * 100;
+						console.log('percent ',percentComplete);
+					}
+				};
+				ajax.send(form_data);
+		}
+
+		function sendMessage(image){
+			let msgVal=$('#input_msg').val();
+			$('#input_msg').val("");
+			let time=Date.now();
+			var messageSet={
+				imageUrl:image,
+				msg:msgVal,
+				seen:0,
+				senderId:userid,
+				time:time
+			};
+			
+			writeUserData(team,messageSet);
+		}
 
 		function writeUserData(team,message) {
 			const dbRef = ref(db, `${major}/${team}/ChatRoom/${userid}/${message.time}`);

@@ -265,7 +265,7 @@
        
         console.log('width ',w, 'post ',w_post_section);
 
-        if(w<=w_post_section){
+        if(w<=w_post_section+200){
            
             right_section.setAttribute('style','display:none');
         

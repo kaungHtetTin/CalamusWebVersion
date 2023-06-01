@@ -313,8 +313,6 @@
             }
         }
 
-        console.log(result);
-
         return result;
     }
 
@@ -888,7 +886,6 @@
 <script src="assets/vendor/semantic/semantic.min.js"></script>
 <script src="assets/js/custom.js"></script>
 <script src="assets/js/night-mode.js"></script>
-
 
 	
 </body>

@@ -195,8 +195,6 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 							</a>
 						</div>
 						<a href="setting.php" class="item channel_item">Setting</a>
-						<a href="help.html" class="item channel_item">Help</a>
-						<a href="feedback.html" class="item channel_item">Send Feedback</a>
 						<a href="signout.php" class="item channel_item">Sign Out</a>
 					</div>
 				</li>
@@ -258,7 +256,7 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 			</div>
 			
 			<div class="left_section">
-				<h6 class="left_title">ADMIN  TEAM</h6>
+				<h6 class="left_title">ADMIN  TEAM (Help)</h6>
 				<ul>
 					<li class="menu--item">
 						<a style="padding-top:5px;" href="admin_team.php?team=english" class="menu--link user_img <?php if($page_title=='Admin Team - English') echo 'active' ?>">
@@ -285,21 +283,15 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 						</a>
 					</li>
 					<li class="menu--item">
-						<a href="help.html" class="menu--link" title="Help">
-							<i class='uil uil-question-circle menu--icon'></i>
-							<span class="menu--label">Help</span>
+						<a href="vip_plan.php" class="menu--link" title="Report History">
+							<i class='uil-dollar-sign-alt menu--icon'></i>
+							<span class="menu--label">Purchase VIP Plan</span>
 						</a>
 					</li>
 					<li class="menu--item">
-						<a href="report_history.html" class="menu--link" title="Report History">
-							<i class='uil uil-windsock menu--icon'></i>
-							<span class="menu--label">Report History</span>
-						</a>
-					</li>
-					<li class="menu--item">
-						<a href="feedback.html" class="menu--link" title="Send Feedback">
-							<i class='uil uil-comment-alt-exclamation menu--icon'></i>
-							<span class="menu--label">Send Feedback</span>
+						<a href="signout.php" class="menu--link" title="Send Feedback">
+							<i class='uil-sign-out-alt menu--icon'></i>
+							<span class="menu--label">Sign Out</span>
 						</a>
 					</li>
 				</ul>

@@ -210,7 +210,7 @@
         }
 
         function getProgessDegree(course_id){
-            var result=10;
+            var result=0;
             for(var i=0;i<learn_counts.length;i++){
                 var counter=learn_counts[i];
                 if(counter.course_id==course_id){
@@ -219,8 +219,7 @@
                     if(learned==0){
                         result=0;
                     }else{
-                        result=(learned/total)*360;
-                         
+                        result=(learned/total)*360;  
                     }
                     
                     break;

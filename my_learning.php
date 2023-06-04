@@ -121,7 +121,7 @@
                             <div class="auth1lnkprce">
                                 <p class="cr1fot">By <a href="instructor_profile.php?teacher_id=${course.teacher_id}">${course.teacher_name}</a></p>
                                 <div class="prce142">
-                                    <a href="course_detail.php?course_id=${course.course_id}" class="upload_btn">Learn Now</a>
+                                    <a href="course_detail.php?course_id=${course.course_id}" style="padding:10px;" class="subscribe-btn">Learn Now</a>
                                 </div>
                             </div>
                         </div>

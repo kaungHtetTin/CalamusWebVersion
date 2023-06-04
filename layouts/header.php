@@ -65,11 +65,9 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 		</div>
 		<div class="header_right">
 			<ul>
-
 				<li>
-					<a href="my_learning.php" class="upload_btn" title="Create New Course">My Learning</a>
+					<a href="my_learning.php" style="padding:10px;" class="subscribe-btn" title="Create New Course">My Learning</a>
 				</li>
-
 				<li class="ui dropdown" onclick="fetchNoti()">
 					<a href="javascript:void(0)" onclick="fetchNoti()" class="option_links" title="Notifications">
 						<i class='uil uil-bell'></i>

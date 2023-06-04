@@ -70,6 +70,11 @@
 			border-radius:5px;
 		}
 
+		.image-message{
+			width:50%;
+			border-radius:7px;
+		}
+
 		.cancel{
 			padding:3px;
 			border-radius:50%;
@@ -323,7 +328,8 @@
 				if(hasImage){
 					uploadImage();
 				}else{
-					sendMessage("");
+					let msgVal=$('#input_msg').val();
+					if(msgVal!="")sendMessage("");
 				}
 			})
 
@@ -443,13 +449,33 @@
 
 
 		function myMessage(msg){
+			console.log(msg);
+			let imageForm,messageForm;
+			if(msg.imageUrl!=""){
+				imageForm= `
+					<img class="image-message" src="${msg.imageUrl}">
+					<br>
+				`;
+			}else{
+				imageForm="";
+			}
+
+			if(msg.msg!=""){
+				messageForm=`
+					<div class="message-inner-dt" style="float:right;">
+						<p>${msg.msg}</p>
+					</div>
+					<br>
+				`;
+			}else{
+				messageForm="";
+			}
+
 			return `
-				<div class="main-message-box ta-right" style="text-align:right;">
+				<div class="main-message-box st3" style="text-align:right;padding-right:5px;">
 					<div class="message-dt" style="float:right;">
-						<div class="message-inner-dt" style="float:right;">
-							<p>${msg.msg}</p>
-						</div><!--message-inner-dt end-->
-						<br>
+						${imageForm}
+						${messageForm}
 						<span>${formatDate(msg.time)}</span>
 					</div><!--message-dt end-->
 				</div><!--main-message-box end-->
@@ -457,16 +483,49 @@
 		}
 
 		function otherMessage(msg){
+
+			let imageForm,messageForm;
+			if(msg.imageUrl!=""){
+				imageForm= `
+					<img class="image-message" src="${msg.imageUrl}">
+					<br>
+				`;
+			}else{
+				imageForm="";
+			}
+
+			if(msg.msg!=""){
+				messageForm=`
+					<div class="message-inner-dt" style="float:right;">
+						<p>${msg.msg}</p>
+					</div>
+					<br>
+				`;
+			}else{
+				messageForm="";
+			}
+		
 			return `
 				<div class="main-message-box st3">
 					<div class="message-dt st3">
-						<div class="message-inner-dt">
-							<p>${msg.msg}</p>
-						</div><!--message-inner-dt end-->
+						${imageForm}
+						${messageForm}
 						<span>${formatDate(msg.time)}</span>
 					</div><!--message-dt end-->
 				</div><!--main-message-box end-->
 			`;
+		}
+
+		function imageMessage(image){
+			if(image!=""){
+				return `
+					<img class="image-message" src="${image}">
+					<br>
+				`;
+			}else{
+				return "";
+			}
+			
 		}
 
 		function formatDate(time){

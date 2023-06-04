@@ -65,6 +65,11 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 		</div>
 		<div class="header_right">
 			<ul>
+
+				<li>
+					<a href="my_learning.php" class="upload_btn" title="Create New Course">My Learning</a>
+				</li>
+
 				<li class="ui dropdown" onclick="fetchNoti()">
 					<a href="javascript:void(0)" onclick="fetchNoti()" class="option_links" title="Notifications">
 						<i class='uil uil-bell'></i>
@@ -218,6 +223,12 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 						<a href="explore.php" class="menu--link  <?php if($page_title=='Explore') echo 'active' ?>" title="Explore">
 							<i class='uil uil-search menu--icon'></i>
 							<span class="menu--label">Explore</span>
+						</a>
+					</li>
+					<li class="menu--item">
+						<a href="my_learning.php" class="menu--link  <?php if($page_title=='My Learning') echo 'active' ?>" title="My Learning">
+							<i class='uil uil-book-open menu--icon'></i>
+							<span class="menu--label">My Learning</span>
 						</a>
 					</li>
 					<li class="menu--item menu--item__has_sub_menu">

@@ -234,20 +234,10 @@
                     <div class="card-body">
                     <h5 class="card-title">ကျသင့်ငွေပေးချေပြီးပါက </h5>
                     <p class="card-text">
-                        ကျသင့်ငွေအားပေးချေပြီးပါက ငွေပေးချေထားသည့်ဖြတ်ပိုင်း Screentshot အား Calamus Education ၏ Easy English - Calamus Education , Easy Korean - Calamus Education စသော Official Facebook Page များသို့ ပေးပို့နိုင်ပါသည်။ 
+                        ကျသင့်ငွေအားပေးချေပြီးပါက ငွေပေးချေထားသည့်ဖြတ်ပိုင်း Screentshot အား ADMIN TEAM သို့ ဆက်သွယ်  ပေးပို့ရမှာပဲဖြစ်ပါတယ်
                     </p>
 
-                        <a href="https://www.facebook.com/easyenglishcalamus">
-                            <i style="color:white; background:#3b5998;padding:10px;border-radius:4px;" class="fab fa-facebook-f"></i> 
-                            Easy English - Calamus Education 
-                        </a> 
-                        <br><br>
                        
-                        <a href="https://www.facebook.com/easykoreancalamus">
-                            <i style="color:white; background:#3b5998;padding:10px;border-radius:4px;" class="fab fa-facebook-f"></i> 
-                            Easy Korean - Calamus Education 
-                        </a> 
-                        <br><br>
                     
                     </div>
                 </div>

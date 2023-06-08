@@ -227,12 +227,6 @@
             }
             return result;
         }
-        
-       
-      
-
-
-
 
     </script>
 

@@ -170,8 +170,8 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 				</li>
 				
 				<li class="ui dropdown">
-					<a href="#" class="opts_account" title="Account">
-						<img src="<?php echo $user['learner_image']; ?>" style="width: 40px;height: 40px;" alt="">
+					<a href="#" class="card" title="Account" style="padding:2px;border-radius:50%;">
+						<img src="<?php echo $user['learner_image']; ?>" style="width: 40px;height: 40px;border-radius:50%" alt="">
 					</a>
 					<div class="menu dropdown_account">
 						<div class="channel_my">

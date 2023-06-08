@@ -368,27 +368,28 @@
 		function uploadImage(){
 			var files=$('#my_file').prop('files');
 			var file=files[0];
+			
 			var form_data = new FormData();
-                form_data.append('file',file);
-				 
-				var ajax=new XMLHttpRequest();
-                ajax.onload =function(){
-                    if(ajax.status==200 || ajax.readyState==4){
-                        var response=JSON.parse(ajax.responseText);
-						if(response.status=="success"){
-							sendMessage(response.image);
-							 
-						}
-                    }
-                };
-                ajax.open("post",`api/chats/upload-image.php`,true);
-				ajax.upload.onprogress = e => {
-					if (e.lengthComputable) {
-						const percentComplete = (e.loaded / e.total) * 100;
-						console.log('percent ',percentComplete);
+			form_data.append('file',file);
+				
+			var ajax=new XMLHttpRequest();
+			ajax.onload =function(){
+				if(ajax.status==200 || ajax.readyState==4){
+					var response=JSON.parse(ajax.responseText);
+					if(response.status=="success"){
+						sendMessage(response.image);
+							
 					}
-				};
-				ajax.send(form_data);
+				}
+			};
+			ajax.open("post",`api/chats/upload-image.php`,true);
+			ajax.upload.onprogress = e => {
+				if (e.lengthComputable) {
+					const percentComplete = (e.loaded / e.total) * 100;
+					console.log('percent ',percentComplete);
+				}
+			};
+			ajax.send(form_data);
 		}
 
 		function sendMessage(image){

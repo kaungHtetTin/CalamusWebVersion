@@ -9,6 +9,8 @@
             $query="SELECT * FROM learners where learner_phone=$phone limit 1";
             $learner=$DB->read($query);
 
+           
+
             $result="";
 
             if($learner){
@@ -17,6 +19,7 @@
                    $_SESSION['calamus_userid']=$phone;
                     
                    if($data['remember_me']=='on'){
+                     
                         $token=$this->base64UrlEncode($phone.$password.time());
                         $query="UPDATE learners SET auth_token='$token' WHERE learner_phone=$phone";
                         $DB->save($query);
@@ -31,7 +34,7 @@
                 $result="This phone number has not registered yet!. Please try again using another phone number.";
             }
 
-            return $result;
+            return $result; 
 
         }
 

@@ -16,8 +16,8 @@
 					</div>
 					<div class="col-lg-3 col-md-3 col-sm-6">
 						<div class="item_f1">
-							<a href="terms_of_use.html">Terms</a>
-							<a href="terms_of_use.html">Privacy Policy</a>
+							<a href="term.php">Terms</a>
+							<a href="privacy.php">Privacy Policy</a>
 						</div>
 					</div>
 					 

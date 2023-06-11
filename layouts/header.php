@@ -308,13 +308,9 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 			<div class="left_footer">
 				<ul>
 					<li><a href="about_us.html">About</a></li>
-					<li><a href="press.html">Press</a></li>
 					<li><a href="contact_us.html">Contact Us</a></li>
-					<li><a href="coming_soon.html">Advertise</a></li>
-					<li><a href="coming_soon.html">Developers</a></li>
-					<li><a href="terms_of_use.html">Copyright</a></li>
-					<li><a href="terms_of_use.html">Privacy Policy</a></li>
-					<li><a href="terms_of_use.html">Terms</a></li>
+					<li><a href="term.php">Terms</a></li>
+					<li><a href="privacy.php">Privacy</a></li>
 				</ul>
 				<div class="left_footer_content">
 					<p>© 2023 <strong>Calamuseducation</strong>. All Rights Reserved.</p>

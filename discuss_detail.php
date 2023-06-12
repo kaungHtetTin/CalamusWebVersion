@@ -96,7 +96,7 @@
                 
                 <div align="center" class="col-xl-9 col-lg-8" id="post-section">
                  
-                    <div class="" style="padding-left:20px;padding-right:20px;">
+                    <div class="" style="">
                         <div id="post_container">
                         </div>
 

@@ -70,9 +70,8 @@
         height:40px;
         border-radius:50%;
         cursor: pointer;
-        margin-right:5px;
-        margin-top:15px;
-       float: right;
+        margin-right:15px;
+        float: right;
     }
 
 
@@ -95,6 +94,7 @@
         top: 5px;
         right:5px;
         cursor: pointer;
+        display:none;
             
     }
 
@@ -111,7 +111,7 @@
 	<!-- Body Start -->
 <div class="wrapper" onresize="adjustLayout()">
     <div class="sa4d25">
-        <div class="container-fluid" style="padding-left:0px;padding-right:0px;">	
+        <div class="container-fluid" style="">	
             <div class="row">
                 <div class="col-xl-9 col-lg-9" id="post-section">
                  
@@ -124,13 +124,13 @@
                                 <textarea id="post_input" class="_cmnt001" placeholder="Add a new post"></textarea>
                             </div>
 
-                            <div style="position:relative;margin-left:60px;margin-top:10px;">
+                            <div style="position:relative;margin-left:60px;margin-top:10px;margin-bottom:20px;">
                                 <img src="" alt="" id="preview-img">
                                 <span id="unselect" class="cancel"><i class="uil  uil-minus-circle"></i> </span>
                             </div>
 
                             <div style="">
-                                <button  class="cmnt-btn" onclick="addPost()" >Add</button>
+                                <button style="margin-top:0px;"  class="cmnt-btn" onclick="addPost()" >Add</button>
                                 <form enctype="multipart/form-data">
                                     <div class="image-upload" id="select_image"><i style="font-size:15px;color:#444" class="uil uil-image-upload"></i></div>
                                     <input type="file" id="my_file" style="display: none;" accept="image/*" />
@@ -160,8 +160,8 @@
                                         ?>
                                     <div class="item">
                                         <div class="fcrse_1 mb-20">
-                                            <a href="blog_single_view.html" class="hf_img">
-                                            <img src="<?php echo $blog['image']; ?>" alt="" style="height:100px;">
+                                            <a href="<?php echo "discuss_detail.php?mCode=$mCode&category=$category&post_id=$post_id" ?>" class="hf_img">
+                                            <img src="<?php echo $blog['image']; ?>" alt="" style="height:150px;">
                                                 <div class="course-overlay"></div>
                                             </a>
                                             <div class="hs_content">

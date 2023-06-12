@@ -63,6 +63,47 @@
         height:20px;
     }
 
+    .image-upload{
+        background:rgb(245,245,245);
+        padding:10px;
+        width:40px;
+        height:40px;
+        border-radius:50%;
+        cursor: pointer;
+        margin-right:5px;
+        margin-top:15px;
+       float: right;
+    }
+
+
+    .image-upload:hover{
+        color:#555;
+        background:rgb(240,240,240);
+        
+    }
+
+    #preview-img{
+        width:100%;
+        border-radius:5px;
+    }
+
+    .cancel{
+        padding:3px;
+        border-radius:50%;
+        color:red;
+        position:absolute;
+        top: 5px;
+        right:5px;
+        cursor: pointer;
+            
+    }
+
+    .cancel:hover{
+        background:red;
+        color:white;
+    }
+
+  
     
 
 </style>
@@ -70,12 +111,11 @@
 	<!-- Body Start -->
 <div class="wrapper" onresize="adjustLayout()">
     <div class="sa4d25">
-        <div class="container-fluid">	
+        <div class="container-fluid" style="padding-left:0px;padding-right:0px;">	
             <div class="row">
-                
-                <div align="center" class="col-xl-9 col-lg-9" id="post-section">
+                <div class="col-xl-9 col-lg-9" id="post-section">
                  
-                    <div class="" style="padding-left:20px;padding-right:20px;">
+                    <div class="" style="">
                         <div class="cmmnt_1526">
                             <div class="cmnt_group">
                                 <div class="img160">
@@ -83,8 +123,33 @@
                                 </div>
                                 <textarea id="post_input" class="_cmnt001" placeholder="Add a new post"></textarea>
                             </div>
-                            <button  class="cmnt-btn" onclick="addPost()" >Add</button>
+
+                            <div style="position:relative;margin-left:60px;margin-top:10px;">
+                                <img src="" alt="" id="preview-img">
+                                <span id="unselect" class="cancel"><i class="uil  uil-minus-circle"></i> </span>
+                            </div>
+
+                            <div style="">
+                                <button  class="cmnt-btn" onclick="addPost()" >Add</button>
+                                <form enctype="multipart/form-data">
+                                    <div class="image-upload" id="select_image"><i style="font-size:15px;color:#444" class="uil uil-image-upload"></i></div>
+                                    <input type="file" id="my_file" style="display: none;" accept="image/*" />
+                                </form>
+                            </div>
                         </div>
+
+                        <div id="post_adding">
+                            <div class="col-md-12 channel_my item">
+                                <div class="main-loader">													
+                                    <div class="spinner">
+                                        <div class="bounce1"></div>
+                                        <div class="bounce2"></div>
+                                        <div class="bounce3"></div>
+                                    </div>																										
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="section3125">
                             <h6 class="item_title">Pinned Blog</h6>
                             <a href="explore.php" class="see150">See all</a>
@@ -114,19 +179,6 @@
                             </div>
                         </div>
                          
-
-                        <div id="post_adding">
-                            <div class="col-md-12 channel_my item">
-                                <div class="main-loader">													
-                                    <div class="spinner">
-                                        <div class="bounce1"></div>
-                                        <div class="bounce2"></div>
-                                        <div class="bounce3"></div>
-                                    </div>																										
-                                </div>
-                            </div>
-                        </div>
-
                         <div id="post_container">
                            
                         </div>
@@ -239,6 +291,7 @@
     var userid=<?php echo $user['learner_phone']; ?>;
     var currentUser=<?php echo json_encode($user) ?>;
     var category="<?php echo $_GET['category']?>";
+    var hasImage=false;
 
     console.log(currentUser);
 
@@ -247,6 +300,36 @@
     $(document).ready(function(){
         fetchPost(page);
         $('#post_adding').hide();
+
+        $('#select_image').click(()=>{
+            console.log('click select image');
+			$('#my_file').click();
+        });
+
+        $('#unselect').hide();
+
+        $('#unselect').click(()=>{
+            $('#preview-img').attr('src','');
+            $('#unselect').hide();
+            hasImage=false;
+        });
+
+        $('#my_file').change(()=>{
+            var files=$('#my_file').prop('files');
+            var file=files[0];
+                
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#preview-img').attr('src', e.target.result);
+                $('#unselect').show();
+                hasImage=true;
+            };
+
+            reader.readAsDataURL(file);
+                
+        });
+
     });
 
     function loadMore(){
@@ -300,8 +383,8 @@
         var media="";
         if(post.postImage!==""){
             media=`
-                <div>
-                    <img style="width:100%" src="${post.postImage}"/>
+                <div style="height:300px;overflow:hidden">
+                    <img style="width:100%;" src="${post.postImage}"/>
                 </div>
             `;
         }
@@ -430,34 +513,55 @@
     function addPost(){
         var link=`https://www.calamuseducation.com/calamus-v2/api/${category}/posts/add`;
         var body=$('#post_input').val();
-         
-        var data={
-            "learner_id":userid,
-            "body":body,
-            "major":category,
-            "hasVideo":0
+        
+        var form_data = new FormData();
+        form_data.append('learner_id',userid);
+        form_data.append('body',body);
+        form_data.append('major',category);
+        form_data.append('hasVideo',0);
+        if(hasImage){
+            var files=$('#my_file').prop('files');
+			var file=files[0];
+            form_data.append('myfile',file);
+        }
+
+        if(body==""&&!hasImage){
+            console.log('Discuss something about your post');
+            return;
         }
 
         $('#post_adding').show();
-        $('#post_input').val("");
-        $.post(link,data,(post)=>{
-            $('#post_adding').hide();
-            post.userName=currentUser.learner_name;
-            post.userId=currentUser.learner_phone;
-            post.userImage=currentUser.learner_image;
-            post.vip=0;
-            post.hidden=0;
-            post.block;
-            post.postImage=post.image;
-            post.postLikes=0;
-            post.comments=0;
-            post.shareCount=0;
-            console.log(post);
-            $('#post_container').prepend(postComponent(post));
-            
-        })
-
-
+        var ajax=new XMLHttpRequest();
+        ajax.onload =function(){
+            if(ajax.status==200 || ajax.readyState==4){
+                var post=JSON.parse(ajax.responseText);
+                $('#post_adding').hide();
+                $('#unselect').click();
+                $('#post_input').val("");
+                hasImage=false;
+                post.userName=currentUser.learner_name;
+                post.userId=currentUser.learner_phone;
+                post.userImage=currentUser.learner_image;
+                post.vip=0;
+                post.hidden=0;
+                post.block;
+                post.postImage=post.image;
+                post.postLikes=0;
+                post.comments=0;
+                post.shareCount=0;
+                console.log(post);
+                $('#post_container').prepend(postComponent(post));
+            }
+        };
+        ajax.open("post",link,true);
+        ajax.upload.onprogress = e => {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                console.log('percent ',percentComplete);
+            }
+        };
+        ajax.send(form_data);
+       
     }
 
     function likePost(postId){

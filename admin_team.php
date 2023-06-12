@@ -52,7 +52,6 @@
 
 		.image-upload{
 			background:rgb(245,245,245);
- 
 			padding:10px;
 			border-radius:50%;
 			cursor: pointer;

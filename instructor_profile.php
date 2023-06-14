@@ -35,7 +35,16 @@
 										<div class="prfledt1">
 											<h2><?php echo $profile['name']; ?></h2>
 											<span><?php  echo $profile['rank']; ?></span>
-										</div>										
+										</div>	
+										<div class="rgt-145 prfledt1">
+											<ul class="tutor_social_links">
+												<li><a href="<?php echo $profile['facebook']; ?>" target="_blank" class="fb"><i class="fab fa-facebook-f"></i></a></li>
+												<?php if($profile['telegram']!='null') { ?>
+												<li><a href="<?php echo $profile['telegram']; ?>" target="_blank" class="tw"><i class="fab fa-telegram"></i></a></li>
+												<?php } ?>
+											</ul>
+										</div>
+																			
 									</div>
 									<ul class="_ttl120">
 										<li>
@@ -50,36 +59,8 @@
 												<div class="_ttl123"><?php echo $profile['total_course']; ?></div>
 											</div>
 										</li>
-										<li>
-											<div class="_ttl121">
-												<div class="_ttl122">Reviews</div>
-												<div class="_ttl123">115K</div>
-											</div>
-										</li>
-										<li>
-											<div class="_ttl121">
-												<div class="_ttl122">Subscribers</div>
-												<div class="_ttl123">452K</div>
-											</div>
-										</li>
 									</ul>
-								</div>
-								<div class="col-lg-5">
-									
-									<div class="rgt-145">
-										<ul class="tutor_social_links">
-											<li><a href="#" class="fb"><i class="fab fa-facebook-f"></i></a></li>
-											<li><a href="#" class="tw"><i class="fab fa-twitter"></i></a></li>
-											<li><a href="#" class="ln"><i class="fab fa-linkedin-in"></i></a></li>
-											<li><a href="#" class="yu"><i class="fab fa-youtube"></i></a></li>
-										</ul>
-									</div>
-									<ul class="_bty149">
-										<li><button class="subscribe-btn btn500">Subscribe</button></li>								
-										<li><button class="msg125 btn500">Message</button></li>								
-									</ul>
-									
-								</div>													
+								</div>									
 							</div>							
 						</div>							
 					</div>															
@@ -126,9 +107,7 @@
                                                     <div class="col-lg-4 col-md-4  col-sm-6 col-xs-12">
                                                         <div class="fcrse_1 mt-30">
                                                             <a href="course_detail.php?course_id=<?php echo $course['course_id']; ?>" class="fcrse_img">
-                                                                <div style=" position: relative; height: 200px;background:<?php echo $course['background_color']; ?>">
-                                                                    <img src="<?php echo $course['cover_url'];?>"style="height:120px; width: 120px; position: absolute;bottom:0; left:50px;" alt="">
-                                                                </div>
+                                                                 <img src="<?php echo $course['web_cover'];?>"style="" alt="">
 
                                                                 <div class="course-overlay">
                                                                     <div class="badge_seller"><?php echo ucfirst($course['major']) ?></div>

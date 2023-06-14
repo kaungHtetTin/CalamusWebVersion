@@ -33,13 +33,10 @@ class Lesson{
         ";
         $plans=$DB->read($query);
         
-
         for($i=0;$i<count($plans);$i++){
             $day=$plans[$i]['day'];
             $day--;
-           
             $lessons[$day][]=$plans[$i];
-             
         }
         
         return $lessons;
@@ -133,6 +130,13 @@ class Lesson{
             $count=round($count/1000000,1);
             return $count."M views";
         }
+    }
+
+    function count(){
+        $DB=new Database();
+        $query="SELECT count(*) as count FROM lessons";
+        $result=$DB->read($query);
+        return $result[0]['count'];
     }
 }
 

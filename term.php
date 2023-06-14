@@ -5,9 +5,9 @@
 		<meta charset="utf-8">		
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, shrink-to-fit=9">
-		<meta name="description" content="Gambolthemes">
-		<meta name="author" content="Gambolthemes">
-		<title>Cursus - Terms of Use</title>
+		<meta name="description" content="CalamusEducation">
+		<meta name="author" content="CalamusEducation">
+		<title>Calamus | Terms of Use</title>
 		
 		<!-- Favicon Icon -->
 		<link rel="icon" type="image/png" href="assets/images/logo.png">

@@ -4,14 +4,14 @@
 				<div class="row">
 					<div class="col-lg-3 col-md-3 col-sm-6">
 						<div class="item_f1">
-							<a href="about_us.html">About</a>
-							<a href="our_blog.html">Blog</a>
+							<a href="about_us.php">About</a>
+							<a href="our_blog.php">Blog</a>
 						</div>
 					</div>
 					<div class="col-lg-3 col-md-3 col-sm-6">
 						<div class="item_f1">
-							<a href="help.html">Help</a>
-							<a href="contact_us.html">Contact Us</a>
+							<a href="help.php">Help</a>
+							<a href="contact_us.php">Contact Us</a>
 						</div>
 					</div>
 					<div class="col-lg-3 col-md-3 col-sm-6">

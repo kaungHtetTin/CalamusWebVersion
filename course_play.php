@@ -55,6 +55,7 @@
 		<link href="assets/vendor/OwlCarousel/assets/owl.theme.default.min.css" rel="stylesheet">
 		<link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="assets/vendor/semantic/semantic.min.css">	
+        <script src="assets/js/jquery-3.3.1.min.js"></script>
 		
 
         <style>
@@ -106,6 +107,10 @@
                 100% {-webkit-mask-position:left}
             }
 
+            .user_dt_right ul li {
+                width: 23.3%;
+            }
+
         </style>
 
 	</head>
@@ -139,11 +144,16 @@
                                                 <a href="#" class="lkcm152"><i class="uil uil-eye"></i><span id="tv_view"></span></a>
                                             </li>
                                             <li>
-                                                <a href="#" class="lkcm152"><i class="uil uil-thumbs-up"></i><span id="tv_like"></span></a>
+                                                <a href="javascript:void(0)" onclick="likeVideo()" class="lkcm152"><i id="like_thumb" class="uil uil-thumbs-up" style=""></i><span id="tv_like"></span></a>
                                             </li>
                                             <li>
                                                 <a href="#" class="lkcm152"><i class="uil uil-comment-alt"></i><span id="tv_comment"></span></a>
                                             </li>
+
+                                            <li>
+                                                <a href="#" class="lkcm152"><i class="uil uil-share-alt"></i><span id="tv_share_count"></span></a>
+                                            </li>
+
                                         </ul>
                                     </div>
                                 </div>
@@ -259,9 +269,8 @@
             </div>
 
             <div class="col-lg-4 col-md-6 scrollLessonContent fixContainer" id="lesson-section">
-                <br>
-                <div class="user_cntnt"><h4>Course content</h4></div>
-                <div class="_112456">
+               <br> 
+                <div class="_112456" style="margin-bottom:10px;">
                     <ul class="accordion-expand-holder">
                         <li><span class="accordion-expand-all _d1452">Expand all</span></li>
                         <li><span class="_fgr123"> <?php echo $course['lessons_count']; ?> lectures</span></li>
@@ -270,17 +279,17 @@
                 </div>
                 <?php for($i=0;$i<count($days);$i++){ $day=$days[$i]; ?> 
 
-                <div id="accordion" class="ui-accordion ui-widget ui-helper-reset">
+                <div id="accordion" class="ui-accordion ui-widget ui-helper-reset" style="margin-top:0px;">
                     <a href="javascript:void(0)" class="accordion-header ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-all">												
                         <div class="section-header-left">
                             <span class="section-title-wrapper">
-                                <i class='uil uil-presentation-play crse_icon'></i>
+                                <i class='uil uil-calendar-alt crse_icon'></i>
                                 <span class="section-title-text">Day <?php echo $i+1; ?> </span>
                             </span>
                         </div>
                         <div class="section-header-right">
-                            <span class="num-items-in-section"><?php echo count($day) ?> lectures</span>
-                            <span class="num-items-in-section"><?php echo $Lesson->formatDuration($Lesson->getTotalDuration($day)); ?></span>
+                            <span class="num-items-in-section" style="font-size:unset"><?php echo count($day) ?> lectures</span>
+                            <span class="num-items-in-section" style="font-size:unset"><?php echo $Lesson->formatDuration($Lesson->getTotalDuration($day)); ?></span>
                         </div>
                     </a>
 
@@ -413,12 +422,16 @@
                                     frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Lesson 6 Rules for word stress"></iframe>
                             </div>
                         `;
-                        document.getElementById('tv_course_title').innerHTML=lesson.category_title
-                        document.getElementById('tv_view').innerHTML=lesson.view_count;
-                        document.getElementById('tv_like').innerHTML=lesson.post_like;
-                        document.getElementById('tv_comment').innerHTML=lesson.comments;
-                        document.getElementById('tv_title').innerHTML=lesson.lesson_title;
+                        document.getElementById('tv_course_title').innerHTML=lesson.category_title;
+                        document.getElementById('tv_view').innerHTML=formatCounting(lesson.view_count);
+                        document.getElementById('tv_like').innerHTML=formatCounting(lesson.post_like);
+                        document.getElementById('tv_comment').innerHTML=formatCounting(lesson.comments);
+                        document.getElementById('tv_title').innerHTML=lesson.lesson_title;  
+                        $('#tv_share_count').html(formatCounting(lesson.share_count));
+
                         updateData(user_id,lesson.id,lesson.post_id);
+                        isLiked(user_id,lesson.post_id);
+                        
                         commentPage=10;
                         
                         fetchComments(user_id,lesson.post_id);
@@ -443,6 +456,50 @@
                     ajax.open("POST","api/play-lesson.php",true);
                     ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                     ajax.send(`user_id=${user_id}&lesson_id=${lesson_id}&post_id=${post_id}`);
+                }
+
+                function isLiked(user_id,post_id){
+                    var ajax=new XMLHttpRequest();
+                    ajax.onload =function(){
+                        if(ajax.status==200 || ajax.readyState==4){
+                            var response=JSON.parse(ajax.responseText);
+   
+                            if(response.like){
+                                document.getElementById('like_thumb').setAttribute('style','color:red');
+                                currentVideo.is_liked=true;
+                                 
+                            }else{
+                                document.getElementById('like_thumb').setAttribute('style','');
+                                currentVideo.is_liked=false;
+                            }
+                            console.log(currentVideo);
+                        }
+                    };
+                    ajax.open("GET",`api/posts/get.php?post_id=${post_id}&user_id=${user_id}`,true);
+                    ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    ajax.send();
+                }
+
+                function likeVideo(){
+                    if(currentVideo.is_liked){
+                        currentVideo.is_liked=false;
+                        currentVideo.post_like=currentVideo.post_like-1;
+                        document.getElementById('like_thumb').setAttribute('style','');
+                    }else{
+                        currentVideo.is_liked=true;
+                        currentVideo.post_like=parseInt(currentVideo.post_like)+1;
+                        document.getElementById('like_thumb').setAttribute('style','color:red');
+                    }
+                    
+                    var link=`https://www.calamuseducation.com/calamus-v2/api/any/posts/like`;
+                    var data={
+                        "user_id":user_id,
+                        "post_id":currentVideo.post_id,
+                    }
+                    $.post(link,data,(res)=>{
+                        console.log(res);
+                    })
+                    document.getElementById('tv_like').innerHTML=formatCounting(currentVideo.post_like);
                 }
 
                 function highLightLessonItem(id){
@@ -959,6 +1016,25 @@
                     }
                 }
 
+                function formatCounting(count){
+
+                    if(count>=0 && count<1000){
+                    return count;
+                    }
+
+                    if(count>=1000&&count<1000000){
+                        count=count/1000;
+                        count= Math.round(count * 10) / 10
+                        return count +"k"; 
+                    }
+
+                    if(count>=1000000){
+                        count=count/1000000;
+                        count= Math.round(count * 10) / 10
+                        return count+"M"; 
+                    }
+                }
+
 
             </script>
 
@@ -967,7 +1043,6 @@
 	<!-- Body End -->
 
 	<script src="assets/js/vertical-responsive-menu.min.js"></script>
-	<script src="assets/js/jquery-3.3.1.min.js"></script>
 	<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 	<script src="assets/vendor/OwlCarousel/owl.carousel.js"></script>
 	<script src="assets/vendor/semantic/semantic.min.js"></script>

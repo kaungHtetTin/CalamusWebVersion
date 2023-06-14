@@ -10,6 +10,7 @@ class Course {
         courses.description,
         courses.rating,
         courses.cover_url,
+        courses.web_cover,
         courses.background_color,
         courses.fee,
         courses.major,
@@ -31,6 +32,7 @@ class Course {
         courses.description,
         courses.rating,
         courses.cover_url,
+        courses.web_cover,
         courses.background_color,
         courses.fee,
         courses.major,
@@ -53,6 +55,7 @@ class Course {
         courses.description,
         courses.rating,
         courses.cover_url,
+        courses.web_cover,
         courses.background_color,
         courses.fee,
         courses.major,
@@ -73,6 +76,13 @@ class Course {
         $course=$DB->read($query)[0];
         return $course;
 
+    }
+
+    function count(){
+        $DB=new Database();
+        $query="SELECT count(*) as count FROM courses where background_color!=''";
+        $result=$DB->read($query);
+        return $result[0]['count'];
     }
 
    

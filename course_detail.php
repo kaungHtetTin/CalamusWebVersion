@@ -38,6 +38,12 @@
     
     include('layouts/header.php');
 ?>
+
+<style>
+    .user_dt_right ul li {
+        width: 23.3%;
+    }
+</style>
  
 <div class="wrapper _bg4586">
     <div class="_215b01">
@@ -131,7 +137,7 @@
                                     <a href="#" class="lkcm152"><i class="uil uil-thumbs-up"></i><span>100</span></a>
                                 </li>
                                 <li>
-                                    <a href="#" class="lkcm152"><i class="uil uil-thumbs-down"></i><span>20</span></a>
+                                    <a href="#" class="lkcm152"><i class="uil uil-comment-alt"></i><span>20</span></a>
                                 </li>
                                 <li>
                                     <a href="#" class="lkcm152"><i class="uil uil-share-alt"></i><span>9</span></a>
@@ -142,9 +148,18 @@
                     <div class="course_tabs">
                         <nav>
                             <div class="nav nav-tabs tab_crse justify-content-center" id="nav-tab" role="tablist">
-                                <a class="nav-item nav-link active" id="nav-about-tab" data-toggle="tab" href="#nav-about" role="tab" aria-selected="true">About</a>
-                                <a class="nav-item nav-link" id="nav-courses-tab" data-toggle="tab" href="#nav-courses" role="tab" aria-selected="false">Courses Content</a>
-                                <a class="nav-item nav-link" id="nav-reviews-tab" data-toggle="tab" href="#nav-reviews" role="tab" aria-selected="false">Reviews</a>
+                                <?php if($isRegister){ ?>
+                                    
+                                    <a class="nav-item nav-link active" id="nav-courses-tab" data-toggle="tab" href="#nav-courses" role="tab" aria-selected="false">Courses Content</a>
+                                    <a class="nav-item nav-link" id="nav-reviews-tab" data-toggle="tab" href="#nav-reviews" role="tab" aria-selected="false">Reviews</a>    
+                                    <a class="nav-item nav-link" id="nav-about-tab" data-toggle="tab" href="#nav-about" role="tab" aria-selected="true">About</a>
+                                <?php } else { ?>
+                                    <a class="nav-item nav-link active" id="nav-about-tab" data-toggle="tab" href="#nav-about" role="tab" aria-selected="true">About</a>
+                                    <a class="nav-item nav-link" id="nav-courses-tab" data-toggle="tab" href="#nav-courses" role="tab" aria-selected="false">Courses Content</a>
+                                    <a class="nav-item nav-link" id="nav-reviews-tab" data-toggle="tab" href="#nav-reviews" role="tab" aria-selected="false">Reviews</a>
+                                <?php } ?>
+
+                               
                             </div>
                         </nav>						
                     </div>
@@ -159,13 +174,13 @@
                 <div class="col-lg-12">
                     <div class="course_tab_content">
                         <div class="tab-content" id="nav-tabContent">
-                            <div class="tab-pane fade show active" id="nav-about" role="tabpanel">
+                            <div class="tab-pane fade  <?php if(!$isRegister) echo 'show active' ?>" id="nav-about" role="tabpanel">
                                 <?php
                                     include("course-abouts/$course_id.php");
                                 ?>
                             </div>
 
-                            <div class="tab-pane fade" id="nav-courses" role="tabpanel">
+                            <div class="tab-pane fade  <?php if($isRegister) echo 'show active' ?>" id="nav-courses" role="tabpanel">
                                 <div class="crse_content">
                                     <h3>Course content</h3>
                                     
@@ -178,17 +193,17 @@
                                     </div>
                                     
                                     <?php for($i=0;$i<count($days);$i++){ $day=$days[$i]; ?> 
-                                    <div id="accordion" class="ui-accordion ui-widget ui-helper-reset">
+                                    <div id="accordion" class="ui-accordion ui-widget ui-helper-reset" style="margin-top:0px;">
                                         <a href="javascript:void(0)" class="accordion-header ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-all">												
                                             <div class="section-header-left">
                                                 <span class="section-title-wrapper">
-                                                    <i class='uil uil-presentation-play crse_icon'></i>
+                                                    <i class='uil uil-calendar-alt crse_icon'></i>
                                                     <span class="section-title-text">Day <?php echo $i+1; ?> </span>
                                                 </span>
                                             </div>
                                             <div class="section-header-right">
-                                                <span class="num-items-in-section"><?php echo count($day) ?> lectures</span>
-                                                <span class="section-header-length"><?php echo $Lesson->formatDuration($Lesson->getTotalDuration($day)); ?></span>
+                                                <span class="num-items-in-section" style="font-size:unset"><?php echo count($day) ?> lectures</span>
+                                                <span class="section-header-length" style="font-size:unset"><?php echo $Lesson->formatDuration($Lesson->getTotalDuration($day)); ?></span>
                                             </div>
                                         </a>
 

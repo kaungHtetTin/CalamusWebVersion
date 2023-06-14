@@ -50,15 +50,13 @@
                                 <div class="item">
                                     <div class="fcrse_1 mb-20">
                                         <a href="course_detail.php?course_id=<?php echo $course['course_id']; ?>" class="fcrse_img">
-                                            <div style=" position: relative; height: 250px;background:<?php echo $course['background_color']; ?>">
-                                                <img src="<?php echo $course['cover_url'];?>"style="height:150px; width: 150px; position: absolute;bottom:0; left:70px;" alt="">
-                                            </div>
+                                            <img src="<?php echo $course['web_cover'] ?>"style="" alt="">
                                             <div class="course-overlay">
                                                 <div class="badge_seller"><?php echo ucfirst($course['major']) ?></div>
                                                 <div class="crse_reviews">
                                                     <i class='uil uil-star'></i> <?php echo $course['rating']; ?>
                                                 </div>
-                                                <span class="play_btn1"><i class="uil uil-play"></i></span>
+                                              
                                                 <div class="crse_timer">
                                                     <?php echo $course['lessons_count'] ?> lectures
                                                 </div>
@@ -73,7 +71,7 @@
                                             <div class="auth1lnkprce">
                                                 <p class="cr1fot">By <a href="instructor_profile.php?teacher_id=<?php echo $course['teacher_id'];?>"><?php echo $course['teacher_name']; ?></a></p>
                                                 <div class="prce142"><?php echo $course['fee']." MMK"; ?></div>
-                                                <button class="shrt-cart-btn" title="cart"><i class="uil uil-shopping-cart-alt"></i></button>
+                                                <button onclick="window.location.href='vip_plan.php'" class="shrt-cart-btn" title="cart"><i class="uil uil-shopping-cart-alt"></i></button>
                                             </div>
                                         </div>
                                     </div>
@@ -91,15 +89,13 @@
                                 <div class="item">
                                     <div class="fcrse_1 mb-20">
                                         <a href="course_detail.php?course_id=<?php echo $course['course_id']; ?>" class="fcrse_img">
-                                            <div style=" position: relative; height: 250px;background:<?php echo $course['background_color']; ?>">
-                                                <img src="<?php echo $course['cover_url'];?>"style="height:150px; width: 150px; position: absolute;bottom:0; left:70px;" alt="">
-                                            </div>
+                                            <img src="<?php echo $course['web_cover'] ?>"style="" alt="">
                                             <div class="course-overlay">
                                                 <div class="badge_seller"><?php echo ucfirst($course['major']) ?></div>
                                                 <div class="crse_reviews">
                                                     <i class='uil uil-star'></i> <?php echo $course['rating']; ?>
                                                 </div>
-                                                <span class="play_btn1"><i class="uil uil-play"></i></span>
+                                              
                                                 <div class="crse_timer">
                                                     <?php echo $course['lessons_count'] ?> lectures
                                                 </div>
@@ -115,7 +111,7 @@
                                             <div class="auth1lnkprce">
                                                 <p class="cr1fot">By <a href="instructor_profile.php?teacher_id=<?php echo $course['teacher_id'];?>"><?php echo $course['teacher_name']; ?></a></p>
                                                 <div class="prce142"><?php echo $course['fee']." MMK"; ?></div>
-                                                <button class="shrt-cart-btn" title="cart"><i class="uil uil-shopping-cart-alt"></i></button>
+                                                <button onclick="window.location.href='vip_plan.php'" class="shrt-cart-btn" title="cart"><i class="uil uil-shopping-cart-alt"></i></button>
                                             </div>
                                         </div>
                                     </div>
@@ -126,8 +122,8 @@
                         </div>
                     </div>
                     <div class="section3125 mt-50">
-                        <h4 class="item_title">Popular Instructors</h4>
-                        <a href="all_instructor.html" class="see150">See all</a>
+                        <h4 class="item_title">Our Instructors</h4>
+                        <a href="all_instructor.php" class="see150">See all</a>
                         <div class="la5lo1">
                             <div class="owl-carousel top_instrutors owl-theme">
                                 <?php foreach($teachers as $teacher){ ?>

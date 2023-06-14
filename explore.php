@@ -82,16 +82,15 @@
                 <div class="col-lg-4 col-md-4  col-sm-6 col-xs-12">
                     <div class="fcrse_1 mt-30">
                         <a href="course_detail.php?course_id=${course.course_id}" class="fcrse_img">
-                            <div style=" position: relative; height: 200px;background:${course.background_color}">
-                                <img src="${course.cover_url}"style="height:120px; width: 120px; position: absolute;bottom:0; left:50px;" alt="">
-                            </div>
-
+                            
+                            <img src="${course.web_cover}"alt="">
+                            
                             <div class="course-overlay">
                                 <div class="badge_seller">${course.major}</div>
                                 <div class="crse_reviews">
                                     <i class="uil uil-star"></i>${formatRating(course.rating,1)}
                                 </div>
-                                <span class="play_btn1"><i class="uil uil-play"></i></span>
+                                
                                 <div class="crse_timer">
                                     ${course.lessons_count} lectures
                                 </div>
@@ -107,7 +106,7 @@
                             <div class="auth1lnkprce">
                                 <p class="cr1fot">By <a href="instructor_profile.php?teacher_id=${course.teacher_id}">${course.teacher_name}</a></p>
                                 <div class="prce142">${course.fee} MMK</div>
-                                <button class="shrt-cart-btn" title="cart"><i class="uil uil-shopping-cart-alt"></i></button>
+                                <button onclick="window.location.href='vip_plan.php'" class="shrt-cart-btn" title="cart"><i class="uil uil-shopping-cart-alt"></i></button>
                             </div>
                         </div>
                     </div>													

@@ -14,8 +14,8 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, shrink-to-fit=9">
-		<meta name="description" content="Gambolthemes">
-		<meta name="author" content="Gambolthemes">		
+		<meta name="description" content="Calamus Education">
+		<meta name="author" content="Calamus Education">		
 		<title>Calamus | <?php echo $page_title; ?> </title>
 		
 		<!-- Favicon Icon -->
@@ -307,8 +307,8 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 			</div>
 			<div class="left_footer">
 				<ul>
-					<li><a href="about_us.html">About</a></li>
-					<li><a href="contact_us.html">Contact Us</a></li>
+					<li><a href="about_us.php">About</a></li>
+					<li><a href="contact_us.php">Contact Us</a></li>
 					<li><a href="term.php">Terms</a></li>
 					<li><a href="privacy.php">Privacy</a></li>
 				</ul>

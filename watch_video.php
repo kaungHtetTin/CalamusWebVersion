@@ -161,7 +161,7 @@
                                             <a href="#" class="lkcm152"><i class="uil uil-eye"></i><span id="tv_view"></span></a>
                                         </li>
                                         <li>
-                                            <a href="#" class="lkcm152"><i class="uil uil-thumbs-up"></i><span id="tv_like"></span></a>
+                                            <a href="javascript:void(0)" onclick="likeVideo()" class="lkcm152"><i id="like_thumb" class="uil uil-thumbs-up"></i><span id="tv_like"></span></a>
                                         </li>
                                         <li>
                                             <a href="#" class="lkcm152"><i class="uil uil-comment-alt"></i><span id="tv_comment"></span></a>
@@ -407,12 +407,13 @@
                     </div>
                 `;
 
-                document.getElementById('tv_view').innerHTML=lesson.view_count;
-                document.getElementById('tv_like').innerHTML=lesson.post_like;
-                document.getElementById('tv_share').innerHTML=lesson.share_count;
+                document.getElementById('tv_view').innerHTML=formatCounting(lesson.view_count);
+                document.getElementById('tv_like').innerHTML=formatCounting(lesson.post_like);
+                document.getElementById('tv_share').innerHTML=formatCounting(lesson.share_count);
                 document.getElementById('tv_title').innerHTML=lesson.lesson_title;
-                document.getElementById('tv_comment').innerHTML=lesson.comments;
-            
+                document.getElementById('tv_comment').innerHTML=formatCounting(lesson.comments);
+
+                isLiked(user_id,lesson.post_id);
                 updateData(user_id,lesson.id,lesson.post_id);
                 fetchComments(user_id,lesson.post_id);
                
@@ -475,6 +476,51 @@
                     footer2.setAttribute('style','display:none');
                  
                 }
+            }
+
+            function isLiked(user_id,post_id){
+                var ajax=new XMLHttpRequest();
+                ajax.onload =function(){
+                    if(ajax.status==200 || ajax.readyState==4){
+                        var response=JSON.parse(ajax.responseText);
+
+                        if(response.like){
+                            document.getElementById('like_thumb').setAttribute('style','color:red');
+                            currentVideo.is_liked=true;
+                                
+                        }else{
+                            document.getElementById('like_thumb').setAttribute('style','');
+                            currentVideo.is_liked=false;
+                        }
+                        console.log(currentVideo);
+                    }
+                };
+                ajax.open("GET",`api/posts/get.php?post_id=${post_id}&user_id=${user_id}`,true);
+                ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                ajax.send();
+            }
+
+            function likeVideo(){
+                if(currentVideo.is_liked){
+                    currentVideo.is_liked=false;
+                    currentVideo.post_like=currentVideo.post_like-1;
+                    document.getElementById('like_thumb').setAttribute('style','');
+                }else{
+                    currentVideo.is_liked=true;
+                    currentVideo.post_like=parseInt(currentVideo.post_like)+1;
+                    document.getElementById('like_thumb').setAttribute('style','color:red');
+                }
+                
+                var link=`https://www.calamuseducation.com/calamus-v2/api/any/posts/like`;
+                var data={
+                    "user_id":user_id,
+                    "post_id":currentVideo.post_id,
+                }
+                $.post(link,data,(res)=>{
+                    console.log(res);
+                })
+
+                document.getElementById('tv_like').innerHTML=formatCounting(currentVideo.post_like);
             }
    
             function loadCommentShimmer(){
@@ -925,6 +971,25 @@
                     return "no like";
                 }
             }
+
+            function formatCounting(count){
+
+                if(count>=0 && count<1000){
+                return count;
+                }
+
+                if(count>=1000&&count<1000000){
+                    count=count/1000;
+                    count= Math.round(count * 10) / 10
+                    return count +"k"; 
+                }
+
+                if(count>=1000000){
+                    count=count/1000000;
+                    count= Math.round(count * 10) / 10
+                    return count+"M"; 
+                }
+                }
 
         </script>
 

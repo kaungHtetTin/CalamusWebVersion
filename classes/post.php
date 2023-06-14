@@ -39,5 +39,29 @@
         
             return $month.' '.$day.', '.$year;
         }
+
+        function isLike($data){
+            $post_id=$data['post_id'];
+            $user_id=$data['user_id'];
+
+            $query ="SELECT * FROM mylikes WHERE content_id=$post_id";
+            $DB=new Database();
+            $rows=$DB->read($query);
+            $response['like']=false;
+            foreach ($rows as $row){
+                    
+                $likesArr=json_decode($row['likes'],true);
+        
+                $user_ids=array_column($likesArr,"user_id");
+                    
+                if(in_array( $user_id, $user_ids)){
+                    $response['like']=true;
+                    break;
+                }
+            }
+
+            return $response;
+            
+        }
     }
 ?>

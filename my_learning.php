@@ -97,14 +97,10 @@
                 <div class="col-lg-4 col-md-4  col-sm-6 col-xs-6">
                     <div class="fcrse_1 mt-30">
                         <a href="course_detail.php?course_id=${course.course_id}" class="fcrse_img">
-                            <div style=" position: relative; height: 100px;background:${course.background_color}">
-                                <img src="${course.cover_url}"style="height:80px; width: 80px; position: absolute;bottom:0; left:50px;" alt="">
-                            </div>
+                            <img src="${course.web_cover}" alt="">
 
                             <div class="course-overlay">
                                 <div class="badge_seller">${course.major}</div>
-                                
-                                <span class="play_btn1"><i class="uil uil-play"></i></span>
                                 <div class="crse_timer">
                                     ${course.lessons_count} lectures
                                 </div>

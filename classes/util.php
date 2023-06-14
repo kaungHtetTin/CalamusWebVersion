@@ -22,6 +22,18 @@ class Util{
             return date("d-m-Y", $seconds);
         }
     }
+
+    function formatCount($count){
+        if($count>=0 && $count<999){
+            return $count;
+        }else if($count>999 && $count<999999){
+            $count=round($count/1000,1);
+            return $count."k";
+        }else{
+            $count=round($count/1000000,1);
+            return $count."M";
+        }
+    }
 }
 
 ?>

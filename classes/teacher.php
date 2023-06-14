@@ -14,6 +14,13 @@ class Teacher{
         return $result;
     }
 
+    function count(){
+        $DB=new Database();
+        $query="SELECT count(*) as count FROM teachers";
+        $result=$DB->read($query);
+        return $result[0]['count'];
+    }
+
     function getNumberOfStudent($teacher_id){
         $DB=new Database();
         $query="
@@ -38,6 +45,7 @@ class Teacher{
         courses.description,
         courses.rating,
         courses.cover_url,
+        courses.web_cover,
         courses.background_color,
         courses.fee,
         courses.major,

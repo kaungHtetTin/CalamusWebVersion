@@ -76,16 +76,7 @@
 									</nav>
 								</div>
 							</div>
-							<div class="titleright">						
-								<div class="explore_search">
-									<div class="ui search focus">
-										<div class="ui left icon input swdh11 swdh15">
-											<input class="prompt srch_explore" type="text" placeholder="Search">
-											<i class="uil uil-search-alt icon icon2"></i>
-										</div>
-									</div>
-								</div>
-							</div>
+							 
 						</div>
 						<div class="title126">	
 							<h2>Terms of Use</h2>

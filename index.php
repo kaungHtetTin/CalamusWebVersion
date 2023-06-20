@@ -207,11 +207,15 @@
                         
                         <div class="row">
                             <div class="col-lg-12 col-12 col-md-6">
-                                <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easyenglish_vip.png"/>
+                               <a href="vip_plan.php">
+                                    <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easyenglish_vip.png"/>
+                               </a>
                             </div>
 
                             <div class="col-lg-12 col-12 col-md-6">
-                                 <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easykoreanvipbanner.png"/>
+                               <a href="vip_plan.php">
+                                    <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easykoreanvipbanner.png"/>
+                               </a>
                             </div>
                         </div>
                         

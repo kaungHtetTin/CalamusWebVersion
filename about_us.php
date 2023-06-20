@@ -152,7 +152,7 @@ $lecture=$Lesson->count();
 					</div>
 					<div class="col-md-6">
 						<div class="story125">
-							<img src="assets/images/about/stroy_img.png" alt="">
+							<img style="width:70%" src="icon/our_story.png" alt="">
 						</div>
 					</div>
 					
@@ -235,6 +235,6 @@ $lecture=$Lesson->count();
 				</div>
 			</div>
 		</div>
-		
+	</div>
 		
 <?php include('layouts/footer.php') ?>

@@ -521,7 +521,7 @@
                 <div class="fcrse_1" style="margin-bottom:3px;padding:10px;position:relative">
                     <div style="display:flex">
                         <div style="display:flex;cursor:pointer;flex:1" class="song_item">
-                            <img src="https://www.calamuseducation.com/uploads/songs/image/${song.url}.png" alt="" srcset="" style="width:50px;height:50px;border-radius:50%">
+                            <img src="icon/bg_music.png" alt="" srcset="" style="width:50px;height:50px;border-radius:50%">
                             <div style="margin-left:15px;">
                                 <h6 style="margin-top:5px;">${song.title}</h6>
                                 ${song.artist}

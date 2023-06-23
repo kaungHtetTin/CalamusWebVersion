@@ -37,6 +37,8 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 		<link rel="stylesheet" type="text/css" href="assets/vendor/semantic/semantic.min.css">	
 		<script src="assets/js/jquery-3.3.1.min.js"></script>
 
+	 
+
 			<!-- Stylesheets -->
 		
 	</head>
@@ -259,23 +261,22 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 						</ul>
 					</li>
 
-					<!-- <li class="menu--item menu--item__has_sub_menu">
+					<li class="menu--item menu--item__has_sub_menu">
 						<label class="menu--link <?php if($page_title=='Lyrics') echo 'active' ?>" title="Discussion">
 							<i class="uil uil-music menu--icon"></i>
 							<span class="menu--label">Song with Lyrics</span>
 						</label>
 						<ul class="sub_menu">
 							<li class="sub_menu--item">
-								<a href="discuss.php?mcode=ee&category=english" class="sub_menu--link">English Song</a>
+								<a href="song.php?mcode=ee&category=english" class="sub_menu--link">English Song</a>
 							</li>
 							<li class="sub_menu--item">
-								<a href="discuss.php?mcode=ko&category=korea" class="sub_menu--link">Korean Song</a>
+								<a href="song.php?mcode=ko&category=korea" class="sub_menu--link">Korean Song</a>
 							</li>
 						</ul>
-					</li> -->
+					</li>
 
-					 
-
+					
 				</ul>
 			</div>
 			

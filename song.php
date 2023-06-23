@@ -78,7 +78,7 @@
                 <div class="col-xl-7 col-lg-7">
                     <div class="section3125">
                         <h4 class="item_title">Most Popular Song</h4>
-                        <a href="explore.php" class="see150">See all</a>
+                        <a href="javascript:void(0)" onclick="reloadAllSongs()" class="see150">See all</a>
                         <div class="la5lo1">
                             <div class="owl-carousel live_stream owl-theme owl-loaded owl-drag" id="popular_container">
                             
@@ -301,6 +301,8 @@
                         'bottom':'',
                         'width':'100%'
                     });
+
+                   
                 }
 
                 if($(window).scrollTop() + $(window).height() < $(document).height()-600) {
@@ -317,26 +319,29 @@
         }
 
         function setRoutesForAllSong(){
+            page=1;
             song_route=`${route}songs?userId=${user.learner_phone}`;
             popular_route=`${route}songs/popular?userId=${user.learner_phone}`;
         }
 
         function setRoutesForEachArtist(artist){
-            page=0;
+            page=1;
             song_route=`${route}songs/by/artist?userId=${user.learner_phone}&artist=${artist}`;
             popular_route=`${route}songs/by/artist/popular?userId=${user.learner_phone}&artist=${artist}`;
         }
 
         function fetchSongs(){
             isFetching=true;
+            console.log('fetching song ', page);
             $('#loader_bounces').show();
             var url=`${song_route}&page=${page}`;
             $.get(url,(data,status)=>{
                 $('#loader_bounces').hide();
                 isFetching=false;
                 var songs=data.songs;
-                if(songs){
+                if(songs.length>0){
                     songs.map((song)=>{
+                        song.click=false;
                         all_songs.push(song);
                         $('#song_container').append(songComponent(song))
                     });
@@ -344,38 +349,41 @@
                     mainTrack=all_songs;
                     var items=document.querySelectorAll('.song_item');
                     items.forEach(function (item, index) {
-						item.addEventListener("click", function () {
-                            mainTrack=all_songs;
-							loadTrack(index);
-                            if(isPlaying){
-                                pauseTrack()
-                            }
-                            playpauseTrack();
-						});
+						if(!all_songs[index].click){
+                            item.addEventListener("click", function () {
+                                mainTrack=all_songs;
+                                loadTrack(index);
+                                if(isPlaying){
+                                    pauseTrack()
+                                }
+                                playpauseTrack();
+                            });
+                        }
 					});
 
                     var reacts=document.querySelectorAll('.song_react');
                     reacts.forEach(function (item, index) {
-						item.addEventListener("click", function () {
-                            like_song(item,all_songs[index],false);
-						});
+                        if(!all_songs[index].click){
+                            item.addEventListener("click", function () {
+                                like_song(item,all_songs[index],false);
+                            });
+                        }
+						
 					});
 
                     var downloads=document.querySelectorAll('.download_song');
                     downloads.forEach(function (item, index) {
-						item.addEventListener("click", function () {
-                            downloadSong(all_songs[index].url);
-						});
+						if(!all_songs[index].click){
+                            all_songs[index].click=true;
+                            item.addEventListener("click", function () {
+                                downloadSong(all_songs[index].url);
+                            });
+                        }
 					});
 
                     if(current_song==null){
                         loadTrack(0);
                     }
-
-                  
-
-                }else{
-                   
                 }
                 
             });
@@ -386,7 +394,7 @@
             $.get(popular_route,(data,status)=>{
                 var songs=data;
                  document.getElementsByClassName('owl-stage')[0].innerHTML="";
-                if(songs){
+                if(songs.length>0){
                     songs.map((song)=>{
                         popular_songs.push(song);
                         document.getElementsByClassName('owl-stage')[0].innerHTML+=popularSongComponent(song);
@@ -419,8 +427,9 @@
             var url=`${route}songs/artists?page=${artist_page}`;
             $.get(url,(data,status)=>{
                 
-                if(data.artists){
+                if(data.artists.length>0){
                     data.artists.map((singer)=>{
+                        singer.clickEvent=false;
                         singers.push(singer);
                         $('#singer_container').append(singerComponent(singer));
                     });
@@ -428,22 +437,46 @@
                     var items=document.querySelectorAll('.singer_item');
                     
                     items.forEach(function (item, index) {
-						item.addEventListener("click", function () {
-                            all_songs=[];
-                            popular_songs=[];
-                            mainTrack=[];
-                           
-                            $('#song_container').html(" ");
-                            setRoutesForEachArtist(singers[index].artist);
-                            fetchPopularSongs();
-                            fetchSongs();
-						});
+                       
+                        if(!singers[index].clickEvent){
+                            singers[index].clickEvent=true;
+                            item.addEventListener("click",artistClick= function () {
+                            
+                                $("html, body").animate({ 
+                                    scrollTop: 0 
+                                }, "slow");
+
+                                all_songs=[];
+                                popular_songs=[];
+                                mainTrack=[];
+                            
+                                $('#song_container').html(" ");
+                                setRoutesForEachArtist(singers[index].artist);
+                                fetchPopularSongs();
+                                fetchSongs();
+                               
+                                
+                            });  
+                        }
+						
 					});
 
                 }
+
             });
         }
 
+        function reloadAllSongs(){
+            all_songs=[];
+            popular_songs=[];
+            mainTrack=[];
+        
+            $('#song_container').html(" ");
+            setRoutesForAllSong();
+            fetchPopularSongs();
+            fetchSongs();
+
+        }
 
         function loadTrack(index){
             track_index=index;
@@ -486,13 +519,12 @@
                 var react='<i class="far fa-heart" style="color:white"></i>';
             }
 
-
             return `
                <div class="owl-item active" style="width: 145.905px; margin-right: 10px;">
                     <div class="item popular_song">
                         <div class=" mb-20">
                             <a href="javascript:void(0)" class="fcrse_img" style="height:200px; overflow:hidden;border-radius:20px 0;text-decoration:none">
-                                <img src="https://www.calamuseducation.com/uploads/songs/image/${song.url}.png" style="" alt="">
+                                <img src="https://www.calamuseducation.com/uploads/songs/web/${song.url}.jpg" style="" alt="">
                                 <div class="course-overlay">
                                     
                                     <div class="crse_reviews popular_react_item">
@@ -521,7 +553,7 @@
                 <div class="fcrse_1" style="margin-bottom:3px;padding:10px;position:relative">
                     <div style="display:flex">
                         <div style="display:flex;cursor:pointer;flex:1" class="song_item">
-                            <img src="icon/bg_music.png" alt="" srcset="" style="width:50px;height:50px;border-radius:50%">
+                            <img src="https://www.calamuseducation.com/uploads/songs/web/${song.url}.jpg" alt="" srcset="" style="width:50px;height:50px;border-radius:50%">
                             <div style="margin-left:15px;">
                                 <h6 style="margin-top:5px;">${song.title}</h6>
                                 ${song.artist}
@@ -548,7 +580,7 @@
             return `
                 <div style="flex:0 0 50%;max-width:50%">
                     <div align="center" class="singer_item" style="cursor:pointer;">
-                        <img src="https://www.calamuseducation.com/uploads/songs/image/${singer.url}.png" alt="" srcset="" style="width:50px;height:50px;border-radius:50%">
+                        <img src="https://www.calamuseducation.com/uploads/songs/web/${singer.url}.jpg" alt="" srcset="" style="width:50px;height:50px;border-radius:50%">
                         <h6 align="center" style="margin-top:10px;">${singer.artist}</h6>
                     </div>
                 </div>
@@ -556,8 +588,6 @@
         }
 
         function like_song(react,song,playerClick){
-            console.log(react);
-            console.log(song);
             if(song.is_liked==1){
                 song.is_liked=0;
                 song.like_count--;
@@ -580,7 +610,7 @@
                 
 
                 $.post(link,data,()=>{
-                    console.log('liked');
+                  
                 });                
             }
 

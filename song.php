@@ -133,7 +133,7 @@
                         <div class="fcrse_3"  style="position: relative;z-index:2">
                             <div id="player">
                                 <div class="fcrse_3"  style="display:flex;position:relative;">
-                                    <img id="thumbnail" alt="" srcset="" style="width:80px;height:90px;border-radius:5px">
+                                    <img src="icon/bg_music.png" id="thumbnail" alt="" srcset="" style="width:80px;height:90px;border-radius:5px">
                                     <div style="margin-left:15px;flex:1">
                                         <h6 style="margin-top:5px;" id="song_title"> </h6>
                                         <span id="artist_name"></span>
@@ -165,7 +165,7 @@
                                 </div>
                             </div>
                             
-                            <div>
+                            <div id="below_player_section">
 
                                 <div class="course_tabs" style="margin-top:0px;">
                                     <nav>
@@ -231,6 +231,7 @@
         let artist_page=1;
        
         let react_song=document.getElementById('react_song');
+        adjustLayout();
 
         $(document).ready(()=>{
             setRoutesForAllSong();
@@ -291,7 +292,7 @@
                 }
                  
             }else{
-                $('#lyrics').remove();
+                $('#below_player_section').remove();
                     
                 if($(window).scrollTop() + $(window).height() > $(document).height() - 400) {
                     
@@ -337,9 +338,10 @@
             var url=`${song_route}&page=${page}`;
             $.get(url,(data,status)=>{
                 $('#loader_bounces').hide();
-                isFetching=false;
-                var songs=data.songs;
-                if(songs.length>0){
+                if(data){
+                    isFetching=false;
+                    var songs=data.songs;
+               
                     songs.map((song)=>{
                         song.click=false;
                         all_songs.push(song);
@@ -402,8 +404,8 @@
 
                     var items=document.querySelectorAll('.popular_song');
                     items.forEach(function (item, index) {
-						item.addEventListener("click", function () {
-
+						item.addEventListener("click", function (e) {
+                            e.stopPropagation();
                             mainTrack=popular_songs;
 							loadTrack(index);
                             if(isPlaying){
@@ -411,12 +413,14 @@
                             }
                             playpauseTrack();
 						});
+                       
 					});
 
                     var reacts=document.querySelectorAll('.popular_react_item');
                     reacts.forEach(function (item, index) {
-						item.addEventListener("click", function () {
-                            like_song(item,popular_songs[index],false);
+						item.addEventListener("click", function (e) {
+                            e.stopPropagation();
+                            like_song(item,popular_songs[index],false,true);
 						});
 					});
                 }
@@ -440,7 +444,7 @@
                        
                         if(!singers[index].clickEvent){
                             singers[index].clickEvent=true;
-                            item.addEventListener("click",artistClick= function () {
+                            item.addEventListener("click",function () {
                             
                                 $("html, body").animate({ 
                                     scrollTop: 0 
@@ -454,7 +458,6 @@
                                 setRoutesForEachArtist(singers[index].artist);
                                 fetchPopularSongs();
                                 fetchSongs();
-                               
                                 
                             });  
                         }
@@ -465,6 +468,7 @@
 
             });
         }
+
 
         function reloadAllSongs(){
             all_songs=[];
@@ -521,13 +525,12 @@
 
             return `
                <div class="owl-item active" style="width: 145.905px; margin-right: 10px;">
-                    <div class="item popular_song">
+                    <div class="item popular_song" style="z-index:-2">
                         <div class=" mb-20">
                             <a href="javascript:void(0)" class="fcrse_img" style="height:200px; overflow:hidden;border-radius:20px 0;text-decoration:none">
                                 <img src="https://www.calamuseducation.com/uploads/songs/web/${song.url}.jpg" style="" alt="">
                                 <div class="course-overlay">
-                                    
-                                    <div class="crse_reviews popular_react_item">
+                                    <div class="crse_reviews popular_react_item" style="position:relative;z-index:2">
                                         ${react}
                                         ${formatCounting(song.like_count)} 
                                     </div>
@@ -587,18 +590,19 @@
             `;
         }
 
-        function like_song(react,song,playerClick){
+        function like_song(react,song,playerClick,popularClick){
             if(song.is_liked==1){
                 song.is_liked=0;
                 song.like_count--;
-                react.innerHTML='<i class="far fa-heart" style="font-size:18px;"></i>';
+                if(popularClick) react.innerHTML='<i class="far fa-heart"></i>';
+                else  react.innerHTML='<i class="far fa-heart" style="font-size:18px;"></i>';
             }else{
                 song.like_count++;
                 song.is_liked=1;
-                react.innerHTML=' <i class="fas fa-heart" style="font-size:18px;color:red"></i> ';
+                if(popularClick) react.innerHTML=' <i class="fas fa-heart" style="color:red"></i> ';
+                else react.innerHTML=' <i class="fas fa-heart" style="font-size:18px;color:red"></i> ';
+                
             }
-
-            console.log(song.like_count);
 
             if(!playerClick){
                 var link=`${route}songs/like`;

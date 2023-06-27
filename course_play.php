@@ -144,14 +144,14 @@
                                                 <a href="#" class="lkcm152"><i class="uil uil-eye"></i><span id="tv_view"></span></a>
                                             </li>
                                             <li>
-                                                <a href="javascript:void(0)" onclick="likeVideo()" class="lkcm152"><i id="like_thumb" class="uil uil-thumbs-up" style=""></i><span id="tv_like"></span></a>
+                                                <a href="javascript:void(0)" onclick="likeVideo()" class="lkcm152"><i id="like_thumb" class="far fa-thumbs-up" style=""></i><span id="tv_like"></span></a>
                                             </li>
                                             <li>
-                                                <a href="#" class="lkcm152"><i class="uil uil-comment-alt"></i><span id="tv_comment"></span></a>
+                                                <a href="#" class="lkcm152"><i class="far fa-comment"></i><span id="tv_comment"></span></a>
                                             </li>
 
                                             <li>
-                                                <a href="#" class="lkcm152"><i class="uil uil-share-alt"></i><span id="tv_share_count"></span></a>
+                                                <a href="#" class="lkcm152"><i class="fas fa-share-alt"></i><span id="tv_share_count"></span></a>
                                             </li>
 
                                         </ul>
@@ -190,12 +190,6 @@
 
                                             <div id="comment_container" class="review_all120">
                                                 
-                                            </div>
-
-                                            <div id="load_more_cmt" class="review_all120" onclick="loadMoreComment()">
-                                                <div class="review_item">
-                                                    <a href="#" class="more_reviews">See More Comments</a>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -405,9 +399,21 @@
                 var currentVideo;
                 var comments;
                 var commentPage=10;
+                var hasMoreComment=true;
 
                 window.onload= playLesson(<?php echo $_GET['outer']?>,<?php echo $_GET['inner'];?>);
                 adjustLayout();
+
+                $(document).ready(()=>{
+                    $(window).scroll(()=>{
+                        if($(window).scrollTop() + $(window).height() > $(document).height() - 500) {
+                            if(hasMoreComment){
+                             
+                                loadMoreComment();
+                            }
+                        }
+                    });
+                })
                         
                 function playLesson(outerIndex,innerIndex){
                     
@@ -463,16 +469,18 @@
                     ajax.onload =function(){
                         if(ajax.status==200 || ajax.readyState==4){
                             var response=JSON.parse(ajax.responseText);
-   
+                            var like_thumb=document.getElementById('like_thumb');
                             if(response.like){
-                                document.getElementById('like_thumb').setAttribute('style','color:red');
+                                like_thumb.setAttribute('style','color:red');
+                                like_thumb.setAttribute('class','fas fa-thumbs-up');
                                 currentVideo.is_liked=true;
-                                 
+                                    
                             }else{
-                                document.getElementById('like_thumb').setAttribute('style','');
+                                like_thumb.setAttribute('style','');
+                                like_thumb.setAttribute('class','far fa-thumbs-up');
                                 currentVideo.is_liked=false;
                             }
-                            console.log(currentVideo);
+                            
                         }
                     };
                     ajax.open("GET",`api/posts/get.php?post_id=${post_id}&user_id=${user_id}`,true);
@@ -481,14 +489,17 @@
                 }
 
                 function likeVideo(){
+                    var like_thumb=document.getElementById('like_thumb');
                     if(currentVideo.is_liked){
                         currentVideo.is_liked=false;
                         currentVideo.post_like=currentVideo.post_like-1;
-                        document.getElementById('like_thumb').setAttribute('style','');
+                        like_thumb.setAttribute('style','');
+                        like_thumb.setAttribute('class','far fa-thumbs-up');
                     }else{
                         currentVideo.is_liked=true;
                         currentVideo.post_like=parseInt(currentVideo.post_like)+1;
-                        document.getElementById('like_thumb').setAttribute('style','color:red');
+                        like_thumb.setAttribute('style','color:red');
+                        like_thumb.setAttribute('class','fas fa-thumbs-up');
                     }
                     
                     var link=`https://www.calamuseducation.com/calamus-v2/api/any/posts/like`;
@@ -576,7 +587,7 @@
                         if(ajax.status==200 || ajax.readyState==4){
                             var data=JSON.parse(ajax.responseText);
                             var status=data.status;
-                        
+                            comment_container.innerHTML="";
                             if(status=='success'){
                                 comments=data.comments;
                                 setComments(comments);
@@ -602,24 +613,28 @@
                 }
 
                 function setComments(comments){
-                    comment_container.innerHTML="";
                     if(comments.length<=10){
                         loopComment(comments,0,comments.length);
+                        hasMoreComment=false;
                     }else{
-                        if(commentPage<=comments.length){
-                            loopComment(comments,0,commentPage);
-                            if(commentPage==comments.length){
-                                $('#load_more_cmt').hide();
-                            }
-                        }else{
-                              $('#load_more_cmt').hide();
-                        }
+                        console.log('load more comment');
+                        loopComment(comments,commentPage-10,commentPage);
                     }
                     
                 }
 
+                function updateState(){
+                    comment_container.innerHTML="";
+                    loopComment(comments,0,commentPage);
+                }
+
                 function loopComment(comments,start,end){
+                    console.log(start, end );
                     for(var i=start;i<end;i++){
+                        if(i>=comments.length){
+                            hasMoreComment=false;
+                            break;
+                        } 
                         var comment=comments[i];
                         comment_container.innerHTML+=commentComponent(comment,i); 
                         if(comment.child){
@@ -649,6 +664,17 @@
                         `;
                     }
 
+                    let like_thumb_btn;
+                    if(comment.is_liked=="1"){
+                        like_thumb_btn=`
+                            <i id="cmt_like_icon_${comment.time}" style="color:red" class="fas fa-thumbs-up"></i> 
+                        `;
+                    }else{
+                        like_thumb_btn=`
+                            <i id="cmt_like_icon_${comment.time}"  class="far fa-thumbs-up"></i> 
+                        `;
+                    }
+
                     return `
                         <div class="review_item" style="padding-top:10px;padding-bottom:10px;">
                             <div class="review_usr_dt">
@@ -663,7 +689,7 @@
                                         <div class="radio--group-inline-container">
                                             <div class="radio-item">
                                                 <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeParentComment(${user_id},${comment.post_id},${comment.time},${index})"> 
-                                                    <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
+                                                    ${like_thumb_btn}
                                                     <label for="cmt_like_${comment.time}" class="radio-label">
                                                         <span id="cmt_like_count_${comment.time}">${formatReact(comment.likes)}</span>
                                                     </label>
@@ -671,7 +697,7 @@
                                             </div>
                                             <div class="radio-item" >
                                                 <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="showReplyInput(${comment.time});"> 
-                                                    <i class="uil uil-comments"></i>
+                                                    <i class="far fa-comment"></i>
                                                     <label  for="cmt_like_${comment.time}" class="radio-label">reply</label>
                                                 </a>
                                             </div>
@@ -745,7 +771,7 @@
                         var children=comments[index].child;
                         children.splice(j,1);
                     }
-                    setComments(comments);
+                    updateState();
 
                     var ajax=new XMLHttpRequest();
                     ajax.onload =function(){
@@ -773,6 +799,17 @@
                         </div>
                         `;
                     }
+
+                    let like_thumb_btn;
+                    if(comment.is_liked=="1"){
+                        like_thumb_btn=`
+                            <i id="cmt_like_icon_${comment.time}" style="color:red" class="fas fa-thumbs-up"></i> 
+                        `;
+                    }else{
+                        like_thumb_btn=`
+                            <i id="cmt_like_icon_${comment.time}"  class="far fa-thumbs-up"></i> 
+                        `;
+                    }
                 
                     return `
                         <div style="margin-left:40px;padding:7px;">
@@ -788,7 +825,7 @@
                                             <div class="radio--group-inline-container">
                                                 <div class="radio-item">
                                                     <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeChildComment(${user_id},${comment.post_id},${comment.time},${index},${j})"> 
-                                                        <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
+                                                        ${like_thumb_btn}
                                                     </a>
                                                     <label for="cmt_like_${comment.time}" class="radio-label">
                                                         <span id="cmt_like_count_${comment.time}">${formatReact(comment.likes)}</span>
@@ -853,7 +890,7 @@
                             }else{
                                 comments[index].child[childIndex].body=body;
                             }
-                            setComments(comments);
+                            updateState();
                         }
                     };
                     ajax.open("POST","api/comments/update.php",true);
@@ -887,18 +924,10 @@
                     }
                 }
 
-                function defineLikeThumb(like){
-                    if(like==1){
-                        return "color:red"
-                    }else{
-                        return "";
-                    }
-                }
-
                 function likeParentComment(user_id,post_id,comment_id,index){
                     
                     console.log('index ',index);
-
+                    
                     likeComment(user_id,post_id,comment_id);
                     if(comments[index].is_liked==1){
                         comments[index].is_liked=0;
@@ -907,22 +936,22 @@
                         comments[index].is_liked=1;
                         comments[index].likes= parseInt(comments[index].likes)+1;
                     }
-                    setComments(comments);
+
+                    
+                    updateState();
                 }
 
                 function likeChildComment(user_id,post_id,comment_id,index,j){
-                        
-                        console.log('children',comments[index].child);
-
-                        likeComment(user_id,post_id,comment_id);
-                        if(comments[index].child[j].is_liked==1){
-                            comments[index].child[j].is_liked=0;
-                            comments[index].child[j].likes= comments[index].child[j].likes-1;
-                        }else{
-                            comments[index].child[j].is_liked=1;
-                            comments[index].child[j].likes= parseInt(comments[index].child[j].likes)+1;
-                        }
-                        setComments(comments);
+                
+                    likeComment(user_id,post_id,comment_id);
+                    if(comments[index].child[j].is_liked==1){
+                        comments[index].child[j].is_liked=0;
+                        comments[index].child[j].likes= comments[index].child[j].likes-1;
+                    }else{
+                        comments[index].child[j].is_liked=1;
+                        comments[index].child[j].likes= parseInt(comments[index].child[j].likes)+1;
+                    }
+                    updateState();
                 }
 
                 function likeComment(user_id,post_id,comment_id){
@@ -949,7 +978,7 @@
                         newCmt.learner_image=user.learner_image;
                         newCmt.learner_name=user.learner_name;
                         comments.push(newCmt);
-                        setComments(comments);
+                        updateState();
                     });
                 
                 }
@@ -971,7 +1000,7 @@
                             var arr=[newCmt];
                             parentCmt.child=arr;
                         }
-                        setComments(comments);
+                        updateState();
                     });
                 }
 

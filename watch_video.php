@@ -161,13 +161,13 @@
                                             <a href="#" class="lkcm152"><i class="uil uil-eye"></i><span id="tv_view"></span></a>
                                         </li>
                                         <li>
-                                            <a href="javascript:void(0)" onclick="likeVideo()" class="lkcm152"><i id="like_thumb" class="uil uil-thumbs-up"></i><span id="tv_like"></span></a>
+                                            <a href="javascript:void(0)" onclick="likeVideo()" class="lkcm152"><i id="like_thumb" class="far fa-thumbs-up"></i><span id="tv_like"></span></a>
                                         </li>
                                         <li>
-                                            <a href="#" class="lkcm152"><i class="uil uil-comment-alt"></i><span id="tv_comment"></span></a>
+                                            <a href="#" class="lkcm152"><i class="far fa-comment"></i><span id="tv_comment"></span></a>
                                         </li>
                                         <li>
-                                            <a href="#" class="lkcm152"><i class="uil uil-share-alt"></i><span id="tv_share"></span></a>
+                                            <a href="#" class="lkcm152"><i class="fas fa-share-alt"></i><span id="tv_share"></span></a>
                                         </li>
                                     </ul>
                                 </div>
@@ -483,16 +483,18 @@
                 ajax.onload =function(){
                     if(ajax.status==200 || ajax.readyState==4){
                         var response=JSON.parse(ajax.responseText);
-
+                        var like_thumb=document.getElementById('like_thumb');
                         if(response.like){
-                            document.getElementById('like_thumb').setAttribute('style','color:red');
+                            like_thumb.setAttribute('style','color:red');
+                            like_thumb.setAttribute('class','fas fa-thumbs-up');
                             currentVideo.is_liked=true;
                                 
                         }else{
-                            document.getElementById('like_thumb').setAttribute('style','');
+                            like_thumb.setAttribute('style','');
+                            like_thumb.setAttribute('class','far fa-thumbs-up');
                             currentVideo.is_liked=false;
                         }
-                        console.log(currentVideo);
+                        
                     }
                 };
                 ajax.open("GET",`api/posts/get.php?post_id=${post_id}&user_id=${user_id}`,true);
@@ -501,14 +503,17 @@
             }
 
             function likeVideo(){
+                var like_thumb=document.getElementById('like_thumb');
                 if(currentVideo.is_liked){
                     currentVideo.is_liked=false;
                     currentVideo.post_like=currentVideo.post_like-1;
-                    document.getElementById('like_thumb').setAttribute('style','');
+                    like_thumb.setAttribute('style','');
+                    like_thumb.setAttribute('class','far fa-thumbs-up');
                 }else{
                     currentVideo.is_liked=true;
                     currentVideo.post_like=parseInt(currentVideo.post_like)+1;
-                    document.getElementById('like_thumb').setAttribute('style','color:red');
+                    like_thumb.setAttribute('style','color:red');
+                    like_thumb.setAttribute('class','fas fa-thumbs-up');
                 }
                 
                 var link=`https://www.calamuseducation.com/calamus-v2/api/any/posts/like`;
@@ -604,6 +609,17 @@
                     </div>
                     `;
                 }
+                let like_thumb_btn;
+                if(comment.is_liked=="1"){
+                    like_thumb_btn=`
+                        <i id="cmt_like_icon_${comment.time}" style="color:red" class="fas fa-thumbs-up"></i> 
+                    `;
+                }else{
+                    like_thumb_btn=`
+                        <i id="cmt_like_icon_${comment.time}"  class="far fa-thumbs-up"></i> 
+                    `;
+                }
+                
 
                 return `
                     <div class="review_item" style="padding-top:10px;padding-bottom:10px;">
@@ -619,7 +635,7 @@
                                     <div class="radio--group-inline-container">
                                         <div class="radio-item">
                                             <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeParentComment(${user_id},${comment.post_id},${comment.time},${index})"> 
-                                                <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
+                                                ${like_thumb_btn}
                                                 <label for="cmt_like_${comment.time}" class="radio-label">
                                                     <span id="cmt_like_count_${comment.time}">${formatReact(comment.likes)}</span>
                                                 </label>
@@ -627,7 +643,7 @@
                                         </div>
                                         <div class="radio-item" >
                                             <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="showReplyInput(${comment.time});"> 
-                                                <i class="uil uil-comments"></i>
+                                                <i class="far fa-comment"></i>
                                                 <label  for="cmt_like_${comment.time}" class="radio-label">reply</label>
                                             </a>
                                         </div>
@@ -728,6 +744,17 @@
                     </div>
                     `;
                 }
+
+                let like_thumb_btn;
+                if(comment.is_liked=="1"){
+                    like_thumb_btn=`
+                        <i id="cmt_like_icon_${comment.time}" style="color:red" class="fas fa-thumbs-up"></i> 
+                    `;
+                }else{
+                    like_thumb_btn=`
+                        <i id="cmt_like_icon_${comment.time}"  class="far fa-thumbs-up"></i> 
+                    `;
+                }
             
                 return `
                     <div style="margin-left:40px;padding:7px;">
@@ -744,7 +771,7 @@
                                         <div class="radio--group-inline-container">
                                             <div class="radio-item">
                                                 <a href="javascript:void(0)" class="report145" id="cmt_like_${comment.time}" onclick="likeChildComment(${user_id},${comment.post_id},${comment.time},${index},${j})"> 
-                                                    <i id="cmt_like_icon_${comment.time}" style="${defineLikeThumb(comment.is_liked)};" class="uil uil-thumbs-up"></i> 
+                                                    ${like_thumb_btn}
                                                 </a>
                                                 <label for="cmt_like_${comment.time}" class="radio-label">
                                                     <span id="cmt_like_count_${comment.time}">${formatReact(comment.likes)}</span>

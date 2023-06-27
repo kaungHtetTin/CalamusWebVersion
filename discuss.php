@@ -236,12 +236,7 @@
                             </div>
                            
                         </div>
-                        <div class="review_all120 post" onclick="loadMore();">
-                            <div class="review_item">
-                                <a href="javascript:void(0)" class="more_reviews">See More</a>
-                            </div>
-                        </div>
-                         
+                                                
                     </div>
                    
                 </div>
@@ -251,9 +246,14 @@
                     <div class="right_side">
                         <br><br><br><br><br>
 
-                        <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easyenglish_vip.png"/>
-                        <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easykoreanvipbanner.png"/>
-                         
+                        <a href="vip_plan.php">
+                            <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easyenglish_vip.png"/>
+                        </a>
+
+                        <a href="vip_plan.php">
+                             <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easykoreanvipbanner.png"/>
+                        </a>
+                       
                         <div class="fcrse_3">
                             <div class="cater_ttle">
                                 <h4>Use Mobile App</h4>
@@ -292,9 +292,10 @@
     var currentUser=<?php echo json_encode($user) ?>;
     var category="<?php echo $_GET['category']?>";
     var hasImage=false;
+    let isFetching=false;
 
     console.log(currentUser);
-
+                                
     var page=1;
     var postArr=[];
     $(document).ready(function(){
@@ -330,6 +331,16 @@
                 
         });
 
+        $(window).scroll(()=>{
+            if($(window).scrollTop() + $(window).height() > $(document).height() - 500) {
+                if(!isFetching){
+                    loadMore();
+                }
+            }
+        });
+
+        
+
     });
 
     function loadMore(){
@@ -359,17 +370,22 @@
     }
 
     function fetchPost(page){
+        isFetching=true;
         var url=`https://www.calamuseducation.com/calamus-v2/api/${category}/posts?mCode=${mCode}&userId=${userid}&page=${page}`;
         $.get(url,function(data,status){
-            var posts=data.posts;
-            $('#shimmer').hide();
-            posts.map((post,index)=>{
-                postArr.push(post);
-                if(post.hidden!=1 && post.blocked!=1){
-                    $('#post_container').append(postComponent(post));
-                }
-                 
-            })
+            isFetching=false;
+            if(data){
+                var posts=data.posts;
+                $('#shimmer').hide();
+                posts.map((post,index)=>{
+                    postArr.push(post);
+                    if(post.hidden!=1 && post.blocked!=1){
+                        $('#post_container').append(postComponent(post));
+                    }
+                    
+                })
+            }
+            
         })
     }
 
@@ -689,10 +705,6 @@
         alert('Post Saved');
     }
    
-     
-   
-
-
 </script>
 
 <script src="https://player.vimeo.com/api/player.js"></script>

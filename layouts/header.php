@@ -5,6 +5,8 @@ $Notification=new Notification();
 
 $unreadCount=$Notification->unreadCount($user['learner_phone']);
 
+
+
 ?>
 
 <!DOCTYPE html>
@@ -262,7 +264,7 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 					</li>
 
 					<li class="menu--item menu--item__has_sub_menu">
-						<label class="menu--link <?php if($page_title=='Lyrics') echo 'active' ?>" title="Discussion">
+						<label class="menu--link <?php if($page_title=='Lyrics') echo 'active' ?>" title="Lyrics">
 							<i class="uil uil-music menu--icon"></i>
 							<span class="menu--label">Song with Lyrics</span>
 						</label>
@@ -335,3 +337,10 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 		</div>
 	</nav>
 	<!-- Left Sidebar End -->
+
+	<?php if($page_title!='Discussion') {?>
+		<script>
+			localStorage.setItem("post_arr",null);
+			localStorage.setItem("post_page",0);
+		</script>
+	<?php }?>

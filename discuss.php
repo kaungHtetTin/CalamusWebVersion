@@ -298,8 +298,21 @@
                                 
     var page=1;
     var postArr=[];
+
+    var localPostArr=JSON.parse(localStorage.getItem("post_arr"));
+    var localPage=localStorage.getItem("post_page");
+    
+
     $(document).ready(function(){
-        fetchPost(page);
+
+        if(localPostArr!=null){
+            setPosts(localPostArr);
+            page=localPage;
+        }else{
+            fetchPost(page);
+        }
+
+        
         $('#post_adding').hide();
 
         $('#select_image').click(()=>{
@@ -346,6 +359,7 @@
     function loadMore(){
         $('#shimmer').show();
         page++;
+        localStorage.setItem("post_page",page);
         fetchPost(page);
     }
     adjustLayout()
@@ -357,14 +371,12 @@
 
         var w_post_section=post_section.offsetWidth;
        
-        console.log('width ',w, 'post ',w_post_section);
 
         if(w<=w_post_section+200){
            
             right_section.setAttribute('style','display:none');
         
         }else{
-            
              post_section.setAttribute('style','padding-left:70px;padding-right:70px;');
         }
     }
@@ -376,18 +388,25 @@
             isFetching=false;
             if(data){
                 var posts=data.posts;
-                $('#shimmer').hide();
-                posts.map((post,index)=>{
-                    postArr.push(post);
-                    if(post.hidden!=1 && post.blocked!=1){
-                        $('#post_container').append(postComponent(post));
-                    }
-                    
-                })
+                setPosts(data.posts);
+                localStorage.setItem("post_arr", JSON.stringify(postArr));
+                
             }
             
         })
     }
+
+    function setPosts(posts){
+        $('#shimmer').hide();
+        posts.map((post,index)=>{
+            postArr.push(post);
+            if(post.hidden!=1 && post.blocked!=1){
+                $('#post_container').append(postComponent(post));
+            }
+            
+        })
+    }
+
 
     function postComponent(post){
 

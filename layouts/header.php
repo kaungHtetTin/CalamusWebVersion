@@ -39,7 +39,7 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 		<link rel="stylesheet" type="text/css" href="assets/vendor/semantic/semantic.min.css">	
 		<script src="assets/js/jquery-3.3.1.min.js"></script>
 
-	 
+	 	<!-- <link href="assets/css/vertical-responsive-menu1.min.css" rel="stylesheet"> -->
 
 			<!-- Stylesheets -->
 		

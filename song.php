@@ -556,7 +556,7 @@
                 <div class="fcrse_1" style="margin-bottom:3px;padding:10px;position:relative">
                     <div style="display:flex">
                         <div style="display:flex;cursor:pointer;flex:1" class="song_item">
-                            <img src="https://www.calamuseducation.com/uploads/songs/web/${song.url}.jpg" alt="" srcset="" style="width:50px;height:50px;border-radius:50%">
+                            <img src="https://www.calamuseducation.com/uploads/songs/web/${song.url}.png" alt="" srcset="" style="width:50px;height:50px;border-radius:50%">
                             <div style="margin-left:15px;">
                                 <h6 style="margin-top:5px;">${song.title}</h6>
                                 ${song.artist}
@@ -583,7 +583,7 @@
             return `
                 <div style="flex:0 0 50%;max-width:50%">
                     <div align="center" class="singer_item" style="cursor:pointer;">
-                        <img src="https://www.calamuseducation.com/uploads/songs/web/${singer.url}.jpg" alt="" srcset="" style="width:50px;height:50px;border-radius:50%">
+                        <img src="https://www.calamuseducation.com/uploads/songs/web/${singer.url}.png" alt="" srcset="" style="width:50px;height:50px;border-radius:50%">
                         <h6 align="center" style="margin-top:10px;">${singer.artist}</h6>
                     </div>
                 </div>

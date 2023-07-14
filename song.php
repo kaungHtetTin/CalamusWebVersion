@@ -528,7 +528,7 @@
                     <div class="item popular_song" style="z-index:-2">
                         <div class=" mb-20">
                             <a href="javascript:void(0)" class="fcrse_img" style="height:200px; overflow:hidden;border-radius:20px 0;text-decoration:none">
-                                <img src="https://www.calamuseducation.com/uploads/songs/web/${song.url}.jpg" style="" alt="">
+                                <img src="https://www.calamuseducation.com/uploads/songs/web/${song.url}.png" style="" alt="">
                                 <div class="course-overlay">
                                     <div class="crse_reviews popular_react_item" style="position:relative;z-index:2">
                                         ${react}

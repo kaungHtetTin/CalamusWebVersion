@@ -53,8 +53,10 @@
                     <div class="section3125">							
                         <div class="row justify-content-center">						
                             <div class="col-xl-4 col-lg-5 col-md-6">						
-                                <div class="preview_video">						
-                                    <a href="#" class="fcrse_img" data-toggle="modal" data-target="#videoModal">
+                                <div class="preview_video">	
+
+                                    <?php if($course['preview']==""){ ?>
+                                        <a href="#" class="fcrse_img" data-toggle="modal" data-target="#videoModal">
                                        <div style=" position: relative; height: 150px;background:<?php echo $course['background_color']; ?>">
                                             <img src="<?php echo $course['cover_url'];?>"style="height:100px; width: 100px; position: absolute;bottom:0; left:30px;" alt="">
                                         </div>
@@ -64,6 +66,16 @@
                                             <span class="_215b02">Preview this course</span>
                                         </div>
                                     </a>
+                                    <?php }else{ ?>
+                                        <div style="padding:56.25% 0 0 0;position:relative;">
+                                            <iframe src="<?php echo $course['preview']; ?>" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Korean Basic Course Preview"></iframe>
+                                        </div>
+                                        <script src="https://player.vimeo.com/api/player.js"></script>
+                                    <?php } ?>
+
+                                    
+
+                                    
                                 </div>
                                  
                             </div>

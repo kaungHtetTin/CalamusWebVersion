@@ -216,22 +216,40 @@ $lecture=$Lesson->count();
 					<div class="col-lg-12">
 						<div class="title589 text-center">
 							<h2>Honest Reviews</h2>
-							<p>A perfect blend of creativity and technical wizardry. The best people formula for great websites!</p>
-							<img class="line-title" src="images/line.svg" alt="">
+							<br>
 						</div>						
 					</div>
 					<div class="col-lg-6">
-						<div class="jmio125">
+						<div class="">
 							<p>This is the app to learn Korean Language for Myanmar People. In app many lessons and additional materials to improve your language skills are included. And you can attend to our online course via this app. Courses are pretty cheaper than other online courses, but you will get more than the cost is worth. If you're willing to learn Korean language (or) to improve your Korean language skills, this app is for you.
 								Wish you all the success!</p>
 							 
 						</div>
 					</div>
 					<div class="col-lg-6">
-						<div class="jmio125">
+						<div class="">
 							<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/836210202?h=5036ec7717&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Easy Korean Honest Review"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
 						</div>
-					</div>					
+					</div>	
+					<div class="col-lg-12">
+						<div class="title589 text-center">
+						 <br><br>
+						</div>						
+					</div>
+					<div class="col-lg-6">
+						<div class="">
+							<p>
+								This is an application for those who want to study english systematically and this is really intended to be higher the education of myanmar. In this app, you can freely learn the various subjects of english language such as grammar, sentence construction, writing exercise, how to read the english sentence systematically, popular dialogues, proverbs, tips and slang, idioms, translated songs and movies, words on topics and a funny game for improving your english vocabulary. And also we daily provide an english word and its detail description for you. The weekly and monthly exam will help you to know that how much your english professional skill improves. Also you can ask what you do not understand to your teacher directly. We claim that even if you know only "A" to "Z", this app will help to reach the intermediate level by studying yourself. It only needs that you must be a student trying hard.
+							</p>
+							 
+						</div>
+					</div>
+					<div class="col-lg-6">
+						<div class="">
+								<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/843769832?h=5d0578e19a&amp;badge=0&amp;autopause=0&amp;quality_selector=1&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Easy English Honest Review"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
+						</div>
+					</div>				
+
 				</div>
 			</div>
 		</div>

@@ -224,8 +224,7 @@
                 <div class="card-body">
                     <div>
                         
-                        <div  class="payment">&#128179; Wavepay<br> <b>09979638384</b></div>
-                        <div  class="payment">&#128179; KBZpay / Mytel pay<br> <b>09682537158</b> <br>Kaung Htet Tin </div>
+                        <div  class="payment">&#128179; KBZpay / Mytel pay / Wavepay<br> <b>09682537158</b> <br>Kaung Htet Tin </div>
                 </div>
 
                 <br><br>

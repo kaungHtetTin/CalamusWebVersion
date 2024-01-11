@@ -101,7 +101,7 @@
 
                                         <tr style="background:rgb(213, 255, 213);;font-weight:bold">
                                             <td>Gold Plan</td>
-                                            <td><sub style="color:red;text-decoration:line-through">30,000 kyats</sub> <br>25,000 kyats </td>
+                                            <td>30,000 kyats</td>
                                             <td>Yes</td>
                                             <td>Basic to Intermediate (All course)</td>
                                         </tr>
@@ -178,19 +178,33 @@
                                     </tr>
 
                                     <tr>
-                                            <td>Basic Vocabulary Course</td>
-                                            <td>မေတ္တာလက်ဆောင်</td>
-                                            <td></td>
-                                            <td></td>
+                                        <td>Basic Vocabulary Course</td>
+                                        <td>မေတ္တာလက်ဆောင်</td>
+                                        <td></td>
+                                        <td></td>
                                     </tr>
-
 
                                     <tr style="background:rgb(213, 255, 213);;font-weight:bold">
-                                        <td>Gold Plan</td>
-                                        <td><sub style="color:red;text-decoration:line-through">50,000 kyats</sub> <br>35,000 kyats </td>
-                                        <td>Yes</td>
-                                        <td>Basic to Level 4-2 (All course) </td>
-                                    </tr>
+                                            <td>Silver Plan</td>
+                                            <td>30,000 kyats</td>
+                                            <td>Yes</td>
+                                            <td>Basic to Level 3-2</td>
+                                        </tr>
+
+                                        <tr style="background:rgb(213, 255, 213);;font-weight:bold">
+                                            <td>Gold Plan</td>
+                                            <td>40,000 kyats</td>
+                                            <td>Yes</td>
+                                            <td>Basic to Level 4-2</td>
+                                        </tr>
+
+                                        <tr style="background:rgb(213, 255, 213);;font-weight:bold">
+                                            <td>Diamond Plan</td>
+                                            <td>50,000 kyats </td>
+                                            <td>Yes</td>
+                                            <td>Basic to Level 4-2 and Topik I Class</td>
+                                        </tr>
+                                
                                 </tbody>
                                     
                                 </table>

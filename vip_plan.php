@@ -87,7 +87,7 @@
 
                                         <tr>
                                             <td>Essential Speaking Course</td>
-                                            <td>10,000 kyats</td>
+                                            <td>15,000 kyats</td>
                                             <td>Yes</td>
                                             <td></td>
                                         </tr>

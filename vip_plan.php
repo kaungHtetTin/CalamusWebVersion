@@ -100,7 +100,7 @@
                                         </tr>
 
                                         <tr style="background:rgb(213, 255, 213);;font-weight:bold">
-                                            <td>Gold Plan</td>
+                                            <td>Diamond Plan</td>
                                             <td>30,000 kyats</td>
                                             <td>Yes</td>
                                             <td>Basic to Intermediate (All course)</td>
@@ -129,21 +129,21 @@
 
                                     <tr>
                                         <td>Basic Course</td>
-                                        <td>5,000 kyats</td>
+                                        <td>10,000 kyats</td>
                                         <td>Yes</td>
                                         <td></td>
                                     </tr>
 
                                     <tr>
                                         <td>Level 1 Course</td>
-                                        <td>10,000 kyats</td>
+                                        <td>15,000 kyats</td>
                                         <td>Yes</td>
                                         <td></td>
                                     </tr>
 
                                     <tr>
                                         <td>Level 2 Course</td>
-                                        <td>10,000 kyats</td>
+                                        <td>15,000 kyats</td>
                                         <td>Yes</td>
                                         <td></td>
                                     
@@ -151,28 +151,35 @@
 
                                     <tr>
                                         <td>Level 3-1 Course</td>
-                                        <td>15,000 kyats</td>
+                                        <td>20,000 kyats</td>
                                         <td>Yes</td>
                                         <td></td>
                                     </tr>
 
                                     <tr>
                                         <td>Level 3-2 Course</td>
-                                        <td>15,000 kyats</td>
+                                        <td>20,000 kyats</td>
                                         <td>Yes</td>
                                         <td></td>
                                     </tr>
 
                                     <tr>
                                         <td>Level 4-1 Course</td>
-                                        <td>15,000 kyats</td>
+                                        <td>20,000 kyats</td>
                                         <td>Yes</td>
                                         <td></td>
                                     </tr>
 
                                     <tr>
                                         <td>Level 4-2 Course</td>
-                                        <td>15,000 kyats</td>
+                                        <td>20,000 kyats</td>
+                                        <td>Yes</td>
+                                        <td></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Topik I Class</td>
+                                        <td>25,000 kyats</td>
                                         <td>Yes</td>
                                         <td>On going</td>
                                     </tr>
@@ -225,9 +232,9 @@
                 
                 <div style="background: rgb(213, 255, 213); padding:7px; border:1px solid green">
                     <p>
-                        <h5>Gold Plan </h5>
+                        <h5>Diamond Plan </h5>
                         Calamus Education မှ ဖွင့်လစ်သော သက်ဆိုင်ရာသင်တန်းများ အားလုံးကို ဝင်ရောက် လေ့လာခွင့်ရရှိမှာဖြစ်ပါတယ်...<br>
-                        ဥပမာ Easy Korean ရဲ့ Gold plan package ကိုဝယ်ယူထားပါက Easy Korean မှ ဖွင့်လစ်သော ကိုရီးယားဘာသာစကား သင်တန်းအားလုံးကို ဝင်ရောက် လေ့လာနိုင်မှာဖြစ်ပါတယ်။
+                        ဥပမာ Easy Korean ရဲ့ Diamond plan package ကိုဝယ်ယူထားပါက Easy Korean မှ ဖွင့်လစ်သော ကိုရီးယားဘာသာစကား သင်တန်းအားလုံးကို ဝင်ရောက် လေ့လာနိုင်မှာဖြစ်ပါတယ်။
                     </p>
                 </div>
 

@@ -9,15 +9,13 @@
             $query="SELECT * FROM learners where learner_phone=$phone limit 1";
             $learner=$DB->read($query);
 
-           
-
             $result="";
 
             if($learner){
                 $hashed_password=$learner[0]['password'];
                 if(password_verify($password,$hashed_password)){
                    $_SESSION['calamus_userid']=$phone;
-                    
+                   
                    if($data['remember_me']=='on'){
                      
                         $token=$this->base64UrlEncode($phone.$password.time());

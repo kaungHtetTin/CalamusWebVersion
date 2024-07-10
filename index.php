@@ -9,9 +9,9 @@
     include('classes/study.php');
 
     $page_title="Home";
-    
 
     $Auth=new Auth();
+
     if(isset($_SESSION['calamus_userid'])){
         $user =$Auth->check_login($_SESSION['calamus_userid']);
     }else{

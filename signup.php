@@ -1,3 +1,27 @@
+<?php
+session_start();
+
+include ("classes/connect.php");
+include ("classes/auth.php");
+
+$signup=new Auth();
+ if($_SERVER['REQUEST_METHOD']=='POST'){
+        
+        $result=$signup->signUp($_POST);
+        
+        if($result!=""){
+            echo "<div style='text-align:center;font-size:12px; color:white;background-color:grey;'>";
+            echo "<br>The following errors occured<br><br>";
+            print_r($result);
+            echo "</div>";
+        }else {
+           header("Location: index.php");
+           die;
+          //  echo "login access";
+        }
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 

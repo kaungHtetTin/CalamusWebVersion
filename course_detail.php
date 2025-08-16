@@ -94,6 +94,9 @@
                                     <?php echo $enrollStudents; ?> students enrolled
                                 </div>
                                 
+                                <div class="_215b05">										
+                                    <a href="certificate.php">Get certificate <i class="uil uil-arrow-to-bottom"></i></a>
+                                </div>
 
                                 <?php if($isRegister){ ?>
                                     <div class="_215b05">										

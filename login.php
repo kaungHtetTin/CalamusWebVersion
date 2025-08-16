@@ -109,7 +109,7 @@
 							<button class="login-btn" type="submit">Sign In</button>
 						</form>
 						<p class="sgntrm145">Or <a href="forgot_password.html">Forgot Password</a>.</p>
-						<p class="mb-0 mt-30 hvsng145">Don't have an account? <a href="signup.php">Join the admin team</a></p>
+						<p class="mb-0 mt-30 hvsng145">Don't have an account? <a href="signup.php">Join</a></p>
 					</div>
 					<div class="sign_footer"><img src="images/logo.png" alt="" style="width:50px;">© 2023 <strong>Calamuseducation</strong>. All Rights Reserved.</div>
 				</div>				

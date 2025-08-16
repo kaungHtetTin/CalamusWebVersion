@@ -352,7 +352,7 @@
 				$('#month_container').append(`<div class="item" data-value="${months[i]}"></i>${months[i]}</div>`);
 			}
 
-			for(var i=currentYear-18;i>1950;i--){
+			for(var i=currentYear-14;i>1950;i--){
 				$('#year_container').append(`<div class="item" data-value="${i}"></i>${i}</div>`);
 			}
 
@@ -572,11 +572,6 @@
 			$('#pw_reset_error').html(error);
 			$('#pw_uploading').hide();
 		}
-
-
-		
-		
-
 		
 	</script>
 

@@ -78,7 +78,7 @@
                 right: 0;
             }
 
-             input{
+            input{
                 
                 border-width:0 0 1px 0;
                 border-style:sold;
@@ -308,13 +308,8 @@
                                         <?php } ?>
                                         
                                         <?php echo $Lesson->formatDuration($lesson['duration']); ?> . <?php echo $lesson['category_title']; ?>
-                                         
-                                    
                                     </div>
                                 </div>
-
-                                
-                                
                             </div>
                             
                         </a>
@@ -1077,7 +1072,6 @@
 	<script src="assets/vendor/semantic/semantic.min.js"></script>
 	<script src="assets/js/custom.js"></script>
 	<script src="assets/js/night-mode.js"></script>
-	
 	
 </body>
 </html>

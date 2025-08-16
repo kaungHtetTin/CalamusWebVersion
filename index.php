@@ -9,6 +9,7 @@
     include('classes/study.php');
 
     $page_title="Home";
+ 
 
     $Auth=new Auth();
 
@@ -169,40 +170,42 @@
                       
                         <h4>My Learning</h4>
                         <div class="row">
-                            <?php foreach($my_learning_courses as $course){
-                            $learned_count=$Study->getCount($user['learner_phone'],$course['course_id']);
-                            if($course['lessons_count']==0){
-                                $progress=0;
-                            }else{
-                                $progress=($learned_count/$course['lessons_count'])*100;
-                                $progress=round($progress);
-                            }
-                            
-                            ?>
-                            <div class="col-lg-12 col-12 col-md-6">
-                                <a href="course_detail.php?course_id=<?php echo $course['course_id']; ?>">
-                                    <div class="fcrse_3" style="background:<?php echo $course['background_color']?>;color:white">
-                                        <div style="display:flex;">
-                                            <div style="width:70px;">
-                                                <img src="<?php echo $course['cover_url'] ?>" alt="" style="height:70px;margin-top:20px;margin-left:10px;margin-right:10px;margin-bottom:-10px;">
-                                            </div>
+                            <?php if($my_learning_courses) {?>
+                                <?php foreach($my_learning_courses as $course){
+                                    $learned_count=$Study->getCount($user['learner_phone'],$course['course_id']);
+                                    if($course['lessons_count']==0){
+                                        $progress=0;
+                                    }else{
+                                        $progress=($learned_count/$course['lessons_count'])*100;
+                                        $progress=round($progress);
+                                    }
+                                    
+                                    ?>
+                                    <div class="col-lg-12 col-12 col-md-6">
+                                        <a href="course_detail.php?course_id=<?php echo $course['course_id']; ?>">
+                                            <div class="fcrse_3" style="background:<?php echo $course['background_color']?>;color:white">
+                                                <div style="display:flex;">
+                                                    <div style="width:70px;">
+                                                        <img src="<?php echo $course['cover_url'] ?>" alt="" style="height:70px;margin-top:20px;margin-left:10px;margin-right:10px;margin-bottom:-10px;">
+                                                    </div>
 
-                                            <div style="flex:1;margin-right:10px;">
-                                                <h6 style="margin-top:15px;overflow:hidden;height:17px;"> <?php echo $course['title']; ?> </h6>
-                                                <?php echo ucfirst($course['major'])  ?>
-                                                <div style="width:100%;background:white;border-radius:3px; padding:2px;margin-top:3px;"> 
-                                                    <div style="width:<?php echo $progress?>%;padding: 3px; background:<?php echo $course['background_color'] ?>;text-align:center;border-radius:3px;">
-                                                        
+                                                    <div style="flex:1;margin-right:10px;">
+                                                        <h6 style="margin-top:15px;overflow:hidden;height:17px;"> <?php echo $course['title']; ?> </h6>
+                                                        <?php echo ucfirst($course['major'])  ?>
+                                                        <div style="width:100%;background:white;border-radius:3px; padding:2px;margin-top:3px;"> 
+                                                            <div style="width:<?php echo $progress?>%;padding: 3px; background:<?php echo $course['background_color'] ?>;text-align:center;border-radius:3px;">
+                                                                
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                
                                             </div>
-                                        </div>
-                                        
+                                        </a>
                                     </div>
-                                </a>
-                            </div>
-                            
-                        <?php } ?>
+                                    
+                                <?php } ?>
+                            <?php } ?>
                         </div>
                         
                         <div class="row">

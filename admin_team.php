@@ -298,7 +298,6 @@
 		function scrollToBottom() {
 			const element = document.getElementById('chat_box');
 			element.scrollTop = element.scrollHeight;
-
 		}
 
 

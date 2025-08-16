@@ -1,6 +1,7 @@
 <?php
  
     class Auth {
+        private $error="";
         function login($data){
             $phone=$data['phone'];
             $password=$data['password'];
@@ -70,7 +71,71 @@
                 
         }
 
-        function signUp(){
+
+        public function signUp($data){
+            foreach($data as $key=>$value){
+                
+                if(empty($value)){
+                    $this->error=$this->error.$key." is empty! <br>";
+                }
+                
+                if($key=="name"){
+                    
+                    if(is_numeric($value)){
+                        
+                            $this->error=$this->error."First name cannot be a number! <br>";
+                    }
+                }
+
+                if($key=="phone"){
+                    
+                    if(!is_numeric($value)){
+
+                        $this->error=$this->error."Please enter your valid phone number! <br>";
+                    }
+                }
+            }
+            
+            // check account
+            $phone = $data['phone'];
+            $DB=new Database();
+            $query="SELECT * FROM learners where learner_phone=$phone limit 1";
+            $learner=$DB->read($query);
+
+            if($learner){
+                $this->error = "This phone number have been already registered. <br> Please try again with another phone number.";
+            }
+
+            if($this->error==""){
+                //no error
+                return $this->createUser($data);
+            }
+            return $this->error;
+             
+        }
+
+        function createUser($data){
+            $phone=$data['phone'];
+            $password=$data['password'];
+		    $password=password_hash($password, PASSWORD_BCRYPT);
+            $name = $data['name'];
+            $placeholder="https://www.calamuseducation.com/uploads/placeholder.png";
+
+            $DB = new Database();
+            $query = "INSERT INTO learners (learner_phone,learner_name,password,learner_image) VALUES ('$phone','$name','$password','$placeholder')";
+            $DB->save($query);
+
+            $tables =['ee_user_datas','ko_user_datas','cn_user_datas','jp_user_datas','ru_user_datas'];
+            $last_active = time();
+            foreach($tables as $table){
+                $query = "INSERT IN $table (phone,token,last_active) VALUES ('$phone','signup-from-web-site','$last_active')";
+                $DB->save($query);
+            }
+
+            $data['remember_me']='on';
+            $result=$this->login($data);
+             
+            return $result;
 
         }
 

@@ -11,8 +11,6 @@
     $page_title="Detail";
     
     $course_id=$_GET['course_id'];
-    
-
 
     $Auth=new Auth();
     $user = false;
@@ -20,8 +18,8 @@
     $user_id = 0;
     if(isset($_SESSION['calamus_userid'])){
         $user =$Auth->check_login($_SESSION['calamus_userid']);
-        $isRegister=$Auth->checkVIP($course_id,$user_id);
         $user_id=$_SESSION['calamus_userid'];
+        $isRegister=$Auth->checkVIP($course_id,$user_id);
     }
     
    
@@ -32,12 +30,7 @@
     $Study=new Study();
     $Rating=new Rating();
 
-    if($user){
-        $learned_count=$Study->getCount($user_id,$course_id);
-        $progress=($learned_count/$course['lessons_count'])*100;
-        $progress=round($progress);
-    }
-   
+
     $course=$Course->detail($course_id);
     $enrollStudents=$Course->getEnrollStudents($course_id);
     $teacher_id=$course['teacher_id'];
@@ -45,6 +38,17 @@
     $days=$Lesson->getLessonsByDayPlan($course_id,$user_id);
     
     $reviews=$Rating->getReviews($course_id);
+
+    if($user){
+        $learned_count=$Study->getCount($user_id,$course_id);
+        if($learned_count ==0){
+            $progress=0;
+        }else{
+            $progress=($learned_count/$course['lessons_count'])*100;
+            $progress=round($progress);
+        }
+        
+    }
 
     
     
@@ -100,11 +104,11 @@
                                 <div class="_215b05">										
                                     <?php echo $enrollStudents; ?> students enrolled
                                 </div>
-                                <?php if($user) {?>
+                                <!-- <?php if($user) {?>
                                     <div class="_215b05">										
                                         <a href="certificate.php">Get certificate <i class="uil uil-arrow-to-bottom"></i></a>
                                     </div>
-                                <?php }?>
+                                <?php }?> -->
                                 <?php if($isRegister){ ?>
                                     <div class="_215b05">										
                                         <div style="width:100%;background:#444;border-radius:3px;"> 

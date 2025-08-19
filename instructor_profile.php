@@ -9,8 +9,11 @@
     
 
     $Auth=new Auth();
-    $user =$Auth->check_login($_SESSION['calamus_userid']);
-
+	$user = false;
+	if(isset($_SESSION['calamus_userid'])){
+        $user =$Auth->check_login($_SESSION['calamus_userid']);
+    }
+    
     $Teacher=new Teacher();
     $teacher_id=$_GET['teacher_id'];
     $profile=$Teacher->detail($teacher_id);

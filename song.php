@@ -9,13 +9,10 @@
     
 
     $Auth=new Auth();
+    $user = false;
     if(isset($_SESSION['calamus_userid'])){
         $user =$Auth->check_login($_SESSION['calamus_userid']);
-    }else{
-        header('Location:login.php');
     }
-    
-     
     
     include('layouts/header.php');
 

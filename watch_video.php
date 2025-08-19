@@ -9,12 +9,20 @@
     include('classes/util.php');
  
     $page_title="Play";
-    $user_id=$_SESSION['calamus_userid'];
+   
     $category=$_GET['channel_id'];
     $channel_name=$_GET['channel'];
-
+    $user_id = 0;
     $Auth=new Auth();
-    $user =$Auth->check_login($user_id);
+    $user = false;
+    $authenticated = false;
+	if(isset($_SESSION['calamus_userid'])){
+        $user =$Auth->check_login($_SESSION['calamus_userid']);
+        $user_id=$_SESSION['calamus_userid'];
+        $authenticated = true;
+    }else{
+        $user =$Auth->check_login('095161017');
+    }
 
     $Lesson=new Lesson();
     $LessonCategory=new LessonCategory();
@@ -197,8 +205,11 @@
 
                                                 <input id="input_comment" type="text" placeholder="Add a comment"/>
 
-                                                <button onclick="addComment()" style="position:absolute;bottom:0;right:0" class="subscribe-btn">Add</button>
-
+                                                <?php if($authenticated){ ?>
+                                                    <button onclick="addComment()" style="position:absolute;bottom:0;right:0" class="subscribe-btn">Add</button>
+                                                <?php } else {?>
+                                                    <button onclick="goLogin()" style="position:absolute;bottom:0;right:0" class="subscribe-btn">Add</button>
+                                                 <?php } ?>
                                             </div>
                                         </div>
 
@@ -387,17 +398,18 @@
             var comment_container=document.getElementById('comment_container');
             var currentVideo;
             var comments;
+            var authenticated = '<?php echo $authenticated ?>';
 
             window.onload=playVideo(index);
             adjustLayout();
+
+            function goLogin(){
+                window.location = 'login.php';
+            }
                   
             function playVideo(index){
-                
-                
                 var lesson=lessons[index];
                 currentVideo=lesson;
-                
-               
                 highLightLessonItem('lesson_item'+lesson.id);
                 var video_player=document.getElementById('video_player');
                 video_player.innerHTML=`
@@ -414,7 +426,7 @@
                 document.getElementById('tv_comment').innerHTML=formatCounting(lesson.comments);
 
                 isLiked(user_id,lesson.post_id);
-                updateData(user_id,lesson.id,lesson.post_id);
+                if(authenticated)updateData(user_id,lesson.id,lesson.post_id);
                 fetchComments(user_id,lesson.post_id);
                
             }
@@ -503,6 +515,7 @@
             }
 
             function likeVideo(){
+                if(authenticated==false) goLogin();
                 var like_thumb=document.getElementById('like_thumb');
                 if(currentVideo.is_liked){
                     currentVideo.is_liked=false;
@@ -619,8 +632,6 @@
                         <i id="cmt_like_icon_${comment.time}"  class="far fa-thumbs-up"></i> 
                     `;
                 }
-                
-
                 return `
                     <div class="review_item" style="padding-top:10px;padding-bottom:10px;">
                         <div class="review_usr_dt">
@@ -710,7 +721,7 @@
             }
 
             function deleteComment(cmtId,index,j){
-
+                if(authenticated==false) goLogin();
                 if(j===undefined){
                     comments.splice(index,1);
                 }else{
@@ -731,6 +742,7 @@
             }
 
             function childComment(comment,index,j){
+                
                 var editMenu="";
                 if(comment.writer_id==user_id){
                     editMenu =`
@@ -879,7 +891,7 @@
             }
 
             function likeParentComment(user_id,post_id,comment_id,index){
-                
+                if(authenticated==false) goLogin();
                 console.log('index ',index);
 
                 likeComment(user_id,post_id,comment_id);
@@ -894,7 +906,7 @@
             }
 
             function likeChildComment(user_id,post_id,comment_id,index,j){
-                    
+                   if(authenticated==false) goLogin(); 
                     console.log('children',comments[index].child);
 
                     likeComment(user_id,post_id,comment_id);
@@ -909,7 +921,7 @@
             }
 
             function likeComment(user_id,post_id,comment_id){
-                
+                if(authenticated==false) goLogin();
                 var ajax=new XMLHttpRequest();
                 ajax.onload =function(){
                     if(ajax.status==200 || ajax.readyState==4){
@@ -924,6 +936,7 @@
 
 
             function addComment(){
+                if(authenticated==false) goLogin();
                 var input_comment=document.getElementById('input_comment');
                 var body=input_comment.value;
                 input_comment.value="";
@@ -938,6 +951,7 @@
             }
 
             function addReply(parentId){
+                if(authenticated==false) goLogin();
                 var input_reply=document.getElementById('input_reply_'+parentId);
                 var body=input_reply.value;
                 input_reply.value="";
@@ -1031,7 +1045,6 @@
 	<script src="assets/vendor/semantic/semantic.min.js"></script>
 	<script src="assets/js/custom.js"></script>
 	<script src="assets/js/night-mode.js"></script>
-	
 	
 </body>
 </html>

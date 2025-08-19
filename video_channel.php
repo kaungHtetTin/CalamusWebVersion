@@ -11,14 +11,18 @@
     $page_title="Video Channel";
     
     $course_id=1;
-    $user_id=$_SESSION['calamus_userid'];
+   
 
     $channel=$_GET['channel'];
     $app_id=$_GET['app'];
      
 
     $Auth=new Auth();
-    $user =$Auth->check_login($user_id);
+    $user = false;
+	if(isset($_SESSION['calamus_userid'])){
+        $user =$Auth->check_login($_SESSION['calamus_userid']);
+        $user_id=$_SESSION['calamus_userid'];
+    }
    
    
     $App=new App();

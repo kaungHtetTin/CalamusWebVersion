@@ -26,7 +26,6 @@
     $days=$Lesson->getLessonsByDayPlan($course_id,$user_id);
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 

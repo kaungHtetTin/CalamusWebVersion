@@ -3,8 +3,7 @@ include('classes/notification.php');
 
 $Notification=new Notification();
 
-$unreadCount=$Notification->unreadCount($user['learner_phone']);
-
+if($user) $unreadCount=$Notification->unreadCount($user['learner_phone']);
 
 
 ?>
@@ -67,6 +66,7 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 			  </div>
 			</div>
 		</div>
+		<?php if($user){ ?>
 		<div class="header_right">
 			<ul>
 				<li>
@@ -207,6 +207,15 @@ $unreadCount=$Notification->unreadCount($user['learner_phone']);
 				</li>
 			</ul>
 		</div>
+		<?php }else{ ?>
+			<div class="header_right">
+				<ul>
+					<li>
+						<a href="login.php" style="padding:10px;" class="subscribe-btn" title="Create New Course">Login</a>
+					</li>
+				</ul>
+			</div>
+		<?php }?>
 	</header>
 	<!-- Header End -->
 	<!-- Left Sidebar Start -->

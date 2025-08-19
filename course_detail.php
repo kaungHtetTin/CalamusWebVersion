@@ -11,12 +11,20 @@
     $page_title="Detail";
     
     $course_id=$_GET['course_id'];
-    $user_id=$_SESSION['calamus_userid'];
+    
 
 
     $Auth=new Auth();
-    $user =$Auth->check_login($user_id);
-    $isRegister=$Auth->checkVIP($course_id,$user_id);
+    $user = false;
+    $isRegister = false;
+    $user_id = 0;
+    if(isset($_SESSION['calamus_userid'])){
+        $user =$Auth->check_login($_SESSION['calamus_userid']);
+        $isRegister=$Auth->checkVIP($course_id,$user_id);
+        $user_id=$_SESSION['calamus_userid'];
+    }
+    
+   
 
     $Course=new Course();
     $Teacher=new Teacher();
@@ -24,17 +32,21 @@
     $Study=new Study();
     $Rating=new Rating();
 
-    $learned_count=$Study->getCount($user_id,$course_id);
+    if($user){
+        $learned_count=$Study->getCount($user_id,$course_id);
+        $progress=($learned_count/$course['lessons_count'])*100;
+        $progress=round($progress);
+    }
+   
     $course=$Course->detail($course_id);
     $enrollStudents=$Course->getEnrollStudents($course_id);
     $teacher_id=$course['teacher_id'];
     $teacher=$Teacher->detail($teacher_id);
     $days=$Lesson->getLessonsByDayPlan($course_id,$user_id);
-
+    
     $reviews=$Rating->getReviews($course_id);
 
-    $progress=($learned_count/$course['lessons_count'])*100;
-    $progress=round($progress);
+    
     
     include('layouts/header.php');
 ?>
@@ -72,12 +84,7 @@
                                         </div>
                                         <script src="https://player.vimeo.com/api/player.js"></script>
                                     <?php } ?>
-
-                                    
-
-                                    
                                 </div>
-                                 
                             </div>
                             <div class="col-xl-8 col-lg-7 col-md-6">
                                 <div class="_215b03">
@@ -93,11 +100,11 @@
                                 <div class="_215b05">										
                                     <?php echo $enrollStudents; ?> students enrolled
                                 </div>
-                                
-                                <div class="_215b05">										
-                                    <a href="certificate.php">Get certificate <i class="uil uil-arrow-to-bottom"></i></a>
-                                </div>
-
+                                <?php if($user) {?>
+                                    <div class="_215b05">										
+                                        <a href="certificate.php">Get certificate <i class="uil uil-arrow-to-bottom"></i></a>
+                                    </div>
+                                <?php }?>
                                 <?php if($isRegister){ ?>
                                     <div class="_215b05">										
                                         <div style="width:100%;background:#444;border-radius:3px;"> 
@@ -164,7 +171,6 @@
                         <nav>
                             <div class="nav nav-tabs tab_crse justify-content-center" id="nav-tab" role="tablist">
                                 <?php if($isRegister){ ?>
-                                    
                                     <a class="nav-item nav-link active" id="nav-courses-tab" data-toggle="tab" href="#nav-courses" role="tab" aria-selected="false">Courses Content</a>
                                     <a class="nav-item nav-link" id="nav-reviews-tab" data-toggle="tab" href="#nav-reviews" role="tab" aria-selected="false">Reviews</a>    
                                     <a class="nav-item nav-link" id="nav-about-tab" data-toggle="tab" href="#nav-about" role="tab" aria-selected="true">About</a>
@@ -224,34 +230,37 @@
 
                                         <div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">
                                             <?php foreach($day as $key=>$lesson){ ?>
-                                            <a href="course_play.php?course_id=<?php echo $course_id.'&outer='.$i.'&inner='.$key ?>">
-                                                <div class="lecture-container">
-                                                    <div class="left-content">
-                                                        <?php if($lesson['isVideo']==1){ ?>
-                                                            <i class='uil uil-play-circle icon_142'></i>
-                                                        <?php }else{ ?>
-                                                            <i class='uil uil-file icon_142'></i>
-                                                        <?php } ?>
-                                                        <div class="top">
-                                                            <div class="title">
-                                                                <?php echo $lesson['lesson_title']; if($lesson['learned']==1){ ?> 
-                                                                <i class='uil uil-check-circle icon_142' style="color:green"></i>
-                                                                <?php }?>
+                                                <?php if(!$user && $i ==0){ ?>
+                                                <a href="course-explore.php?course_id=<?php echo $course_id.'&outer='.$i.'&inner='.$key ?>">
+                                                <?php }else {?>
+                                                <a href="course_play.php?course_id=<?php echo $course_id.'&outer='.$i.'&inner='.$key ?>">
+                                                <?php }?>
+                                                    <div class="lecture-container">
+                                                        <div class="left-content">
+                                                            <?php if($lesson['isVideo']==1){ ?>
+                                                                <i class='uil uil-play-circle icon_142'></i>
+                                                            <?php }else{ ?>
+                                                                <i class='uil uil-file icon_142'></i>
+                                                            <?php } ?>
+                                                            <div class="top">
+                                                                <div class="title">
+                                                                    <?php echo $lesson['lesson_title']; if($lesson['learned']==1){ ?> 
+                                                                    <i class='uil uil-check-circle icon_142' style="color:green"></i>
+                                                                    <?php }?>
+                                                                </div>
+                                                                
                                                             </div>
-                                                            
+                                                        </div>
+                                                        <div class="details">
+                                                            <?php echo $lesson['category_title']; ?>
+                                                            <span class="content-summary">
+                                                                <?php echo $Lesson->formatDuration($lesson['duration']); ?>
+                                                            </span>
                                                         </div>
                                                     </div>
-                                                    <div class="details">
-                                                        <?php echo $lesson['category_title']; ?>
-                                                        <span class="content-summary">
-                                                            <?php echo $Lesson->formatDuration($lesson['duration']); ?>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </a>
+                                                </a>
                                             <?php }?>
                                         </div>
-                                        										
                                     </div>
                                     <?php } ?>
 

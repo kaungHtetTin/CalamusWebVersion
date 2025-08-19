@@ -9,7 +9,10 @@
     
 
     $Auth=new Auth();
-    $user =$Auth->check_login($_SESSION['calamus_userid']);
+    $user = false;
+	if(isset($_SESSION['calamus_userid'])){
+        $user =$Auth->check_login($_SESSION['calamus_userid']);
+    }
 
     $Course=new Course();
     $Teacher=new Teacher();

@@ -331,6 +331,13 @@
 				}
 			})
 
+			$('#input_msg').on('keydown', function(event) {
+				if (event.key === 'Enter') {
+					event.preventDefault();
+					$('#btn_send').click();
+				}
+			});
+
 			fetchConversation();
 
 			$('#select_image').click(()=>{

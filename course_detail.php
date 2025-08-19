@@ -49,8 +49,6 @@
         }
         
     }
-
-    
     
     include('layouts/header.php');
 ?>
@@ -377,7 +375,7 @@
                                                             <img src="<?php echo $review['learner_image'] ?>" alt="">
                                                             <div class="rv1458">
                                                                 <h4 class="tutor_name1"><?php echo $review['learner_name'] ?></h4>
-                                                                <span class="time_145">2 hour ago</span>
+                                                                <span class="time_145"><?php echo $Rating->formatDateTime($review['time']) ?></span>
                                                             </div>
                                                         </div>
                                                         <div class="rating-box mt-20">

@@ -51,6 +51,7 @@
 									<div class="basic_profile">
 										<div class="basic_ptitle">
 											<h4>Basic Profile</h4>
+											<p>Account Phone No - <?php echo $user['learner_phone'] ?></p>
 											<p>Add information about yourself</p>
 										</div>
 										<br><br>

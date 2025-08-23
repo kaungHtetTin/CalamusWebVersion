@@ -128,7 +128,7 @@
             $tables =['ee_user_datas','ko_user_datas','cn_user_datas','jp_user_datas','ru_user_datas'];
             $last_active = time();
             foreach($tables as $table){
-                $query = "INSERT IN $table (phone,token,last_active) VALUES ('$phone','signup-from-web-site','$last_active')";
+                $query = "INSERT INTO $table (phone,token,last_active) VALUES ('$phone','signup-from-web-site','$last_active')";
                 $DB->save($query);
             }
 

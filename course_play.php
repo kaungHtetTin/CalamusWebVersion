@@ -221,7 +221,11 @@
                             </div>
                             <div class="col-lg-3 col-md-3 col-sm-6">
                                 <div class="item_f3">
-                                    <a href="#" class="btn1542">Teach on Cursus</a>
+                                    <?php if($authenticated ) {?>
+                                        <a href="explore.php" class="btn1542">Explore</a>
+                                    <?php }else { ?>
+                                        <a href="login.php" class="btn1542">Log In</a>
+                                    <?php } ?>
                                 </div>
                             </div>
                             <div class="col-lg-12">
@@ -243,13 +247,9 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="edu_social_links">
-                                                <a href="#"><i class="fab fa-facebook-f"></i></a>
-                                                <a href="#"><i class="fab fa-twitter"></i></a>
-                                                <a href="#"><i class="fab fa-google-plus-g"></i></a>
-                                                <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                                                <a href="#"><i class="fab fa-instagram"></i></a>
-                                                <a href="#"><i class="fab fa-youtube"></i></a>
-                                                <a href="#"><i class="fab fa-pinterest-p"></i></a>
+                                                <a href="https://www.facebook.com/easyenglishcalamus"><i class="fab fa-facebook-f" style="color:blue"></i></a>
+                                                <a href="https://www.facebook.com/easykoreancalamus"><i class="fab fa-facebook-f" style="color:yellow"></i></a>
+                                                <a href="https://www.youtube.com/@calamuseducationmyanmar5078"><i class="fab fa-youtube" style="color:red"></i></a>
                                             </div>
                                         </div>		
                                     </div>
@@ -345,7 +345,11 @@
                             </div>
                             <div class="col-lg-3 col-md-3 col-sm-6">
                                 <div class="item_f3">
-                                    <a href="#" class="btn1542">Teach on Cursus</a>
+                                    <?php if($authenticated ) {?>
+                                        <a href="explore.php" class="btn1542">Explore</a>
+                                    <?php }else { ?>
+                                        <a href="login.php" class="btn1542">Log In</a>
+                                    <?php } ?>
                                 </div>
                             </div>
                             <div class="col-lg-12">
@@ -367,13 +371,9 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="edu_social_links">
-                                                <a href="#"><i class="fab fa-facebook-f"></i></a>
-                                                <a href="#"><i class="fab fa-twitter"></i></a>
-                                                <a href="#"><i class="fab fa-google-plus-g"></i></a>
-                                                <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                                                <a href="#"><i class="fab fa-instagram"></i></a>
-                                                <a href="#"><i class="fab fa-youtube"></i></a>
-                                                <a href="#"><i class="fab fa-pinterest-p"></i></a>
+                                                <a href="https://www.facebook.com/easyenglishcalamus"><i class="fab fa-facebook-f" style="color:blue"></i></a>
+                                                <a href="https://www.facebook.com/easykoreancalamus"><i class="fab fa-facebook-f" style="color:yellow"></i></a>
+                                                <a href="https://www.youtube.com/@calamuseducationmyanmar5078"><i class="fab fa-youtube" style="color:red"></i></a>
                                             </div>
                                         </div>		
                                     </div>

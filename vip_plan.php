@@ -244,7 +244,7 @@
                 <div class="card-body">
                     <div>
                         
-                        <div  class="payment">&#128179; KBZpay / Mytel pay / Wavepay<br> <b>09682537158</b> <br>Kaung Htet Tin </div>
+                        <div  class="payment">&#128179; KBZpay / Mytel pay / Wavepay<br> <b>09688683805</b> <br>Min Htet Kyaw </div>
                 </div>
 
                 <br><br>
@@ -255,9 +255,6 @@
                     <p class="card-text">
                         ကျသင့်ငွေအားပေးချေပြီးပါက ငွေပေးချေထားသည့်ဖြတ်ပိုင်း Screentshot အား ADMIN TEAM သို့ ဆက်သွယ်  ပေးပို့ရမှာပဲဖြစ်ပါတယ်
                     </p>
-
-                       
-                    
                     </div>
                 </div>
                

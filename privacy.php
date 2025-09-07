@@ -36,6 +36,22 @@
 			}
 			  
 		</style>
+
+         <style>
+            h1, h2, h3 {
+                color: #2c3e50;
+            }
+            h1 {
+                border-bottom: 2px solid #2c3e50;
+                padding-bottom: 10px;
+            }
+            p {
+                margin: 10px 0;
+            }
+            ul {
+                margin: 10px 0 10px 20px;
+            }
+        </style>
 		
 	</head> 
 
@@ -97,141 +113,74 @@
 						</div>
 					</div>
 					<div class="col-lg-9 col-md-7">
-						<div class="vew120 frc123">
-							<div class="atlink">
-								<i>This Privacy Policy was last updated on Feb. 8, 2023.  </i> <br>
-							</div>
-							<p>
-                                Thank you for joining Calamus. We at Calamus (“Calamus”, “we”, “us”) respect your privacy and 
-                                want you to understand how we collect, use, and share data about you. 
-                                This Privacy Policy covers our data collection practices and describes your rights regarding your personal data. 
-                            </p>
-
-                            <p>
-                                <b>By using the Services, you agree to the terms of this Privacy Policy. </b>
-                                You shouldn’t use the Services if you don’t agree with this Privacy Policy or any other agreement that governs your use of the Services. 
-                            </p>
 						
-						</div>		
-						
-						<h3>Table of Contents</h3>
-						 <ul>
-                            <li>
-                                <a href="#data-we-get" class="table-content" >1. What Data We Get </a>
-                            </li>
+                        <h1>Privacy Policy for Apps by Calamus Education</h1>
+                        <p><strong>Effective Date:</strong> Sept 7, 2025</p>
 
-                            <li>
-                                <a href="#using-data"  class="table-content">2. What We Use Your Data For  </a>
-                            </li>
-
-                            <li>
-                                <a href="#sharing-data"  class="table-content">3. Who We Share Your Data With </a>
-                            </li>
-
-                            <li>
-                                <a href="#security"  class="table-content">4. Security</a>
-                            </li>
+                        <p>This Privacy Policy applies to all mobile applications developed by <strong>Calamus Education</strong>, including but not limited to:</p>
+                        <ul>
+                            <li><strong>Easy Korean - Korean for Myanmar</strong></li>
+                            <li><strong>Easy English - English for Myanmar</strong></li>
                         </ul>
 
-						<div id="data-we-get">
-                            <h3>1. What Data We Get </h3>
-                            <div class="border-div">
-                                We collect certain data from you directly, 
-                                like information you enter yourself and data about your consumption of content .
-                                All data listed in this section is subject to the following processing activities: collecting, recording, structuring, storing, altering, retrieving, encrypting, pseudonymizing, erasing, combining, and transmitting. 
-                            </div>
+                        <p>These apps ("the Apps") are developed by <strong>Moe Kaung</strong> under <strong>Calamus Education</strong>. We respect your privacy and are committed to protecting the information you share with us. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use any of our Apps.</p>
 
-                            <p>We collect the following user data essentially</p>
-                            <ul>
-                                <li>User Name </li>
-                                <li>User Profile image</li>
-                                <li>User Phone number</li>
-                            </ul>
-                            
-                            <p>We does not make any fore to add the following user data</p>
-                            <ul>
-                                <li>Email</li>
-                                <li>Gender</li>
-                                <li>Date of Birth</li>
-                                <li>Education</li>
-                                <li>Work</li>
-                                <li>City</li>
-                            </ul>
+                        <h2>1. Information We Collect</h2>
+                        <ul>
+                            <li><strong>Personal Information:</strong> Such as name or email address if you voluntarily provide it for feedback or support.</li>
+                            <li><strong>Device Information:</strong> Such as device type, operating system, and unique device identifiers for app functionality and analytics.</li>
+                            <li><strong>Usage Data:</strong> Such as pages viewed, time spent in the app, and interactions to improve app performance.</li>
+                        </ul>
 
-                            <h4>1.1 Shared Content</h4>
-                            <p>
-                                Parts of the Services let you interact with other users or share content publicly, 
-                                including by uploading courses and other educational content, posting reviews about content, 
-                                asking or answering questions, sending messages to students or instructors, or posting photos or 
-                                other work you upload. Such shared content may be publicly viewable by others depending on where it is posted. 
-                            </p>
+                        <h2>2. How We Use Your Information</h2>
+                        <ul>
+                            <li>To provide and maintain the Apps’ functionality.</li>
+                            <li>To improve user experience and app performance.</li>
+                            <li>To respond to support requests and user feedback.</li>
+                            <li>To analyze app usage for development and improvement purposes.</li>
+                            <li>To comply with legal requirements if applicable.</li>
+                        </ul>
 
-                            <h4>1.2 Learning Data</h4>
-                            <p>
-                                When you access content, we collect certain data including which courses, assignments, 
-                                labs, workspaces, and quizzes you’ve started and completed; content and subscription purchases and credits; 
-                                subscriptions; completion certificates; your exchanges with instructors, teaching assistants, and 
-                                other students; and essays, answers to questions, and other items submitted to satisfy course and 
-                                related content requirements. 
-                            </p>
+                        <h2>3. Third-Party Services</h2>
+                        <p>We may use trusted third-party services that help us operate the Apps, such as analytics or advertising providers. These third parties may collect information as described in their own privacy policies. Examples include:</p>
+                        <ul>
+                            <li>Google Analytics (for usage analytics)</li>
+                            <li>AdMob (for advertising, if used)</li>
+                        </ul>
+                        <p>You can review their privacy policies here: <a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy</a></p>
 
-                            <h4>1.3 Usage Data</h4>
-                            <p>
-                                Usage statistics about your interactions with the Services, including content accessed, time spent on pages or 
-                                the Service, pages visited, features used, your search queries, click data, date and time, referrer, and other data 
-                                regarding your use of the Services. 
-                            </p>
-                        
-                        </div>
+                        <h2>4. Data Sharing and Disclosure</h2>
+                        <p>We do not sell or rent your personal information. We may share data only in the following circumstances:</p>
+                        <ul>
+                            <li>With service providers who help us deliver our Apps.</li>
+                            <li>To comply with legal obligations or protect rights and safety.</li>
+                        </ul>
 
-                        <div class="div" id="using-data">
-                        <h3>2. What We Use Your Data For </h3>
-                        <div class="border-div">
-                            We use your data to do things like provide our Services, communicate with you, troubleshoot issues, 
-                            secure against fraud and abuse, improve and update our Services, analyze how people use our Services, 
-                            serve personalized advertising, and as required by law or necessary for safety and integrity. 
-                            We retain your data for as long as it is needed to serve the purposes for which it was collected. 
-                        </div>
-                        </div>
+                        <h2>5. Data Security</h2>
+                        <p>We use appropriate technical and organizational measures to protect your data. However, no system can be 100% secure, so we cannot guarantee absolute security.</p>
 
-                        <div class="div" id="sharing-data">
-                        <h3>3. Who We Share Your Data With</h3>
-                        <p>
-                            We share certain data about you with instructors, other students, companies performing services for us, 
-                            Calamus affiliates, our business partners, analytics and data enrichment providers, 
-                            companies helping us run promotions and surveys, and advertising companies who help us promote our Services. 
-                            We may also share your data as needed for security, legal compliance, or as part of a corporate restructuring. 
-                            Lastly, we can share data in other ways if it is aggregated or de-identified or if we get your consent. 
-                        </p>
-                        </div>
+                        <h2>6. Your Rights</h2>
+                        <p>You have the right to:</p>
+                        <ul>
+                            <li>Access, update, or delete your personal information.</li>
+                            <li>Request more details on how we handle your data.</li>
+                            <li>Withdraw your consent where applicable.</li>
+                        </ul>
+                        <p>You can contact us at <strong>shweyamin3454691@gmail.com</strong> for any privacy-related inquiries.</p>
 
-                        <div class="div" id="security">
-                        <h3>4. Security  </h3>
-                        <div class="border-div">
-                                We use appropriate security based on the type and sensitivity of data being stored. 
-                                As with any internet-enabled system, there is always a risk of unauthorized access, 
-                                so it’s important to protect your password and to contact us if you suspect any unauthorized access
-                                to your account. 
-                        </div>
+                        <h2>7. Changes to This Privacy Policy</h2>
+                        <p>We may update this Privacy Policy from time to time. Changes will be posted on this page with the updated effective date.</p>
 
-                        <p>
-                            Calamus takes appropriate security measures to protect against unauthorized access, alteration, disclosure, or 
-                            destruction of your personal data that we collect and store. These measures vary based on the type and sensitivity 
-                            of the data. Unfortunately, however, no system can be 100% secured, so we cannot guarantee that communications 
-                            between you and Calamus, the Services, or any information provided to us in connection with the data we collect 
-                            through the Services will be free from unauthorized access by third parties. Your password is an important 
-                            part of our security system, and it is your responsibility to protect it. You should not share your 
-                            password with any third party, and if you believe your password or account has been compromised, 
-                            you should change it immediately and contact our Support Team with any concerns. 
-                        </p>
-
-                        
-                        </div>
-
+                        <h2>8. Contact Us</h2>
+                        <p>If you have questions about this Privacy Policy or our practices, please contact us at:</p>
+                        <p><strong>Calamus Education</strong><br>
+                        Email: <strong>shweyamin3454691@gmail.com</strong></p>
 						 
 					</div>
 				</div>
 			</div>
 		</div>
+
+        
 		
 <?php include('layouts/footer.php') ?>

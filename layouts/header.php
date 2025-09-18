@@ -242,6 +242,22 @@ if($user) $unreadCount=$Notification->unreadCount($user['learner_phone']);
 							<span class="menu--label">My Learning</span>
 						</a>
 					</li>
+
+					<li class="menu--item menu--item__has_sub_menu">
+						<label class="menu--link" title="Video Channel">
+							<i class='uil uil-brightness-plus menu--icon'></i>
+							<span class="menu--label">Additional Lessons</span>
+						</label>
+						<ul class="sub_menu">
+							<li class="sub_menu--item">
+								<a href="additional_lesson.php?channel=english&app=2" class="sub_menu--link">English Language</a>
+							</li>
+							<li class="sub_menu--item">
+								<a href="additional_lesson.php?channel=korea&app=1" class="sub_menu--link">Korean Language</a>
+							</li>
+						</ul>
+					</li>
+
 					<li class="menu--item menu--item__has_sub_menu">
 						<label class="menu--link" title="Video Channel">
 							<i class='uil uil-play-circle menu--icon'></i>

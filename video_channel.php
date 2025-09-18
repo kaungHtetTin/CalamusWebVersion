@@ -11,11 +11,9 @@
     $page_title="Video Channel";
     
     $course_id=1;
-   
-
+    
     $channel=$_GET['channel'];
     $app_id=$_GET['app'];
-     
 
     $Auth=new Auth();
     $user = false;
@@ -23,8 +21,7 @@
         $user =$Auth->check_login($_SESSION['calamus_userid']);
         $user_id=$_SESSION['calamus_userid'];
     }
-   
-   
+
     $App=new App();
     $LessonCategory=new LessonCategory();
 

@@ -138,6 +138,25 @@ class Lesson{
         $result=$DB->read($query);
         return $result[0]['count'];
     }
+
+    function getAdditionalLesson($category_id){
+        $query = "SELECT 
+                    lessons.id,
+                    lessons.cate,
+                    lessons.link,
+                    lessons.title,
+                    lessons.title_mini,
+                    lessons.isVideo,
+                    lessons.isVip,
+                    lessons.date,
+                    lessons.thumbnail,
+                    lessons.duration
+                FROM lessons
+                WHERE category_id = $category_id";
+        $DB = new Database();
+        $lessons = $DB->read($query);
+        return $lessons;
+    }
 }
 
 ?>

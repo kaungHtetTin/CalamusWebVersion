@@ -124,7 +124,7 @@
 
     <div class="row">
         <div class="col-lg-8 col-md-6">
-            <div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom">
+            <div class="ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom" style="margin-bottom:20px;">
                 <?php foreach($lessons as $key=>$lesson){ ?>
                     <?php if($lesson['isVideo'] == 1) {?>
                         <a href="watch_video.php?index=<?php echo $key?>&channel_id=<?php echo $category_id; ?>&channel=<?php echo $app['name']; ?>">
@@ -155,31 +155,32 @@
                     </a>
                 <?php }?>
             </div>
-            <br><br>
         </div>
     
         <div class="col-lg-4 col-md-6">
-            <?php foreach($additional_courses as $course){?>
-                <?php if(checkCourse($course['course_id'],$course_ids)) {?>
-                    <div class="category_title"><?php echo $course['title'] ?></div>
-                    <div class="under_line"></div>
-                    <div class="row" >
-                        <?php foreach($course['categories'] as $index=>$category){ ?>
-                            <div class="col-12">
-                                <div class="fcrse_1 <?php if($category['id']==$category_id) echo "active" ?>">
-                                    <a href="additional_lesson_list.php?category_id=<?php echo $category['id']?>&app=<?php echo $app_id ?>">
-                                        <div class="category">
-                                            <img class="card" src="<?php echo $category['image_url'] ?>" alt="">
-                                            <div class="crse14s title" style="<?php if($category['id']==$category_id) echo "color:#ed2a26" ?>"><?php echo $category['category_title'] ?></div>
-                                        </div>
-                                    </a>
+          <div style="padding-left:10px;">
+                <?php foreach($additional_courses as $course){?>
+                    <?php if(checkCourse($course['course_id'],$course_ids)) {?>
+                        <div class="category_title"><?php echo $course['title'] ?></div>
+                        <div class="under_line"></div>
+                        <div class="row" >
+                            <?php foreach($course['categories'] as $index=>$category){ ?>
+                                <div class="col-12">
+                                    <div class="fcrse_1 <?php if($category['id']==$category_id) echo "active" ?>">
+                                        <a href="additional_lesson_list.php?category_id=<?php echo $category['id']?>&app=<?php echo $app_id ?>">
+                                            <div class="category">
+                                                <img class="card" src="<?php echo $category['image_url'] ?>" alt="">
+                                                <div class="crse14s title" style="<?php if($category['id']==$category_id) echo "color:#ed2a26" ?>"><?php echo $category['category_title'] ?></div>
+                                            </div>
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
-                        <?php }?>
-                    </div>
-                    <br><br>
+                            <?php }?>
+                        </div>
+                        <br><br>
+                    <?php }?>
                 <?php }?>
-            <?php }?>
+          </div>
         </div>
 
     </div>

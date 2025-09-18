@@ -32,10 +32,6 @@
     $LessonCategory=new LessonCategory();
 
     $app=$App->detail($app_id);
-    
-
-    $Lesson=new Lesson();
-    $categories = $LessonCategory->getAdditionalLesson($channel);
 
     $additional_courses = $LessonCategory->getAdditionalCourse($channel);
 
@@ -117,7 +113,7 @@
                                 <?php foreach($course['categories'] as $category){ ?>
                                     <div class="col-lg-4 col-md-6 col-sm-12">
                                         <div class="fcrse_1">
-                                            <a href="additional_lesson_list.php?category_id=<?php echo $category['id'] ?>">
+                                            <a href="additional_lesson_list.php?category_id=<?php echo $category['id']?>&app=<?php echo $app_id ?>">
                                                 <div class="category">
                                                     <img class="card" src="<?php echo $category['image_url'] ?>" alt="">
                                                     <div class="crse14s title"><?php echo $category['category_title'] ?></div>

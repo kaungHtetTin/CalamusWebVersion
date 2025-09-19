@@ -109,6 +109,7 @@
 								<div class="col-xl-4 col-lg-5 col-md-5 col-sm-12">					
 									<div class="">
 										<div class="group_messages">
+											
 											<div class="chat__message__dt active" id="teacher">
 												<div class="user-status">											
 													<div class="user-avatar">
@@ -120,13 +121,14 @@
 													<p class="user-status-time floaty" id="Teacher_conversation_time">...</p>
 												</div>
 											</div>
-											<div class="chat__message__dt" id="developer">
+
+											<div class="chat__message__dt active" id="developer">
 												<div class="user-status">											
 													<div class="user-avatar">
 														<img src="icon/developer.png" alt="">
 														<div class="msg__badge" style="width:15px; height:15px;" id="Developer_red_noti"></div>
 													</div>
-													<p class="user-status-title"><span class="bold">Developer</span></p>
+													<p class="user-status-title"><span class="bold">Calamus Team</span></p>
 													<p class="user-status-text" id="Developer_conversation_msg">Loading ... </p>
 													<p class="user-status-time floaty" id="Developer_conversation_time">...</p>
 												</div>
@@ -302,6 +304,7 @@
 
 
 		$(document).ready(function(){
+			$('#teacher').hide();
             $('#teacher').click(function(){
                 $('#teacher').attr('class','chat__message__dt active');
                 $('#developer').attr('class','chat__message__dt');

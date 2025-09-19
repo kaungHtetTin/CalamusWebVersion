@@ -319,7 +319,7 @@
                 $('#developer').attr('class','chat__message__dt active');
                 $('#teacher').attr('class','chat__message__dt');
                 $('#cb_img').attr('src','icon/developer.png');
-                $('#cb_name').text('Developer');
+                $('#cb_name').text('Calamus Team');
 			
 				team="Developer";
 				fetchMessage();
@@ -370,6 +370,8 @@
 				reader.readAsDataURL(file);
 				  
 			});
+
+			 $('#developer').click();
         });
 
 		 

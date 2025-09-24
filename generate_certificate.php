@@ -231,6 +231,10 @@ include ('classes/auth.php');
                             <span class="font_bold"> <?php echo formatIssuedDate($certificate['date']) ?></span>
                         </div>
 
+                        <div style="position:absolute;bottom:119px;left:100px;font-size:12px;">
+                            <span class="font_bold"> calamus-00<?php echo $certificate['id'] ?></span>
+                        </div>
+
                         <div style="position:absolute;bottom:37px;left:29px;font-size:12px;width:55px; height:55px; border:1px solid black">
                             <div id="qrcode"></div>
                         </div>

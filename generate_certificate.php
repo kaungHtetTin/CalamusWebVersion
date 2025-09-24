@@ -97,9 +97,9 @@ include ('classes/auth.php');
         $isCompleted = false;
         foreach($learned_counts as $count){
             if($count['course_id'] == $course_id){
-                $isCompleted = $count['count']>=$count['lessons_count'];
-
-                 echo $count['count']." Vs ".$count['lessons_count']." CourseId-".$course_id;
+                
+                echo $count['count']." Vs ".$count['lessons_count']." CourseId-".$course_id;
+                return $count['count']>=$count['lessons_count'];
             }
         }
        

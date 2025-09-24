@@ -98,7 +98,7 @@ include ('classes/auth.php');
         foreach($learned_counts as $count){
             if($count['course_id'] == $course_id){
                 
-                echo $count['count']." Vs ".$count['lessons_count']." CourseId-".$course_id;
+            //    echo $count['count']." Vs ".$count['lessons_count']." CourseId-".$course_id;
                 return $count['count']>=$count['lessons_count'];
             }
         }
@@ -237,11 +237,11 @@ include ('classes/auth.php');
                     </div>
                     
                     <br><br>
-                    <?php if($auth){ ?>
-                        <div id="btn_download" style="padding:5px; background:#000;color:white;border-radius:5px;cursor:pointer;text-align:center;">
-                            Download
-                        </div>
-                    <?php }?>
+                     
+                    <div id="btn_download" style="padding:5px; background:#000;color:white;border-radius:5px;cursor:pointer;text-align:center;">
+                        Download
+                    </div>
+              
                     <br><br>
                     <div>
                         <div class="font_bold" >
@@ -251,24 +251,25 @@ include ('classes/auth.php');
 
                     <?php foreach($learning_courses as $learning_course) {?>
                         <?php if($learning_course['major'] == $major) {?>
-                            <?php if(isCompleted($learned_counts, $learning_course['course_id'])) ?>
-                            <a href="curriculum.php?course_id=<?php echo $learning_course['course_id'] ?>">
-                                <div id="course" class="card course">
-                                    <div style="display:flex">
-                                        <div style="flex:1">
-                                            <div class="title">
-                                                <?php echo $learning_course['title'] ?> 
+                            <?php if(isCompleted($learned_counts, $learning_course['course_id'])){ ?>
+                                <a href="curriculum.php?course_id=<?php echo $learning_course['course_id'] ?>">
+                                    <div id="course" class="card course">
+                                        <div style="display:flex">
+                                            <div style="flex:1">
+                                                <div class="title">
+                                                    <?php echo $learning_course['title'] ?> 
+                                                </div>
+                                                <div style="font-size:12px; color:#777">
+                                                    View Curriculum
+                                                </div>
                                             </div>
-                                            <div style="font-size:12px; color:#777">
-                                                View Curriculum
+                                            <div style="flex:1;text-align:right;padding-top:7px;">
+                                                <i style="font-size:23px;color:#777;" class="uil uil-arrow-circle-right"></i>
                                             </div>
-                                        </div>
-                                        <div style="flex:1;text-align:right;padding-top:7px;">
-                                            <i style="font-size:23px;color:#777;" class="uil uil-arrow-circle-right"></i>
                                         </div>
                                     </div>
-                                </div>
-                            </a>
+                                </a>
+                            <?php }?>
                         <?php }?>
                     <?php }?>
                     <br><br>

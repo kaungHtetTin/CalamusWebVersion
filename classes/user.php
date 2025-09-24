@@ -75,5 +75,13 @@
             return $registration;
 
         }
+
+        public function detail($phone){
+            $query = "SELECT * FROM learners WHERE learner_phone = $phone";
+            $DB = new Database();
+            $user = $DB->read($query);
+            if($user) return $user[0];
+            else false;
+        }
     }
 ?>

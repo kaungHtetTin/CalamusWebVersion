@@ -116,11 +116,18 @@ class Course {
             JOIN VipUsers ON courses.course_id=VipUsers.course_id
             WHERE VipUsers.phone=$user_id 
             GROUP BY courses.course_id
-            ORDER BY courses.major ASC
+            ORDER BY courses.major ASC, courses.course_id ASC
         ";
         $DB=new Database();
         $result=$DB->read($query);
         return $result;
+    }
+
+    function getModules($course_id){
+        $query = "SELECT * FROM lessons_categories WHERE course_id = $course_id";
+        $DB = new Database();
+        $modules = $DB->read($query);
+        return $modules;
     }
 
 }

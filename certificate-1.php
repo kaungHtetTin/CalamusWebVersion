@@ -1,7 +1,6 @@
 <?php 
 include('classes/connect.php');
 include('classes/user.php');
-include('classes/course.php');
 
 	$user_id = $_GET['user_id'];
 	$course_id = $_GET['course_id'];
@@ -13,26 +12,14 @@ include('classes/course.php');
 				FROM courses
 				JOIN lessons_categories ON lessons_categories.course_id = courses.course_id
 				JOIN lessons ON lessons.category_id = lessons_categories.id
-				JOIN studies ON studies.lesson_id = lessons.id
+				JOIN studies studies.lesson_id = lessons.id
 				WHERE courses.course_id=$course_id and studies.learner_id=$user_id;
 			";
 
 	$result = $DB->read($query);
-    $Course = new Course();
-    $course = $Course->detail($course_id);
 
-    $major = $course['major'];
-    if($major == "english"){
-        $certificate_bg = "assets/images/ee_certificate_bg.png";
-        $certificate_seal = "assets/images/ee_certificate_seal.png";
-    }else{
-        $certificate_bg = "assets/images/ko_certificate_bg.png";
-        $certificate_seal = "assets/images/ko_certificate_seal.png";
-    }
-
-	$lesson_count = $course['lessons_count'];
-
-	$learned = $result[0]['learned'];
+	$lesson_count = $result['lessons_count'];
+	$learned = $result['learned'];
 
 	if($lesson_count==$learned){
 		
@@ -56,9 +43,7 @@ include('classes/course.php');
 		
 		<!-- Stylesheets -->
 		<link href='http://fonts.googleapis.com/css?family=Roboto:400,700,500' rel='stylesheet'>
-        <link href="https://fonts.googleapis.com/css2?family=Rosario:wght@300;400;500;600;700&display=swap" rel="stylesheet"> 
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-        <link href='assets/vendor/unicons-2.0.1/css/unicons.css' rel='stylesheet'>
+		<link href='assets/vendor/unicons-2.0.1/css/unicons.css' rel='stylesheet'>
 		<link href="assets/css/vertical-responsive-menu.min.css" rel="stylesheet">
 		<link href="assets/css/style.css" rel="stylesheet">
 		<link href="assets/css/responsive.css" rel="stylesheet">
@@ -80,19 +65,11 @@ include('classes/course.php');
         }
 
         .font-poppin-medium{
-            font-family: Poppins Medium, sans-serif;
+             font-family: Poppins Medium, sans-serif;
         }
 
         .font-poppin-semibold{
-           
-        }
-
-        /* .font_bold{
-            font-family: 'Rosario',Pyidaungsu , Poppins SemiBold, sans-serif;
-        } */
-        .font_bold{
-            font-family: 'Rosario';
-            
+             font-family: Poppins SemiBold, sans-serif;
         }
 			  
 		</style>
@@ -126,25 +103,38 @@ include('classes/course.php');
 	<div class="wrapper _bg4586 _new89">		
 		<div class="_215cd2">
 			<div class="container">
-				<div id="captureArea" align="center" style="position:relative;width:650px; height:460px;margin:auto">
-                    <img src="<?php echo $certificate_bg ?>" alt="" style="width:650px; height:460px;">
+				<div id="captureArea" align="center" style="position:relative;width:630px; height:891px;margin:auto">
+                    <img src="assets/images/certificate_bg.png" alt="" style="width:630px; height:891px;">
+                    <img src="assets/images/certificate/feather.svg" alt="" style="width:150px;height:150px;top:70px;right:230px;position:absolute;margin:auto;z-index:10;">
+                    <div class="font-bell" style="position:absolute;top:190px;left:115px;font-size:40px;font-weight:bold;width:400px;">
+                        CERTIFICATION OF 
+                    </div>
 
-                    <div class="font_bold" style="position:absolute;top:177px;left:95px;font-size:36px;width:450px;">
+                    <div class="font-bell" style="position:absolute;top:250px;left:95px;font-size:60px;font-weight:bold;width:450px;">
+                       COMPLETITON
+                    </div>
+
+                    <div class="font-poppin-medium" style="position:absolute;top:370px;left:95px;font-size:16px;width:450px;">
+                       This certificate is rewarded to
+                    </div>
+
+                     <div class="font-poppin-semibold" style="position:absolute;top:420px;left:95px;font-size:36px;width:450px;">
                         Kaung Htet Tin
                     </div>
 
-                    <div class="font_bold" style="position:absolute;top:250px;left:0px;font-size:16px;width:630px;text-align:center">
-                       Level 1 Korean Language Course
+                    <div class="font-poppin-medium" style="position:absolute;top:470px;left:0px;font-size:16px;width:630px;text-align:center">
+                       for succefully completing the course of "Basic Course"
                     </div>
 
-                    <div style="position:absolute;bottom:37px;right:60px;font-size:12px;">
-						<span class="font_bold"> July 7th 2024</span>
+					<div style="position:absolute;top:510px;left:0px;font-size:16px;width:630px;text-align:center">
+                         <img style="height:100px;" src="assets/images/certificate/1.png" alt="" srcset="">
                     </div>
-
-                    <div style="position:absolute;bottom:37px;left:29px;font-size:12px;width:55px; height:55px; border:1px solid black">
-						 <div id="qrcode"></div>
+					<div style="position:absolute;bottom:50px;left:50px;font-size:16px;">
+                        <span class="font-poppin-semibold"><b>Issued Date:</b></span> 
+						<span class="font-poppin-medium"> July 7th 2024</span>
                     </div>
                 </div>
+
                 <br><br>
                 <div id="btn_download" style="padding:5px; background:#000;color:white;border-radius:5px;cursor:pointer;text-align:center;">
                     Download
@@ -172,15 +162,6 @@ include('classes/course.php');
                     link[0].click();
                 });
             });
-        });
-
-        var qrcode = new QRCode(document.getElementById("qrcode"), {
-            text: "https://www.calamuseducation.com",
-            width: 55,
-            height: 55,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
         });
     </script>
 

@@ -1,42 +1,16 @@
 <?php 
 include('classes/connect.php');
-include('classes/user.php');
 include('classes/course.php');
+include('classes/lesson.php');
 
-	$user_id = $_GET['user_id'];
 	$course_id = $_GET['course_id'];
 
-	$DB = new Database();
-	$query = "	SELECT
-				courses.lessons_count,
-				count(*) as learned
-				FROM courses
-				JOIN lessons_categories ON lessons_categories.course_id = courses.course_id
-				JOIN lessons ON lessons.category_id = lessons_categories.id
-				JOIN studies ON studies.lesson_id = lessons.id
-				WHERE courses.course_id=$course_id and studies.learner_id=$user_id;
-			";
-
-	$result = $DB->read($query);
     $Course = new Course();
     $course = $Course->detail($course_id);
 
-    $major = $course['major'];
-    if($major == "english"){
-        $certificate_bg = "assets/images/ee_certificate_bg.png";
-        $certificate_seal = "assets/images/ee_certificate_seal.png";
-    }else{
-        $certificate_bg = "assets/images/ko_certificate_bg.png";
-        $certificate_seal = "assets/images/ko_certificate_seal.png";
-    }
+    $modules = $Course->getModules($course_id);
 
-	$lesson_count = $course['lessons_count'];
-
-	$learned = $result[0]['learned'];
-
-	if($lesson_count==$learned){
-		
-	}
+    $Lesson = new Lesson();
 
 ?>
 
@@ -49,7 +23,7 @@ include('classes/course.php');
 		<meta name="viewport" content="width=device-width, shrink-to-fit=9">
 		<meta name="description" content="CalamusEducation">
 		<meta name="author" content="CalamusEducation">
-		<title>Calamus | Certificate</title>
+		<title>Calamus | Curriculum</title>
 		
 		<!-- Favicon Icon -->
 		<link rel="icon" type="image/png" href="assets/images/logo.png">
@@ -86,7 +60,6 @@ include('classes/course.php');
         .font-poppin-semibold{
            
         }
-
         /* .font_bold{
             font-family: 'Rosario',Pyidaungsu , Poppins SemiBold, sans-serif;
         } */
@@ -94,14 +67,30 @@ include('classes/course.php');
             font-family: 'Rosario';
             
         }
-			  
-		</style>
+     
+        .course_title{
+            font-family: 'Rosario';
+            text-align:center;
+        }
 
-        
-		
+
+        .module .title{
+            font-family: 'Rosario';
+            font-size: 16px;
+        }
+
+        .module ul{
+            list-style: disc;
+        }
+
+        .module ul li{
+            padding:5px;
+        }
+
+		</style>
 	</head> 
 
-<body>
+<body style="<?php if(!$error) echo 'min-width:700px;'  ?>">
 	<!-- Header Start -->
 	<header class="header clearfix">
 		<div class="container">
@@ -125,64 +114,39 @@ include('classes/course.php');
 	<!-- Body Start -->
 	<div class="wrapper _bg4586 _new89">		
 		<div class="_215cd2">
-			<div class="container">
-				<div id="captureArea" align="center" style="position:relative;width:650px; height:460px;margin:auto">
-                    <img src="<?php echo $certificate_bg ?>" alt="" style="width:650px; height:460px;">
-
-                    <div class="font_bold" style="position:absolute;top:177px;left:95px;font-size:36px;width:450px;">
-                        Kaung Htet Tin
-                    </div>
-
-                    <div class="font_bold" style="position:absolute;top:250px;left:0px;font-size:16px;width:630px;text-align:center">
-                       Level 1 Korean Language Course
-                    </div>
-
-                    <div style="position:absolute;bottom:37px;right:60px;font-size:12px;">
-						<span class="font_bold"> July 7th 2024</span>
-                    </div>
-
-                    <div style="position:absolute;bottom:37px;left:29px;font-size:12px;width:55px; height:55px; border:1px solid black">
-						 <div id="qrcode"></div>
-                    </div>
+            <div class="container">
+                <div class = "course_title">
+                    <h2><?php echo $course['title'] ?> - Curriculum</h2>
+                    
                 </div>
                 <br><br>
-                <div id="btn_download" style="padding:5px; background:#000;color:white;border-radius:5px;cursor:pointer;text-align:center;">
-                    Download
-                </div>
-                <br><br>
-			</div>
+                <?php foreach($modules as $module){ ?>
+                    <div class = "card module">
+                        <div class = "card-header title">
+                            <?php echo $module['category_title'] ?>
+                        </div>
+                        <div class="card-body">
+                            <div style="padding:7px;">
+                                <ul>
+                                    <?php $lessons = $Lesson->getLessonByCategory($module['id']); ?>
+                                    <?php for($i=count($lessons)-1;$i>=0;$i-- ) {?>
+                                        <?php $lesson = $lessons[$i]; ?>
+                                        <li><?php echo $lesson['lesson_title']?></li>
+                                    <?php }?>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <br>
+                <?php }?>
+                
+            </div>
 		</div>
 
 	</div>
 		
-  
 	<!-- Body End -->
-
-    <script>
-        $(document).ready(function() {
-            $('#btn_download').on('click', function() {
-                html2canvas($('#captureArea')[0]).then(canvas => {
-                    // Create an <a> element to trigger the download
-                    let link = $('<a>').attr({
-                        href: canvas.toDataURL('image/png'),
-                        download: 'capture.png'
-                    });
-
-                    // Trigger the download
-                    link[0].click();
-                });
-            });
-        });
-
-        var qrcode = new QRCode(document.getElementById("qrcode"), {
-            text: "https://www.calamuseducation.com",
-            width: 55,
-            height: 55,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
-        });
-    </script>
 
 	<script src="assets/js/vertical-responsive-menu.min.js"></script>
 	<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>

@@ -111,7 +111,7 @@
                 return $this->createUser($data);
             }
             return $this->error;
-             
+            
         }
 
         function createUser($data){
@@ -128,8 +128,7 @@
             $tables =['ee_user_datas','ko_user_datas','cn_user_datas','jp_user_datas','ru_user_datas'];
             $last_active = time();
 
-            $phone = str_replace(" ", "", $phone);
-            $phone = str_replace("+", "", $phone);  
+            $phone = str_replace([" ","+","*","#","-"], "", $phone);
 
             foreach($tables as $table){
                 $query = "INSERT INTO $table (phone,token,last_active) VALUES ('$phone','signup-from-web-site','$last_active')";

@@ -57,6 +57,15 @@
     .user_dt_right ul li {
         width: 23.3%;
     }
+
+    #btn_certificate {
+
+    }
+
+     #btn_certificate {
+        
+    }
+
 </style>
  
 <div class="wrapper _bg4586">
@@ -102,11 +111,15 @@
                                 <div class="_215b05">										
                                     <?php echo $enrollStudents; ?> students enrolled
                                 </div>
-                                <!-- <?php if($user) {?>
-                                    <div class="_215b05">										
-                                        <a href="certificate.php">Get certificate <i class="uil uil-arrow-to-bottom"></i></a>
-                                    </div>
-                                <?php }?> -->
+                                <?php if($user) {?>
+                                    <?php if($progress >= 0) { ?>
+                                        <div class="_215b05">										
+                                            <ul class="_215b31">										
+                                                <li><button onclick="location.href='generate_certificate.php?course_id=<?php echo $course_id ?>&user_id=<?php echo $user_id ?>'" class="btn_adcart" >Get Certificate <i class="uil uil-trophy"></i></button></li>
+                                            </ul>
+                                        </div>
+                                    <?php }?>
+                                <?php }?>
                                 <?php if($isRegister){ ?>
                                     <div class="_215b05">										
                                         <div style="width:100%;background:#444;border-radius:3px;"> 
@@ -124,7 +137,6 @@
                                 <?php } else { ?>
                                     <ul class="_215b31">										
                                         <li><button onclick="location.href='vip_plan.php'" class="btn_adcart" >Buy Now</button></li>
-
                                     </ul>
                                 <?php } ?>
 

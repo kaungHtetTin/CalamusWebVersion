@@ -158,6 +158,7 @@ include ('classes/auth.php');
         } */
         .font_bold{
             font-family: 'Rosario';
+            font-weight:bold;
             
         }
 
@@ -223,19 +224,19 @@ include ('classes/auth.php');
                             <?php echo $user['learner_name'] ?>
                         </div>
 
-                        <div class="font_bold" style="position:absolute;top:250px;left:0px;font-size:16px;width:630px;text-align:center">
+                        <div class="font_bold" style="position:absolute;top:250px;left:0px;font-size:20px;width:630px;text-align:center;">
                             <?php echo $course['title']; ?>
                         </div>
 
-                        <div style="position:absolute;bottom:37px;right:60px;font-size:12px;">
+                        <div style="position:absolute;bottom:36px;right:72px;font-size:13px;">
                             <span class="font_bold"> <?php echo formatIssuedDate($certificate['date']) ?></span>
                         </div>
 
-                        <div style="position:absolute;bottom:119px;left:100px;font-size:12px;">
+                        <div style="position:absolute;bottom:118px;left:100px;font-size:12px;">
                             <span class="font_bold"> calamus-00<?php echo $certificate['id'] ?></span>
                         </div>
 
-                        <div style="position:absolute;bottom:37px;left:29px;font-size:12px;width:55px; height:55px; border:1px solid black">
+                        <div style="position:absolute;bottom:37px;left:29px;font-size:12px;width:55px; height:55px;">
                             <div id="qrcode"></div>
                         </div>
                     </div>
@@ -282,6 +283,7 @@ include ('classes/auth.php');
 
                     var course_id = <?php echo $course_id ?>;
                     var user_id = <?php echo $user_id ?>;
+                    var certificate_id = <?php echo $certificate['id']  ?>;
 
                     $(document).ready(function() {
                         $('#btn_download').on('click', function() {
@@ -299,12 +301,12 @@ include ('classes/auth.php');
                     });
 
                     var qrcode = new QRCode(document.getElementById("qrcode"), {
-                        text: `https://www.calamuseducation.com/calamus/generate_certificate.php?course_id=${course_id}&user_id=${user_id}`,
+                        text: `www.calamuseducation.com/qr.php?id=${certificate_id}`,
                         width: 55,
                         height: 55,
                         colorDark : "#000000",
                         colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.H
+                        correctLevel : QRCode.CorrectLevel.M
                     });
                 </script>
 

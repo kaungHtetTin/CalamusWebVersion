@@ -1,4 +1,6 @@
 <?php 
+session_start();
+
 include('classes/connect.php');
 include('classes/user.php');
 include('classes/course.php');
@@ -96,8 +98,11 @@ include ('classes/auth.php');
         foreach($learned_counts as $count){
             if($count['course_id'] == $course_id){
                 $isCompleted = $count['count']>=$count['lessons_count'];
+
+                 echo $count['count']." Vs ".$count['lessons_count']." CourseId-".$course_id;
             }
         }
+       
         return $isCompleted;
     }
 ?>

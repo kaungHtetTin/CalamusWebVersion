@@ -238,7 +238,7 @@ include('classes/study.php');
                     <table style="display:inline">
                         <tr>
                             <td style="width:100px;"><span class="font_bold">Certificate ID </span></td>
-                            <td><?php echo $numberEncoder->encode($certificate['id']) ?>  </td>
+                            <td><?php echo base64_encode($certificate['date']."-".$certificate['id']) ?>  </td>
                         </tr>
                         <tr>
                             <td><span class="font_bold">Name </span> </td>

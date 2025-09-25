@@ -103,6 +103,8 @@ include ('classes/auth.php');
        
         return $isCompleted;
     }
+
+    $certificate_id =  base64_encode($certificate['date']."-".$certificate['id']);
 ?>
 
 <!DOCTYPE html>
@@ -231,41 +233,83 @@ include ('classes/auth.php');
                         </div>
 
                         <div style="position:absolute;bottom:118.5px;left:100px;font-size:12px;">
-                            <span class="font_bold"> <?php echo $numberEncoder->encode($certificate['id']) ?>  </span>
+                            <span class="font_bold"> <?php echo $certificate_id ?>  </span>
                         </div>
 
                         <div style="position:absolute;bottom:37px;left:35px;font-size:12px;width:55px; height:55px;">
                             <div id="qrcode"></div>
                         </div>
                     </div>
+
+                    <br>
+                    <div id="loading_bar"  class="main-loader">													
+                        <div class="spinner">
+                            <div class="bounce1"></div>
+                            <div class="bounce2"></div>
+                            <div class="bounce3"></div>
+                        </div>																										
+                    </div>
+
                     
                     <br><br>
+
                      
                     <div id="btn_download" style="padding:5px; background:#000;color:white;border-radius:5px;cursor:pointer;text-align:center;">
                         Download
                     </div>
                     <br><br>
+
+                    
+
                 </div>
                 <script>
 
                     var course_id = <?php echo $course_id ?>;
                     var user_id = <?php echo $user_id ?>;
                     var certificate_id = <?php echo $certificate['id']  ?>;
+                    var image_id = '<?php echo $certificate_id ?>';
 
                     $(document).ready(function() {
-                        $('#btn_download').on('click', function() {
-                            html2canvas($('#captureArea')[0]).then(canvas => {
-                                // Create an <a> element to trigger the download
-                                let link = $('<a>').attr({
-                                    href: canvas.toDataURL('image/png'),
-                                    download: 'capture.png'
-                                });
+                         $('#loading_bar').hide();
 
-                                // Trigger the download
+                        $('#btn_download').on('click', function() {
+                            $('#loading_bar').show();
+
+                            const element = $('#captureArea')[0];
+                            
+                            // Increase scale for higher resolution
+                            const scale = 20; // 3x resolution (adjust as needed)
+                            
+                            const options = {
+                                scale: scale,
+                                useCORS: true,
+                                allowTaint: true,
+                                width: element.scrollWidth,
+                                height: element.scrollHeight,
+                                scrollX: 0,
+                                scrollY: -window.scrollY,
+                                windowWidth: document.documentElement.offsetWidth,
+                                windowHeight: document.documentElement.offsetHeight,
+                                onclone: function(clonedDoc) {
+                                    // Ensure fonts and styles are loaded in the clone
+                                    clonedDoc.querySelectorAll('img').forEach(img => {
+                                        img.crossOrigin = 'anonymous';
+                                    });
+                                }
+                            };
+                            
+                            html2canvas(element, options).then(canvas => {
+                                // Create a higher quality download
+                                const link = $('<a>').attr({
+                                    href: canvas.toDataURL('image/png', 1.0), // 1.0 = maximum quality
+                                    download: image_id + '.png'
+                                });
                                 link[0].click();
+                                $('#loading_bar').hide();
                             });
                         });
                     });
+
 
                     var qrcode = new QRCode(document.getElementById("qrcode"), {
                         text: `www.calamuseducation.com/qr.php?id=${certificate_id}`,

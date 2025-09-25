@@ -104,7 +104,10 @@ include ('classes/auth.php');
         return $isCompleted;
     }
 
-    $certificate_id =  base64_encode($certificate['date']."-".$certificate['id']);
+    $date = new DateTime($certificate['date']);
+    $year = $date->format('Y'); 
+
+    $certificate_id =  base64_encode($year."-".$certificate['id']);
 ?>
 
 <!DOCTYPE html>
@@ -138,6 +141,8 @@ include ('classes/auth.php');
 		<link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="assets/vendor/semantic/semantic.min.css">	
         <script src="assets/js/jquery-3.3.1.min.js"></script>
+   
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 		<style>
@@ -268,42 +273,57 @@ include ('classes/auth.php');
                     var user_id = <?php echo $user_id ?>;
                     var certificate_id = <?php echo $certificate['id']  ?>;
                     var image_id = '<?php echo $certificate_id ?>';
-
+ 
+                    
+                   
+                    // $(document).ready(function() {
+                    //     $('#loading_bar').hide();
+                    //     $('#btn_download').on('click', function() {
+                    //         $('#loading_bar').show();
+                    //         html2canvas($('#captureArea')[0]).then(canvas => {
+                    //             // Create an <a> element to trigger the download
+                    //             let link = $('<a>').attr({
+                    //                 href: canvas.toDataURL('image/png'),
+                    //                 download: 'capture.png'
+                    //             });
+            
+                    //             // Trigger the download
+                    //             link[0].click();
+                    //             $('#loading_bar').hide();
+                    //         });
+                    //     });
+                    // });
+                    
                     $(document).ready(function() {
-                         $('#loading_bar').hide();
-
+                        $('#loading_bar').hide();
                         $('#btn_download').on('click', function() {
-                            $('#loading_bar').show();
-
-                            const element = $('#captureArea')[0];
+                             $('#loading_bar').show();
+                            // Get resolution scale factor (default to 2x for high quality)
+                            const scale = 8;
                             
-                            // Increase scale for higher resolution
-                            const scale = 9; // 3x resolution (adjust as needed)
-                            
-                            const options = {
+                            // Configuration for html2canvas with resolution control
+                            const config = {
                                 scale: scale,
                                 useCORS: true,
                                 allowTaint: true,
-                                width: element.scrollWidth,
-                                height: element.scrollHeight,
+                                backgroundColor: '#ffffff',
+                                logging: false,
+                                width: $('#captureArea')[0].scrollWidth,
+                                height: $('#captureArea')[0].scrollHeight,
                                 scrollX: 0,
-                                scrollY: -window.scrollY,
-                                windowWidth: document.documentElement.offsetWidth,
-                                windowHeight: document.documentElement.offsetHeight,
-                                onclone: function(clonedDoc) {
-                                    // Ensure fonts and styles are loaded in the clone
-                                    clonedDoc.querySelectorAll('img').forEach(img => {
-                                        img.crossOrigin = 'anonymous';
-                                    });
-                                }
+                                scrollY: 0,
+                                windowWidth: $('#captureArea')[0].scrollWidth * scale,
+                                windowHeight: $('#captureArea')[0].scrollHeight * scale
                             };
                             
-                            html2canvas(element, options).then(canvas => {
-                                // Create a higher quality download
-                                const link = $('<a>').attr({
-                                    href: canvas.toDataURL('image/png', 1.0), // 1.0 = maximum quality
-                                    download: image_id + '.png'
+                            html2canvas($('#captureArea')[0], config).then(canvas => {
+                                // Create an <a> element to trigger the download
+                                let link = $('<a>').attr({
+                                    href: canvas.toDataURL('image/png'),
+                                    download: 'calamus-certificate'+certificate_id+'.png'
                                 });
+                    
+                                // Trigger the download
                                 link[0].click();
                                 $('#loading_bar').hide();
                             });

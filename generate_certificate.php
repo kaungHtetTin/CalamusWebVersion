@@ -278,7 +278,7 @@ include ('classes/auth.php');
                             const element = $('#captureArea')[0];
                             
                             // Increase scale for higher resolution
-                            const scale = 20; // 3x resolution (adjust as needed)
+                            const scale = 9; // 3x resolution (adjust as needed)
                             
                             const options = {
                                 scale: scale,

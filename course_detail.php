@@ -127,7 +127,7 @@
                                                 <?php 
                                                     if($progress>10 && $progress<100){
                                                         echo $progress ." %";
-                                                    }else if($progress==100){
+                                                    }else if($progress>=100){
                                                         echo "Completed";
                                                     }
                                                 ?>

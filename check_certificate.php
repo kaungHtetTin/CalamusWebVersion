@@ -199,7 +199,7 @@ include('classes/study.php');
 		</style>
 	</head> 
 
-<body style="<?php if(!$error) echo 'min-width:700px;'  ?>">
+<body>
 	<!-- Header Start -->
 	<header class="header clearfix">
 		<div class="container">

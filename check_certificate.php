@@ -6,26 +6,34 @@ include('classes/user.php');
 include('classes/course.php');
 include('classes/certificate.php');
 include('classes/numbercoder.php');
-include ('classes/auth.php');
+include('classes/study.php');
 
-	$user_id = $_GET['user_id'];
-	$course_id = $_GET['course_id'];
+    $id = $_GET['id'];
 
-    $Course = new Course();
-    $course = $Course->detail($course_id);
-
-    $User = new User();
-    $user = $User->detail($user_id);
-
-    $Auth=new Auth();
-    $auth = false;
-	if(isset($_SESSION['calamus_userid'])){
-        $auth =$Auth->check_login($_SESSION['calamus_userid']);
-    }
+    $Certificate = new Certificate();
+    $certificate = $Certificate->detailById($id);
 
     $error = false;
-    if(!$user) $error = "No Resource Found!";
-    if(!$course) $error = "No Resourse Found!";
+    if($certificate){
+        $course_id = $certificate['course_id'];
+        $user_id = $certificate['user_id'];
+
+        $Course = new Course();
+        $course = $Course->detail($course_id);
+
+        $User = new User();
+        $user = $User->detail($user_id);
+
+
+        if(!$user) $error = "No Resource Found!";
+        if(!$course) $error = "No Resourse Found!";
+
+    }else{
+        $error = "No Resource Found!";
+    }
+  
+
+    $numberEncoder = new CompactNumberEncoder();
 
     if(!$error){
         $major = $course['major'];
@@ -60,15 +68,13 @@ include ('classes/auth.php');
 	    }
 
         if(!$error){
-            $Certificate = new Certificate();
-            $certificate = $Certificate->detail($course_id,$user_id);
-            if(!$certificate){
-                $certificate = $Certificate->store($course_id,$user_id);
-            }
+            
         }
-    }
+        $Study = new Study();
+        $learned_counts=$Study->getCountByCourse($user['learner_phone']);
+        $learning_courses = $Course->learnningCourse($user['learner_phone']);
 
-    $numberEncoder = new CompactNumberEncoder();
+    }
 
     function formatIssuedDate($certificate_date){
       
@@ -186,6 +192,10 @@ include ('classes/auth.php');
             font-family: 'Rosario';
         }
 
+        table tr td{
+            padding:5px;
+        }
+
 		</style>
 	</head> 
 
@@ -215,67 +225,72 @@ include ('classes/auth.php');
 		<div class="_215cd2">
             <?php if(!$error) {?>
                 <div class="container">
-                    <div id="captureArea" align="center" style="position:relative;width:650px; height:460px;margin:auto">
-                        <img src="<?php echo $certificate_bg ?>" alt="" style="width:650px; height:460px;">
-
-                        <div class="font_bold" style="position:absolute;top:177px;left:95px;font-size:36px;width:450px;">
-                            <?php echo $user['learner_name'] ?>
-                        </div>
-
-                        <div class="font_bold" style="position:absolute;top:250px;left:0px;font-size:20px;width:630px;text-align:center;">
-                            <?php echo $course['title']; ?>
-                        </div>
-
-                        <div style="position:absolute;bottom:36px;right:72.5px;font-size:13px;">
-                            <span class="font_bold"> <?php echo formatIssuedDate($certificate['date']) ?></span>
-                        </div>
-
-                        <div style="position:absolute;bottom:118.5px;left:100px;font-size:12px;">
-                            <span class="font_bold"> <?php echo $numberEncoder->encode($certificate['id']) ?>  </span>
-                        </div>
-
-                        <div style="position:absolute;bottom:37px;left:35px;font-size:12px;width:55px; height:55px;">
-                            <div id="qrcode"></div>
-                        </div>
+                    <div id="captureArea" align="center" style="margin:auto">
+                        <div class="font_bold" style="font-size:20px;">Certificate Authentication</div>
                     </div>
-                    
                     <br><br>
-                     
-                    <div id="btn_download" style="padding:5px; background:#000;color:white;border-radius:5px;cursor:pointer;text-align:center;">
-                        Download
+                    <div style="text-align:center;">
+                        <i class="uil uil-check-circle" style="font-size:40px;color:green"></i>
                     </div>
+
+                    <br><br>
+
+                    <table style="display:inline">
+                        <tr>
+                            <td style="width:100px;"><span class="font_bold">Certificate ID </span></td>
+                            <td><?php echo $numberEncoder->encode($certificate['id']) ?>  </td>
+                        </tr>
+                        <tr>
+                            <td><span class="font_bold">Name </span> </td>
+                            <td><?php echo $user['learner_name'] ?> </td>
+                        </tr>
+                        <tr>
+                            <td><span class="font_bold">Course </span> </td>
+                            <td><?php echo $course['title'] ?> </td>
+                        </tr>
+                        <tr>
+                            <td><span class="font_bold">Issued Date </span> </td>
+                            <td> <?php echo formatIssuedDate($certificate['date']) ?> </td>
+                        </tr>
+                    </table>
+              
+                    <br><br><br>
+                    <div>
+                        <div class="font_bold">
+                            Related Information
+                        </div>
+                        <br>
+                        <div  >
+                            <?php echo $user['learner_name'];?>  has succesfully completed the following course(s) from Calamus Education.
+                        </div>
+                    </div> <br>
+
+                    <?php foreach($learning_courses as $learning_course) {?>
+                        <?php if($learning_course['major'] == $major) {?>
+                            <?php if(isCompleted($learned_counts, $learning_course['course_id'])){ ?>
+                                <a href="curriculum.php?course_id=<?php echo $learning_course['course_id'] ?>">
+                                    <div id="course" class="card course">
+                                        <div style="display:flex">
+                                            <div style="flex:1">
+                                                <div class="title">
+                                                    <?php echo $learning_course['title'] ?> 
+                                                </div>
+                                                <div style="font-size:12px; color:#777">
+                                                    View Curriculum
+                                                </div>
+                                            </div>
+                                            <div style="flex:1;text-align:right;padding-top:7px;">
+                                                <i style="font-size:23px;color:#777;" class="uil uil-arrow-circle-right"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            <?php }?>
+                        <?php }?>
+                    <?php }?>
                     <br><br>
                 </div>
-                <script>
-
-                    var course_id = <?php echo $course_id ?>;
-                    var user_id = <?php echo $user_id ?>;
-                    var certificate_id = <?php echo $certificate['id']  ?>;
-
-                    $(document).ready(function() {
-                        $('#btn_download').on('click', function() {
-                            html2canvas($('#captureArea')[0]).then(canvas => {
-                                // Create an <a> element to trigger the download
-                                let link = $('<a>').attr({
-                                    href: canvas.toDataURL('image/png'),
-                                    download: 'capture.png'
-                                });
-
-                                // Trigger the download
-                                link[0].click();
-                            });
-                        });
-                    });
-
-                    var qrcode = new QRCode(document.getElementById("qrcode"), {
-                        text: `www.calamuseducation.com/qr.php?id=${certificate_id}`,
-                        width: 55,
-                        height: 55,
-                        colorDark : "#000000",
-                        colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.M
-                    });
-                </script>
+               
 
             <?php }else {?>
                 <div class="container">

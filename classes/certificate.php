@@ -22,6 +22,17 @@ class Certificate {
             return false;
         }
     }
+
+    public function detailById($id){
+        $query = "SELECT * FROM certificates WHERE id=$id LIMIT 1";
+        $DB = new Database();
+        $result = $DB->read($query);
+        if($result){
+            return $result[0];
+        }else {
+            return false;
+        }
+    }
 }
 
 

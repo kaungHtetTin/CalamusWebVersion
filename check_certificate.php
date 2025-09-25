@@ -109,6 +109,11 @@ include('classes/study.php');
        
         return $isCompleted;
     }
+
+    $date = new DateTime($certificate['date']);
+    $year = $date->format('Y'); 
+
+    $certificate_id =  base64_encode($year."-".$certificate['id']);
 ?>
 
 <!DOCTYPE html>
@@ -238,7 +243,7 @@ include('classes/study.php');
                     <table style="display:inline">
                         <tr>
                             <td style="width:100px;"><span class="font_bold">Certificate ID </span></td>
-                            <td><?php echo base64_encode($certificate['date']."-".$certificate['id']) ?>  </td>
+                            <td><?php echo $certificate_id ?>  </td>
                         </tr>
                         <tr>
                             <td><span class="font_bold">Name </span> </td>

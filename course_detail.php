@@ -21,8 +21,6 @@
         $user_id=$_SESSION['calamus_userid'];
         $isRegister=$Auth->checkVIP($course_id,$user_id);
     }
-    
-   
 
     $Course=new Course();
     $Teacher=new Teacher();
@@ -115,7 +113,7 @@
                                     <?php if($progress >= 0) { ?>
                                         <div class="_215b05">										
                                             <ul class="_215b31">										
-                                                <li><button onclick="location.href='generate_certificate.php?course_id=<?php echo $course_id ?>&user_id=<?php echo $user_id ?>'" class="btn_adcart" >Get Certificate <i class="uil uil-trophy"></i></button></li>
+                                                <li><button onclick="location.href='generate_certificate.php?course_id=<?php echo $course_id ?>'" class="btn_adcart" >Get Certificate <i class="uil uil-trophy"></i></button></li>
                                             </ul>
                                         </div>
                                     <?php }?>

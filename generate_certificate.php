@@ -8,20 +8,22 @@ include('classes/certificate.php');
 include('classes/numbercoder.php');
 include ('classes/auth.php');
 
-	$user_id = $_GET['user_id'];
 	$course_id = $_GET['course_id'];
 
     $Course = new Course();
     $course = $Course->detail($course_id);
 
-    $User = new User();
-    $user = $User->detail($user_id);
-
     $Auth=new Auth();
     $auth = false;
 	if(isset($_SESSION['calamus_userid'])){
         $auth =$Auth->check_login($_SESSION['calamus_userid']);
+    }else{
+        header('Location:login.php');
     }
+
+    $User = new User();
+    $user_id = $_SESSION['calamus_userid'];
+    $user = $User->detail($user_id);
 
     $error = false;
     if(!$user) $error = "No Resource Found!";
@@ -297,18 +299,14 @@ include ('classes/auth.php');
                     </div>
                     <br><br>
 
-                    
-
                 </div>
                 <script>
 
                     var course_id = <?php echo $course_id ?>;
                     var user_id = <?php echo $user_id ?>;
-                    var certificate_id = <?php echo $certificate['id']  ?>;
+                    var certificate_id = <?php echo base64_encode($certificate['id']) ?>;
                     var image_id = '<?php echo $certificate_id ?>';
- 
-                    
-                   
+
                     // $(document).ready(function() {
                     //     $('#loading_bar').hide();
                     //     $('#btn_download').on('click', function() {

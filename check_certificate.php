@@ -10,6 +10,8 @@ include('classes/study.php');
 
     $id = $_GET['id'];
 
+    $id = base64_decode($id);
+
     $Certificate = new Certificate();
     $certificate = $Certificate->detailById($id);
 

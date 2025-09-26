@@ -332,7 +332,7 @@ include ('classes/auth.php');
                         $('#btn_download').on('click', function() {
                              $('#loading_bar').show();
                             // Get resolution scale factor (default to 2x for high quality)
-                            const scale = 16;
+                            const scale = 10;
                             
                             // Configuration for html2canvas with resolution control
                             const config = {

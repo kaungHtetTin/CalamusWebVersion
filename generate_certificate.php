@@ -29,16 +29,16 @@ include ('classes/auth.php');
 
     if(!$error){
         $major = $course['major'];
-       
+        
         if($major == "english"){
-            $certificate_bg = "assets/images/ee_certificate_bg.svg";
             $certificate_seal = "assets/images/ee_certificate_seal.png";
             $platform = "English for Myanmar";
         }else{
-            $certificate_bg = "assets/images/ko_certificate_bg.svg";
             $certificate_seal = "assets/images/ko_certificate_seal.png";
             $platform = "Korean for Myanmar";
         }
+        
+        $certificate_bg = "assets/images/certificate_background.png";
 
         if($major == 'not') $error = "No Resource Found!";
 
@@ -233,7 +233,7 @@ include ('classes/auth.php');
             <?php if(!$error) {?>
                 <div class="container">
                     <div id="captureArea" align="center" style="position:relative;width:650px; height:460px;margin:auto">
-                        <img src="<?php echo $certificate_bg ?>" alt="" style="width:650px; height:460px;">
+                        <img src="<?php echo $certificate_bg ?>" alt=""  style="width:100%; height:100%; object-fit: contain; display:block;">
 
                         <div class="certificate_of_completion" style="position:absolute;top:70px;width:100%;text-align:center">
                             CERTIFICATE OF COMPLETION
@@ -262,6 +262,9 @@ include ('classes/auth.php');
                         <div style="font-family: 'Rosario';position:absolute;top:263px;width:100%;text-align:center">
                             on the <?php echo $platform ?> platform by Calamus Education
                         </div>
+                        
+                        <img src="<?php echo $certificate_seal ?>" alt="" 
+                        style="position:absolute;bottom:45px;right:60px; width:110px; height:110px;">
 
                         <div style="position:absolute;bottom:36px;right:40px;font-size:13px;width:170px;text-align:center">
                             <span class="font_bold">Issued on <?php echo formatIssuedDate($certificate['date']) ?></span>
@@ -287,10 +290,8 @@ include ('classes/auth.php');
                         </div>																										
                     </div>
 
-                    
                     <br><br>
 
-                     
                     <div id="btn_download" style="padding:5px; background:#000;color:white;border-radius:5px;cursor:pointer;text-align:center;">
                         Download
                     </div>
@@ -361,6 +362,7 @@ include ('classes/auth.php');
                             });
                         });
                     });
+
 
 
                     var qrcode = new QRCode(document.getElementById("qrcode"), {

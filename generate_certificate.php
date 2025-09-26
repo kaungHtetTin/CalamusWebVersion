@@ -304,8 +304,10 @@ include ('classes/auth.php');
 
                     var course_id = <?php echo $course_id ?>;
                     var user_id = <?php echo $user_id ?>;
-                    var certificate_id = " <?php echo base64_encode($certificate['id']) ?>";
+                    var certificate_id = "<?php echo base64_encode($certificate['id']) ?>";
                     var image_id = '<?php echo $certificate_id ?>';
+                    
+                    certificate_id = encodeURI(certificate_id);
 
                     // $(document).ready(function() {
                     //     $('#loading_bar').hide();

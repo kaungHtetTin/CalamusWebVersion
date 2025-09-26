@@ -30,10 +30,10 @@ include ('classes/auth.php');
     if(!$error){
         $major = $course['major'];
         if($major == "english"){
-            $certificate_bg = "assets/images/ee_certificate_bg.png";
+            $certificate_bg = "assets/images/ee_certificate_bg.svg";
             $certificate_seal = "assets/images/ee_certificate_seal.png";
         }else{
-            $certificate_bg = "assets/images/ko_certificate_bg.png";
+            $certificate_bg = "assets/images/ko_certificate_bg.svg";
             $certificate_seal = "assets/images/ko_certificate_seal.png";
         }
 
@@ -167,6 +167,13 @@ include ('classes/auth.php');
             
         }
 
+        .certificate_of_completion{
+            font-family: 'Rosario';
+            font-weight:bold;
+            font-size: 30px;
+            letter-spacing: 5px;
+        }
+
         .error_container{
             text-align:center;
             padding:50px;
@@ -225,20 +232,38 @@ include ('classes/auth.php');
                     <div id="captureArea" align="center" style="position:relative;width:650px; height:460px;margin:auto">
                         <img src="<?php echo $certificate_bg ?>" alt="" style="width:650px; height:460px;">
 
-                        <div class="font_bold" style="position:absolute;top:177px;left:95px;font-size:36px;width:450px;">
+                        <div class="certificate_of_completion" style="position:absolute;top:80px;width:100%;text-align:center">
+                            CERTIFICATE OF COMPLETION
+                        </div>
+
+                        <div style="font-family: 'Rosario';position:absolute;top:140px;width:100%;text-align:center">
+                            This is to certify that
+                        </div>
+
+                        <div class="font_bold" style="position:absolute;top:177px;font-size:30px;width:100%;text-align:center">
                             <?php echo $user['learner_name'] ?>
                         </div>
 
-                        <div class="font_bold" style="position:absolute;top:250px;left:0px;font-size:20px;width:630px;text-align:center;">
+                        <div style="position:absolute;top:205px;width:500px;left:75px;height:2px;background:black;margin:auto">
+
+                        </div>
+
+                         <div style="font-family: 'Rosario';position:absolute;top:220px;width:100%;text-align:center">
+                            has completed the
+                        </div>
+
+                        <div class="font_bold" style="position:absolute;top:250px;font-size:22px;width:100%;text-align:center;">
                             <?php echo $course['title']; ?>
                         </div>
 
-                        <div style="position:absolute;bottom:36px;right:72.5px;font-size:13px;">
-                            <span class="font_bold"> <?php echo formatIssuedDate($certificate['date']) ?></span>
+                        <div style="position:absolute;bottom:36px;right:40px;font-size:13px;width:170px;text-align:center">
+                            <span class="font_bold">Issued on <?php echo formatIssuedDate($certificate['date']) ?></span>
                         </div>
 
-                        <div style="position:absolute;bottom:118.5px;left:100px;font-size:12px;">
-                            <span class="font_bold"> <?php echo $certificate_id ?>  </span>
+                        <div style="position:absolute;bottom:100px;left:28px;font-size:12px;text-align:left; font-family: 'Rosario'">
+                            <span class="font_bold">Certificate ID : <?php echo $certificate_id ?> </span> <br>
+                            <span> Authorized by <strong>Calamus Education</strong> <br>
+                            <span> <strong>Sca</strong>n the <strong>QR</strong> code <strong>bel</strong>ow to <strong>ver</strong>ify this <strong>cer</strong>tificate and <strong>vie</strong>w course <strong>con</strong>tent.
                         </div>
 
                         <div style="position:absolute;bottom:37px;left:35px;font-size:12px;width:55px; height:55px;">

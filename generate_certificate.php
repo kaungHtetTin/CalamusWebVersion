@@ -29,7 +29,7 @@ include ('classes/auth.php');
 
     if(!$error){
         $major = $course['major'];
-        
+
         if($major == "english"){
             $certificate_seal = "assets/images/ee_certificate_seal.png";
             $platform = "English for Myanmar";
@@ -332,7 +332,7 @@ include ('classes/auth.php');
                         $('#btn_download').on('click', function() {
                              $('#loading_bar').show();
                             // Get resolution scale factor (default to 2x for high quality)
-                            const scale = 8;
+                            const scale = 16;
                             
                             // Configuration for html2canvas with resolution control
                             const config = {

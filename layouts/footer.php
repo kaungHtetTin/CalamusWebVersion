@@ -40,8 +40,8 @@
 								</div>
 								<div class="col-md-6">
 									<div class="edu_social_links">
-										<a href="https://www.facebook.com/easyenglishcalamus"><i class="fab fa-facebook-f" style="color:blue"></i></a>
-                                        <a href="https://www.facebook.com/easykoreancalamus"><i class="fab fa-facebook-f" style="color:yellow"></i></a>
+										<a href="https://www.facebook.com/easyenglishcalamus"><i class="fab fa-facebook-f" style="color:#0663FE"></i></a>
+                                        <a href="https://www.facebook.com/easykoreancalamus"><i class="fab fa-facebook-f" style="color:#FFA010"></i></a>
                                         <a href="https://www.youtube.com/@calamuseducationmyanmar5078"><i class="fab fa-youtube" style="color:red"></i></a>
 									</div>
 								</div>		

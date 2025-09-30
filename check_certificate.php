@@ -13,8 +13,6 @@ include('classes/digitencoder.php');
     $encoder = new DigitEncoder();
     $id = $encoder->decode($id);
 
-    $id = base64_decode($id);
-
     $Certificate = new Certificate();
     $certificate = $Certificate->detailById($id);
 

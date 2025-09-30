@@ -13,19 +13,19 @@ include('classes/digitencoder.php');
     $Course = new Course();
     $course = $Course->detail($course_id);
 
-    // $Auth=new Auth();
-    // $auth = false;
-	// if(isset($_SESSION['calamus_userid'])){
-    //     $auth =$Auth->check_login($_SESSION['calamus_userid']);
-    // }else{
-    //     header('Location:login.php');
-    // }
+    $Auth=new Auth();
+    $auth = false;
+	if(isset($_SESSION['calamus_userid'])){
+        $auth =$Auth->check_login($_SESSION['calamus_userid']);
+    }else{
+        header('Location:login.php');
+    }
 
     $User = new User();
-   // $user_id = $_SESSION['calamus_userid'];
-    $user_id = 95161017;
-    $user = $User->detail($user_id);
+    $user_id = $_SESSION['calamus_userid'];
 
+    $user = $User->detail($user_id);
+    
     $error = false;
     if(!$user) $error = "No Resource Found!";
     if(!$course) $error = "No Resourse Found!";
@@ -72,8 +72,6 @@ include('classes/digitencoder.php');
                 $certificate = $Certificate->store($course_id,$user['learner_phone']);
             }
 
-            $date = new DateTime($certificate['date']);
-            $year = $date->format('Y'); 
 
             $encoder = new DigitEncoder();
             $certificate_id = $encoder->encode($certificate['id']);

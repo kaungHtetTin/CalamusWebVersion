@@ -5,10 +5,13 @@ include('classes/connect.php');
 include('classes/user.php');
 include('classes/course.php');
 include('classes/certificate.php');
-include('classes/numbercoder.php');
 include('classes/study.php');
+include('classes/digitencoder.php');
 
     $id = $_GET['id'];
+
+    $encoder = new DigitEncoder();
+    $id = $encoder->decode($id);
 
     $id = base64_decode($id);
 
@@ -33,9 +36,6 @@ include('classes/study.php');
     }else{
         $error = "No Resource Found!";
     }
-  
-
-    $numberEncoder = new CompactNumberEncoder();
 
     if(!$error){
         $major = $course['major'];
@@ -75,6 +75,8 @@ include('classes/study.php');
         $Study = new Study();
         $learned_counts=$Study->getCountByCourse($user['learner_phone']);
         $learning_courses = $Course->learnningCourse($user['learner_phone']);
+      
+        $certificate_id = $encoder->encode($certificate['id']);
 
     }
 
@@ -112,10 +114,7 @@ include('classes/study.php');
         return $isCompleted;
     }
 
-    $date = new DateTime($certificate['date']);
-    $year = $date->format('Y'); 
 
-    $certificate_id =  base64_encode($year."-".$certificate['id']);
 ?>
 
 <!DOCTYPE html>
@@ -245,7 +244,7 @@ include('classes/study.php');
                     <table style="display:inline">
                         <tr>
                             <td style="width:100px;"><span class="font_bold">Certificate ID </span></td>
-                            <td><?php echo $certificate_id ?>  </td>
+                            <td> <?php echo $course['certificate_code'].$certificate_id ?>  </td>
                         </tr>
                         <tr>
                             <td><span class="font_bold">Name </span> </td>

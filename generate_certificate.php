@@ -5,24 +5,25 @@ include('classes/connect.php');
 include('classes/user.php');
 include('classes/course.php');
 include('classes/certificate.php');
-include('classes/numbercoder.php');
-include ('classes/auth.php');
+include('classes/auth.php');
+include('classes/digitencoder.php');
 
 	$course_id = $_GET['course_id'];
 
     $Course = new Course();
     $course = $Course->detail($course_id);
 
-    $Auth=new Auth();
-    $auth = false;
-	if(isset($_SESSION['calamus_userid'])){
-        $auth =$Auth->check_login($_SESSION['calamus_userid']);
-    }else{
-        header('Location:login.php');
-    }
+    // $Auth=new Auth();
+    // $auth = false;
+	// if(isset($_SESSION['calamus_userid'])){
+    //     $auth =$Auth->check_login($_SESSION['calamus_userid']);
+    // }else{
+    //     header('Location:login.php');
+    // }
 
     $User = new User();
-    $user_id = $_SESSION['calamus_userid'];
+   // $user_id = $_SESSION['calamus_userid'];
+    $user_id = 95161017;
     $user = $User->detail($user_id);
 
     $error = false;
@@ -66,14 +67,18 @@ include ('classes/auth.php');
 
         if(!$error){
             $Certificate = new Certificate();
-            $certificate = $Certificate->detail($course_id,$user_id);
+            $certificate = $Certificate->detail($course_id,$user['learner_phone']);
             if(!$certificate){
-                $certificate = $Certificate->store($course_id,$user_id);
+                $certificate = $Certificate->store($course_id,$user['learner_phone']);
             }
+
+            $date = new DateTime($certificate['date']);
+            $year = $date->format('Y'); 
+
+            $encoder = new DigitEncoder();
+            $certificate_id = $encoder->encode($certificate['id']);
         }
     }
-
-    $numberEncoder = new CompactNumberEncoder();
 
     function formatIssuedDate($certificate_date){
       
@@ -105,14 +110,9 @@ include ('classes/auth.php');
                 return $count['count']>=$count['lessons_count'];
             }
         }
-       
+
         return $isCompleted;
     }
-
-    $date = new DateTime($certificate['date']);
-    $year = $date->format('Y'); 
-
-    $certificate_id =  base64_encode($year."-".$certificate['id']);
 ?>
 
 <!DOCTYPE html>
@@ -273,7 +273,7 @@ include ('classes/auth.php');
                         </div>
 
                         <div style="position:absolute;bottom:95px;left:28px;font-size:12px;text-align:left; font-family: 'Rosario'">
-                            <span class="font_bold">Certificate ID : <?php echo $certificate_id ?> </span> <br>
+                            <span class="font_bold">Certificate ID : <span style="font-family: 'poppin'"> <?php echo $course['certificate_code'].$certificate_id ?> </span> </span> <br>
                             <span> Authorized by <strong>Calamus Education</strong> <br>
                             <span> <strong>Sca</strong>n the <strong>QR</strong> code <strong>bel</strong>ow to <strong>ver</strong>ify this <strong>cer</strong>tificate and <strong>vie</strong>w course <strong>con</strong>tent.
                         </div>
@@ -304,10 +304,8 @@ include ('classes/auth.php');
 
                     var course_id = <?php echo $course_id ?>;
                     var user_id = <?php echo $user_id ?>;
-                    var certificate_id = "<?php echo base64_encode($certificate['id']) ?>";
+                    var certificate_id = "<?php echo $certificate_id ?>";
                     var image_id = '<?php echo $certificate_id ?>';
-                    
-                    certificate_id = encodeURI(certificate_id);
 
                     // $(document).ready(function() {
                     //     $('#loading_bar').hide();
@@ -353,7 +351,7 @@ include ('classes/auth.php');
                                 // Create an <a> element to trigger the download
                                 let link = $('<a>').attr({
                                     href: canvas.toDataURL('image/png'),
-                                    download: 'calamus-certificate'+certificate_id+'.png'
+                                    download: 'calamus-certificate-'+certificate_id+'.png'
                                 });
                     
                                 // Trigger the download

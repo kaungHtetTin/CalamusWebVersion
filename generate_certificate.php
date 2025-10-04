@@ -15,11 +15,18 @@ include('classes/digitencoder.php');
 
     $Auth=new Auth();
     $auth = false;
+
 	if(isset($_SESSION['calamus_userid'])){
         $auth =$Auth->check_login($_SESSION['calamus_userid']);
     }else{
-        header('Location:login.php');
+        $auth = false;
     }
+
+    if( isset($_GET['user_id']) && isset($_GET['auth_token']) && isset($_GET['major']) ) {
+        $auth = $Auth->checkByMobileToken($_GET['user_id'], $_GET['auth_token'], $_GET['major']);
+    }
+
+    if(!$auth)  header('Location:login.php');
 
     $User = new User();
     $user_id = $_SESSION['calamus_userid'];

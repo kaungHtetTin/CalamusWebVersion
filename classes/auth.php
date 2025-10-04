@@ -55,6 +55,22 @@
 
         }
 
+        function checkByMobileToken($phone,$token,$major){
+            $DB=new Database();
+            $query="SELECT * FROM learners where learner_phone=$phone limit 1";
+            $learner=$DB->read($query)[0];
+            $result=false;
+
+            if($learner){
+                $tokens=json_decode($learner['auth_token_mobile'],true);
+                if($tokens[$major]==$token){
+                    $_SESSION['calamus_userid']=$phone;
+                    $result= true;
+                }
+            }
+            return $result;
+        }
+
         public function check_login($phone){
                 
             $query="select*from learners where learner_phone= $phone limit 1";

@@ -15,11 +15,14 @@
     $Auth=new Auth();
     $user =$Auth->check_login($user_id);
 
-    if(!$Auth->checkVIP($course_id,$user_id)) header("Location: vip_plan.php");
     $Course=new Course();
     $Teacher=new Teacher();
     $Lesson=new Lesson();
     $course=$Course->detail($course_id);
+    if($course['is_vip']){
+        if(!$Auth->checkVIP($course_id,$user_id)) header("Location: vip_plan.php");
+    }
+
     $enrollStudents=$Course->getEnrollStudents($course_id);
     $teacher_id=$course['teacher_id'];
     $teacher=$Teacher->detail($teacher_id);

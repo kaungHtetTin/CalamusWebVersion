@@ -11,7 +11,6 @@ foreach ($data as $key => $value) {
     if($key!='type') $lesson=$value;
 }
 
-
 echo $lesson;
 
 ?>

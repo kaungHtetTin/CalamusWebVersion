@@ -263,7 +263,7 @@ include('classes/digitencoder.php');
                         </div>
 
                         <div class="font_bold" style="position:absolute;top:231px;font-size:22px;width:100%;text-align:center;">
-                            <?php echo $course['title']; ?>
+                            <?php echo $course['certificate_title']; ?>
                         </div>
 
                         <div style="font-family: 'Rosario';position:absolute;top:263px;width:100%;text-align:center">

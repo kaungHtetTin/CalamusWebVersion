@@ -63,10 +63,16 @@
 
             if($learner){
                 $tokens=json_decode($learner['auth_token_mobile'],true);
-                if($tokens[$major]==$token){
+                if($tokens['v2'][$major]['phone'] == $req->auth_token){
                     $_SESSION['calamus_userid']=$phone;
                     $result= true;
                 }
+
+                if($tokens['v2'][$major]['tablet'] == $req->auth_token){
+                    $_SESSION['calamus_userid']=$phone;
+                    $result= true;
+                }
+                 
             }
             return $result;
         }

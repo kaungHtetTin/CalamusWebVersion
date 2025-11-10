@@ -63,14 +63,20 @@
 
             if($learner){
                 $tokens=json_decode($learner['auth_token_mobile'],true);
-                if($tokens['v2'][$major]['phone'] == $token){
-                    $_SESSION['calamus_userid']=$phone;
-                    $result= true;
+
+                if( isset($tokens['v2'][$major]['phone'])){
+                    if($tokens['v2'][$major]['phone'] == $token){
+                        $_SESSION['calamus_userid']=$phone;
+                        $result= true;
+                    }
                 }
 
-                if($tokens['v2'][$major]['tablet'] == $token){
-                    $_SESSION['calamus_userid']=$phone;
-                    $result= true;
+                if( isset($tokens['v2'][$major]['tablet'])){
+      
+                    if($tokens['v2'][$major]['tablet'] == $token){
+                        $_SESSION['calamus_userid']=$phone;
+                        $result= true;
+                    }
                 }
                  
             }

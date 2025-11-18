@@ -237,7 +237,7 @@ if($user) $unreadCount=$Notification->unreadCount($user['learner_phone']);
 						</a>
 					</li>
 					<li class="menu--item">
-						<a href="explore.php" class="menu--link  <?php if($page_title=='Vocab Learning') echo 'active' ?>" title="Vocab Learning">
+						<a href="vocab_learning.php" class="menu--link  <?php if($page_title=='Vocab Learning') echo 'active' ?>" title="Vocab Learning">
 							<i class='uil uil-book-open menu--icon'></i>
 							<span class="menu--label">Vocab Learning</span>
 						</a>

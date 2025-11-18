@@ -125,7 +125,7 @@ class LearningFlow {
             }
             
             // 2. Pause the card permanently (never show again)
-            $pauseQuery = "INSERT INTO user_card_states (user_id, card_id, ef, interval, repetitions, due_at, suspended, paused_until) 
+            $pauseQuery = "INSERT INTO user_card_states (user_id, card_id, ef, interval_, repetitions, due_at, suspended, paused_until) 
                           VALUES ($userId, $cardId, 2.5, 0, 0, NULL, 0, 999999)
                           ON DUPLICATE KEY UPDATE paused_until = 999999";
             if (!$this->db->save($pauseQuery)) {
@@ -191,7 +191,7 @@ class LearningFlow {
             } else {
                 $state = $stateResult[0];
                 $ef = (float)$state['ef'];
-                $interval = (int)$state['interval'];
+                $interval = (int)$state['interval_'];
                 $repetitions = (int)$state['repetitions'];
             }
             
@@ -204,16 +204,16 @@ class LearningFlow {
             $result = $this->calculateSM2($ef, $interval, $repetitions, $quality, $learningDayNumber);
             
             // Update user card state
-            $updateQuery = "INSERT INTO user_card_states (user_id, card_id, ef, interval, repetitions, due_at, suspended, paused_until) 
+            $updateQuery = "INSERT INTO user_card_states (user_id, card_id, ef, interval_, repetitions, due_at, suspended, paused_until) 
                           VALUES ($userId, $cardId, {$result['ef']}, {$result['interval']}, {$result['repetitions']}, {$result['due_at']}, 0, NULL)
                           ON DUPLICATE KEY UPDATE 
                           ef = {$result['ef']}, 
-                          interval = {$result['interval']}, 
+                          interval_ = {$result['interval']}, 
                           repetitions = {$result['repetitions']}, 
                           due_at = {$result['due_at']}";
             
             if (!$this->db->save($updateQuery)) {
-                return $this->errorResponse('Failed to update card state');
+                return $this->errorResponse('Failed to update card state'. $updateQuery);
             }
             
             return $this->successResponse([

@@ -17,7 +17,7 @@
 
     $App=new App();
     $app=$App->getRand();
-    
+
     include('layouts/header.php');
 ?>
 
@@ -99,6 +99,7 @@
     flex-shrink: 0;
 }
 
+
 @keyframes slideInDown {
     from {
         opacity: 0;
@@ -114,15 +115,413 @@
     font-size: 2rem;
     font-weight: bold;
     color: #2c3e50;
-    margin-bottom: 8px;
+    margin-bottom: 0;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     animation: fadeIn 0.8s ease-out;
     line-height: 1.2;
+    flex: 1;
 }
+
 
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+/* Language and Deck Selector Styles */
+.right_side {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(237, 42, 38, 0.1);
+    transition: all 0.3s ease;
+    animation: slideInRight 0.6s ease-out;
+    position: sticky;
+    top: 20px;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.right_side:hover {
+    box-shadow: 0 8px 30px rgba(237, 42, 38, 0.15);
+    transform: translateY(-2px);
+}
+
+.right_side h4 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #ed2a26;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.right_side h4::before {
+    content: '📚';
+    font-size: 1.8rem;
+}
+
+.selection-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.selector-group {
+    position: relative;
+}
+
+.selector-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.selector-group label i {
+    color: #ed2a26;
+    font-size: 1.1rem;
+}
+
+.selector-group select {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    background-color: #ffffff !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ed2a26' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 12px;
+    color: #2c3e50 !important;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    line-height: 1.5;
+    min-height: 48px;
+    display: block;
+}
+
+.selector-group select:hover {
+    border-color: #ed2a26;
+    box-shadow: 0 2px 8px rgba(237, 42, 38, 0.1);
+}
+
+.selector-group select:focus {
+    outline: none;
+    border-color: #ed2a26;
+    box-shadow: 0 0 0 3px rgba(237, 42, 38, 0.1);
+}
+
+.selector-group select:disabled {
+    background-color: #f5f5f5 !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2395a5a6' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    cursor: not-allowed;
+    opacity: 0.7;
+    border-color: #d0d0d0;
+    color: #7f8c8d !important;
+}
+
+.selector-group select option {
+    padding: 10px 15px;
+    font-weight: 500;
+    color: #2c3e50;
+    background-color: #ffffff;
+}
+
+.selector-group select option:checked {
+    background-color: #ed2a26;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.selector-group select option:hover {
+    background-color: #f8f9fa;
+}
+
+#btn-start-learning {
+    background: linear-gradient(135deg, #ed2a26 0%, #c9221f 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(237, 42, 38, 0.3);
+    position: relative;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+#btn-start-learning::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+#btn-start-learning:hover::before {
+    left: 100%;
+}
+
+#btn-start-learning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(237, 42, 38, 0.4);
+    background: linear-gradient(135deg, #c9221f 0%, #a51c19 100%);
+}
+
+#btn-start-learning:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(237, 42, 38, 0.3);
+}
+
+#btn-start-learning:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.6;
+}
+
+#btn-start-learning:disabled::before {
+    display: none;
+}
+
+/* Selector status indicator */
+.selector-status {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-left: 8px;
+    background: #95a5a6;
+    transition: all 0.3s ease;
+    vertical-align: middle;
+}
+
+/* Skip Confirmation Dialog */
+.skip-confirmation-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.skip-dialog-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+}
+
+.skip-dialog-content {
+    position: relative;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 450px;
+    width: 90%;
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    border: 2px solid rgba(237, 42, 38, 0.2);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.skip-dialog-header {
+    padding: 25px 25px 15px;
+    text-align: center;
+    border-bottom: 2px solid #e9ecef;
+    background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+}
+
+.skip-dialog-header i {
+    font-size: 3rem;
+    color: #ed2a26;
+    display: block;
+    margin-bottom: 10px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.skip-dialog-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.skip-dialog-body {
+    padding: 25px;
+    text-align: center;
+}
+
+.skip-dialog-body p {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #555;
+    font-weight: 500;
+}
+
+.skip-dialog-footer {
+    padding: 20px 25px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    border-top: 2px solid #e9ecef;
+    background: #f8f9fa;
+}
+
+.skip-dialog-btn {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 100px;
+}
+
+.skip-dialog-cancel {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.skip-dialog-cancel:hover {
+    background: #dee2e6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.skip-dialog-ok {
+    background: linear-gradient(135deg, #ed2a26 0%, #c9221f 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(237, 42, 38, 0.3);
+}
+
+.skip-dialog-ok:hover {
+    background: linear-gradient(135deg, #c9221f 0%, #a51c19 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(237, 42, 38, 0.4);
+}
+
+.skip-dialog-ok:active,
+.skip-dialog-cancel:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .skip-dialog-content {
+        max-width: 90%;
+        margin: 20px;
+    }
+    
+    .skip-dialog-header h3 {
+        font-size: 1.3rem;
+    }
+    
+    .skip-dialog-body p {
+        font-size: 1rem;
+    }
+    
+    .skip-dialog-footer {
+        flex-direction: column-reverse;
+    }
+    
+    .skip-dialog-btn {
+        width: 100%;
+    }
+}
+
+/* Responsive styles for mobile */
+@media (max-width: 768px) {
+    .right_side {
+        margin-bottom: 20px;
+        position: relative;
+        top: 0;
+        padding: 20px;
+    }
+    
+    .right_side h4 {
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+    }
+    
+    .flashcard_section {
+        margin-top: 0;
+    }
+    
+    .selector-group select {
+        padding: 10px 35px 10px 12px;
+        font-size: 0.95rem;
+        min-height: 44px;
+    }
+    
+    #btn-start-learning {
+        padding: 12px 18px;
+        font-size: 1rem;
+    }
 }
 
 .card-ipa {
@@ -716,8 +1115,49 @@
     <div class="sa4d25">
         <div class="container-fluid">	
             <div class="row">
+                <!-- Deck Selection - Moved to top on mobile -->
+                <div class="col-xl-3 col-lg-4 col-md-12 order-1 order-md-2 order-xl-1">
+                    <div class="right_side">
+                        <h4>Select Language and Deck</h4>
+                        <?php if($user){ ?>
+                            <div class="selection-section">
+                                <div class="selector-group">
+                                    <label for="language-select">
+                                        <i class="uil uil-globe"></i>
+                                        Language
+                                        <span class="selector-status"></span>
+                                    </label>
+                                    <select class="form-control" id="language-select">
+                                        <option value="">-- Select Language --</option>
+                                    </select>
+                                </div>
+                                <div class="selector-group">
+                                    <label for="deck-select">
+                                        <i class="uil uil-book-open"></i>
+                                        Deck
+                                        <span class="selector-status"></span>
+                                    </label>
+                                    <select class="form-control" id="deck-select" disabled>
+                                        <option value="">-- Select Deck --</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary btn-block" id="btn-start-learning" disabled>
+                                    <i class="uil uil-play-circle"></i> Start Learning
+                                </button>
+                            </div>
+                        <?php } else { ?>
+                            <div class="text-center" style="padding: 20px;">
+                                <p style="color: #7f8c8d; margin-bottom: 15px;">Please login to start learning.</p>
+                                <a href="login.php" class="btn" style="background: linear-gradient(135deg, #ed2a26 0%, #c9221f 100%); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; display: inline-block; transition: all 0.3s ease;">
+                                    <i class="uil uil-signin"></i> Login
+                                </a>
+                            </div>
+                        <?php }?>
+
+                    </div>
+                </div>
                 
-                <div class="col-xl-9 col-lg-8">
+                <div class="col-xl-9 col-lg-8 col-md-12 order-2 order-md-1 order-xl-2">
                    <div class="flashcard_section">
                     <!-- Progress and Stats -->
                     <div class="flashcard-header mb-4" style="display: none;">
@@ -745,6 +1185,24 @@
                                 <div class="skeleton-line" style="height: 30px; width: 80%; margin-bottom: 15px;"></div>
                                 <div class="skeleton-line" style="height: 30px; width: 70%;"></div>
                                 <div class="skeleton-button" style="height: 50px; width: 200px; margin-top: 30px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Skip Confirmation Dialog -->
+                        <div id="skip-confirmation-dialog" class="skip-confirmation-dialog" style="display: none;">
+                            <div class="skip-dialog-overlay"></div>
+                            <div class="skip-dialog-content">
+                                <div class="skip-dialog-header">
+                                    <i class="uil uil-exclamation-triangle"></i>
+                                    <h3>Confirm Skip Word</h3>
+                                </div>
+                                <div class="skip-dialog-body">
+                                    <p>The skipping word will be permanently removed from the learning process and make sure you know this word well. Do you really want to skip?</p>
+                                </div>
+                                <div class="skip-dialog-footer">
+                                    <button class="skip-dialog-btn skip-dialog-cancel" id="skip-dialog-cancel">Cancel</button>
+                                    <button class="skip-dialog-btn skip-dialog-ok" id="skip-dialog-ok">OK</button>
+                                </div>
                             </div>
                         </div>
 
@@ -811,32 +1269,6 @@
                    </div>
                 </div>
 
-                <div class="col-xl-3 col-lg-4 col-md-12">
-                    <div class="right_side">
-                        <h4>Select Language and Deck</h4>
-                        <?php if($user){ ?>
-                            <div class="selection-section">
-                                <div class="form-group mb-3">
-                                    <label for="language-select">Language:</label>
-                                    <select class="form-control" id="language-select">
-                                        <option value="">-- Select Language --</option>
-                                    </select>
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label for="deck-select">Deck:</label>
-                                    <select class="form-control" id="deck-select" disabled>
-                                        <option value="">-- Select Deck --</option>
-                                    </select>
-                                </div>
-                                <button class="btn btn-primary btn-block" id="btn-start-learning" disabled>Start Learning</button>
-                            </div>
-                        <?php } else { ?>
-                            <p>Please <a href="login.php">login</a> to start learning.</p>
-                        <?php }?>
-                     
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
@@ -861,6 +1293,7 @@ const FlashcardApp = {
         this.setupEventListeners();
     },
 
+
     // Load languages from API
     loadLanguages: function() {
         $.ajax({
@@ -871,7 +1304,7 @@ const FlashcardApp = {
                 if (response.success && response.languages) {
                     const select = $('#language-select');
                     response.languages.forEach(lang => {
-                        select.append(`<option value="${lang.id}">${lang.name}</option>`);
+                        select.append(`<option value="${lang.id}" data-name="${(lang.name || '').toLowerCase()}">${lang.name}</option>`);
                     });
                 }
             },
@@ -889,9 +1322,11 @@ const FlashcardApp = {
             if (languageId) {
                 this.loadDecks(languageId);
                 this.language_id = languageId;
+                this.updateSelectorStatus('#language-select');
             } else {
                 $('#deck-select').html('<option value="">-- Select Deck --</option>').prop('disabled', true);
                 $('#btn-start-learning').prop('disabled', true);
+                this.updateSelectorStatus('#language-select', false);
             }
         });
 
@@ -899,6 +1334,7 @@ const FlashcardApp = {
         $('#deck-select').on('change', () => {
             this.deck_id = $('#deck-select').val();
             $('#btn-start-learning').prop('disabled', !this.deck_id);
+            this.updateSelectorStatus('#deck-select');
         });
 
         // Start learning button
@@ -922,9 +1358,10 @@ const FlashcardApp = {
         // Skip button
         $('#btn-skip').on('click', () => {
             if (!this.isLoading) {
-                this.skipCard();
+                this.showSkipConfirmation();
             }
         });
+
     },
 
     // Load decks for selected language
@@ -942,8 +1379,11 @@ const FlashcardApp = {
                         select.append(`<option value="${deck.id}">${deck.title}</option>`);
                     });
                     select.prop('disabled', false);
+                    // Reset deck selector status
+                    this.updateSelectorStatus('#deck-select', false);
                 } else {
                     select.prop('disabled', true);
+                    this.updateSelectorStatus('#deck-select', false);
                 }
             },
             error: () => {
@@ -1011,6 +1451,7 @@ const FlashcardApp = {
         $('#flashcard-front').show();
         $('#flashcard-back').hide();
 
+
         // Set front side content
         $('#card-word').text(cardData.word || '');
         $('#card-ipa').text(richData.ipa || '');
@@ -1044,6 +1485,7 @@ const FlashcardApp = {
         // Show flashcard
         $('#flashcard-wrapper').show();
         this.updateProgress();
+        
     },
 
     // Flip card to show answer
@@ -1098,6 +1540,40 @@ const FlashcardApp = {
                 console.error('Error:', error);
             }
         });
+    },
+
+    // Show skip confirmation dialog
+    showSkipConfirmation: function() {
+        $('#skip-confirmation-dialog').fadeIn(200);
+        
+        // Handle cancel button
+        $('#skip-dialog-cancel').off('click').on('click', () => {
+            this.hideSkipConfirmation();
+        });
+        
+        // Handle OK button
+        $('#skip-dialog-ok').off('click').on('click', () => {
+            this.hideSkipConfirmation();
+            this.skipCard();
+        });
+        
+        // Close on overlay click
+        $('.skip-dialog-overlay').off('click').on('click', () => {
+            this.hideSkipConfirmation();
+        });
+        
+        // Close on ESC key
+        $(document).off('keydown.skipDialog').on('keydown.skipDialog', (e) => {
+            if (e.key === 'Escape') {
+                this.hideSkipConfirmation();
+            }
+        });
+    },
+
+    // Hide skip confirmation dialog
+    hideSkipConfirmation: function() {
+        $('#skip-confirmation-dialog').fadeOut(200);
+        $(document).off('keydown.skipDialog');
     },
 
     // Skip card
@@ -1216,7 +1692,26 @@ const FlashcardApp = {
 
     enableButtons: function() {
         $('.rating-btn, #btn-skip').prop('disabled', false);
-    }
+    },
+
+    // Update selector status indicator
+    updateSelectorStatus: function(selector, hasValue = true) {
+        const $select = $(selector);
+        const $status = $select.closest('.selector-group').find('.selector-status');
+        
+        if (hasValue && $select.val()) {
+            $status.css({
+                'background': '#27ae60',
+                'box-shadow': '0 0 8px rgba(39, 174, 96, 0.5)'
+            });
+        } else {
+            $status.css({
+                'background': '#95a5a6',
+                'box-shadow': 'none'
+            });
+        }
+    },
+
 };
 <?php endif; ?>
 

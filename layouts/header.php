@@ -244,7 +244,7 @@ if($user) $unreadCount=$Notification->unreadCount($user['learner_phone']);
 					</li>
 					<li class="menu--item">
 						<a href="my_learning.php" class="menu--link  <?php if($page_title=='My Learning') echo 'active' ?>" title="My Learning">
-							<i class='uil uil-book-open menu--icon'></i>
+							<i class='uil uil-chart-line menu--icon'></i>
 							<span class="menu--label">My Learning</span>
 						</a>
 					</li>

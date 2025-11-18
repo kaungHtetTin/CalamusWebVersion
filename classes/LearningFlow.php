@@ -347,7 +347,7 @@ class LearningFlow {
                     AND c.deck_id = $deckId
                     AND c.id NOT IN ($excludeIdsStr)
                     AND c.id NOT IN (SELECT card_id FROM user_card_states WHERE user_id = $userId)
-                  ORDER BY c.deck_id ASC";
+                  ORDER BY RAND()";
         
         $result = $this->db->read($query);
         return $result ? $result : [];

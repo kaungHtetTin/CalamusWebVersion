@@ -174,8 +174,8 @@
 
                 <div class="col-xl-3 col-lg-4 col-md-12">
                     <div class="right_side">
-
-                     <div class="section3125">
+                    <?php if(false){ ?>
+                    <div class="section3125">
                         <h4 class="item_title">Vocab Learning Progress</h4>
                         <div class="la5lo1">
                              <div class="vocab-learning-progress">
@@ -266,7 +266,7 @@
                              </div>
                         </div>
                     </div>
-
+                    <?php } ?>
 
                         <?php if($user){ ?>
                             <h4>My Learning</h4>

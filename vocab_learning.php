@@ -1113,7 +1113,15 @@
 	<!-- Body Start -->
 <div class="wrapper">
     <div class="sa4d25">
-        <div class="container-fluid">	
+        <div class="container-fluid">
+            <!-- Alert Message -->
+            <div class="alert alert-info alert-dismissible fade show" role="alert" style="margin-top: 20px; margin-bottom: 20px; border-left: 4px solid #ed2a26;">
+                <i class="uil uil-info-circle" style="margin-right: 8px;"></i>
+                <strong>Notice:</strong> မိမိအမှန်တကယ်ကျွမ်းကျင်ပိုင်နိုင်ပြီးသော စကားလုံးများကို 'skip' ပြုလုပ်ခြင်းဖြင့် လေ့လာမှုအပိုင်းတွင် ပိုမိုထိရောက်ကောင်းမွန်မည်ဖြစ်ပါသည်။
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
             <div class="row">
                 <!-- Deck Selection - Moved to top on mobile -->
                 <div class="col-xl-3 col-lg-4 col-md-12 order-1 order-md-2 order-xl-1">
@@ -1289,8 +1297,35 @@ const FlashcardApp = {
 
     // Initialize the application
     init: function() {
+        // Check for URL parameters to pre-select language and deck
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlLanguageId = urlParams.get('language_id');
+        const urlDeckId = urlParams.get('deck_id');
+        
+        if (urlLanguageId && urlDeckId) {
+            this.language_id = parseInt(urlLanguageId);
+            this.deck_id = parseInt(urlDeckId);
+        }
+        
         this.loadLanguages();
         this.setupEventListeners();
+        
+        // If URL parameters are provided, auto-select and start
+        if (urlLanguageId && urlDeckId) {
+            // Wait for languages to load, then select
+            setTimeout(() => {
+                $('#language-select').val(urlLanguageId).trigger('change');
+                setTimeout(() => {
+                    $('#deck-select').val(urlDeckId).trigger('change');
+                    // Auto-start learning after a short delay
+                    setTimeout(() => {
+                        if ($('#btn-start-learning').length && !$('#btn-start-learning').prop('disabled')) {
+                            $('#btn-start-learning').click();
+                        }
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
     },
 
 

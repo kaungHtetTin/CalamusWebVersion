@@ -126,7 +126,7 @@ class LearningFlow {
             
             // 2. Pause the card permanently (never show again)
             $pauseQuery = "INSERT INTO user_card_states (user_id, card_id, ef, interval_, repetitions, due_at, suspended, paused_until) 
-                          VALUES ($userId, $cardId, 2.5, 0, 0, NULL, 0, 999999)
+                          VALUES ($userId, $cardId, 2.5, 0, 0, 999999, 0, 999999)
                           ON DUPLICATE KEY UPDATE paused_until = 999999";
             if (!$this->db->save($pauseQuery)) {
                 return $this->errorResponse('Failed to pause card');
@@ -469,6 +469,125 @@ class LearningFlow {
             'success' => false,
             'message' => $message
         ], JSON_PRETTY_PRINT);
+    }
+    
+    /**
+     * Get vocabulary learning progress for all decks that user has started
+     * Returns array of decks with progress data grouped by language
+     * 
+     * @param int $userId User ID
+     * @return array Progress data grouped by language
+     */
+    public function getVocabProgressForAllDecks($userId) {
+        $userId = (int)$userId;
+        
+        // Get all decks where user has started learning (has at least one card in user_card_states)
+        $query = "SELECT DISTINCT 
+                    d.id as deck_id,
+                    d.title as deck_title,
+                    d.language_id,
+                    l.name as language_name
+                  FROM decks d
+                  INNER JOIN languages l ON d.language_id = l.id
+                  INNER JOIN cards c ON c.deck_id = d.id
+                  INNER JOIN user_card_states ucs ON ucs.card_id = c.id
+                  WHERE ucs.user_id = $userId
+                  ORDER BY l.id ASC, d.id ASC";
+        
+        $decks = $this->db->read($query);
+        
+        if (empty($decks)) {
+            return [];
+        }
+        
+        $progressData = [];
+        
+        foreach ($decks as $deck) {
+            $deckId = (int)$deck['deck_id'];
+            $languageId = (int)$deck['language_id'];
+            
+            // Get current learning day for this deck
+            $learningDayNumber = $this->getCurrentLearningDay($userId, $languageId, $deckId);
+            
+            // Total cards in deck
+            $totalCardsQuery = "SELECT COUNT(*) as total FROM cards WHERE deck_id = $deckId";
+            $totalResult = $this->db->read($totalCardsQuery);
+            $totalCards = $totalResult ? (int)$totalResult[0]['total'] : 0;
+            
+            // Mastered cards (due_at > 365)
+            $masteredQuery = "SELECT COUNT(*) as count 
+                            FROM user_card_states ucs
+                            INNER JOIN cards c ON c.id = ucs.card_id
+                            WHERE ucs.user_id = $userId 
+                            AND c.deck_id = $deckId
+                            AND ucs.due_at > 365";
+            $masteredResult = $this->db->read($masteredQuery);
+            $masteredCards = $masteredResult ? (int)$masteredResult[0]['count'] : 0;
+            
+            // All learned cards (due_at IS NOT NULL)
+            $learnedQuery = "SELECT COUNT(*) as count 
+                           FROM user_card_states ucs
+                           INNER JOIN cards c ON c.id = ucs.card_id
+                           WHERE ucs.user_id = $userId 
+                           AND c.deck_id = $deckId
+                           AND ucs.due_at IS NOT NULL
+                           AND ucs.suspended = 0
+                           AND (ucs.paused_until IS NULL OR ucs.paused_until <= $learningDayNumber)";
+            $learnedResult = $this->db->read($learnedQuery);
+            $learnedCards = $learnedResult ? (int)$learnedResult[0]['count'] : 0;
+            
+            // Recall words (due_at <= current_learning_day AND due_at IS NOT NULL)
+            $recallQuery = "SELECT COUNT(*) as count 
+                           FROM user_card_states ucs
+                           INNER JOIN cards c ON c.id = ucs.card_id
+                           WHERE ucs.user_id = $userId 
+                           AND c.deck_id = $deckId
+                           AND ucs.due_at IS NOT NULL
+                           AND ucs.due_at <= $learningDayNumber
+                           AND ucs.suspended = 0
+                           AND (ucs.paused_until IS NULL OR ucs.paused_until <= $learningDayNumber)";
+            $recallResult = $this->db->read($recallQuery);
+            $recallWords = $recallResult ? (int)$recallResult[0]['count'] : 0;
+            
+            // Calculate new words for today's session
+            // Get learning day word count limit
+            $learningDayWordCount = $this->getWordCountForLearningDay($learningDayNumber);
+            
+            // Available new words (total - learned)
+            $availableNewWords = max(0, $totalCards - $learnedCards);
+            
+            // Remaining slots after recall words
+            $remainingSlots = max(0, $learningDayWordCount - $recallWords);
+            
+            // New words for today = min(remaining slots, available new words)
+            $newWords = min($remainingSlots, $availableNewWords);
+            
+            // Calculate progress percentage (mastered / total)
+            $progressPercent = $totalCards > 0 ? round(($masteredCards / $totalCards) * 100) : 0;
+            
+            // Group by language
+            if (!isset($progressData[$languageId])) {
+                $progressData[$languageId] = [
+                    'language_id' => $languageId,
+                    'language_name' => $deck['language_name'],
+                    'decks' => []
+                ];
+            }
+            
+            $progressData[$languageId]['decks'][] = [
+                'deck_id' => $deckId,
+                'deck_title' => $deck['deck_title'],
+                'total_cards' => $totalCards,
+                'mastered_cards' => $masteredCards,
+                'learned_cards' => $learnedCards,
+                'recall_words' => $recallWords,
+                'new_words' => $newWords,
+                'progress_percent' => $progressPercent,
+                'current_learning_day' => $learningDayNumber
+            ];
+        }
+        
+        return $progressData;
     }
 }
 

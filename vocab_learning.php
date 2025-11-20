@@ -1256,7 +1256,7 @@
                                 <!-- Loading Overlay -->
                                 <div class="loading-overlay" id="loading-overlay" style="display: none;">
                                     <div class="spinner"></div>
-                                    <p>Saving...</p>
+                                    <p>...</p>
                                 </div>
                             </div>
                         </div>

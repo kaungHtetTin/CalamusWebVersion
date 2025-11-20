@@ -174,99 +174,98 @@
 
                 <div class="col-xl-3 col-lg-4 col-md-12">
                     <div class="right_side">
-                    <?php if(false){ ?>
-                    <div class="section3125">
-                        <h4 class="item_title">Vocab Learning Progress</h4>
-                        <div class="la5lo1">
-                             <div class="vocab-learning-progress">
-                                <?php if($user && isset($user['id']) && !empty($vocabProgress)): ?>
-                                    <?php foreach($vocabProgress as $language): ?>
-                                        <div class="vocab-language-section mb-30">
-                                            <h5 class="vocab-language-title" style="margin-bottom: 15px; color: #333; font-weight: 600;">
-                                                <i class="uil uil-globe"></i> <?php echo htmlspecialchars($language['language_name']); ?>
-                                            </h5>
-                                            <div class="row">
-                                                <?php foreach($language['decks'] as $deck): ?>
-                                                    <div class="col-12 mb-20">
-                                                        <div class="vocab-deck-card" style="background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #e0e0e0;">
-                                                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
-                                                                <h6 style="margin: 0; font-weight: 600; color: #333; font-size: 16px;">
-                                                                    <?php echo htmlspecialchars($deck['deck_title']); ?>
-                                                                </h6>
-                                                                <span style="font-size: 12px; color: #666; background: #f5f5f5; padding: 4px 8px; border-radius: 4px;">
-                                                                    Day <?php echo $deck['current_learning_day']; ?>
-                                                                </span>
-                                                            </div>
-                                                            
-                                                            <!-- Progress Bar -->
-                                                            <div style="margin-bottom: 15px;">
-                                                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                                                    <span style="font-size: 13px; color: #666;">Progress</span>
-                                                                    <span style="font-size: 13px; font-weight: 600; color: #ed2a26;">
-                                                                        <?php echo $deck['progress_percent']; ?>%
+                 
+                        <div class="section3125">
+                            <h4 class="item_title">Vocab Learning Progress</h4>
+                            <div class="la5lo1">
+                                <div class="vocab-learning-progress">
+                                    <?php if($user && isset($user['id']) && !empty($vocabProgress)): ?>
+                                        <?php foreach($vocabProgress as $language): ?>
+                                            <div class="vocab-language-section mb-30">
+                                                <h5 class="vocab-language-title" style="margin-bottom: 15px; color: #333; font-weight: 600;">
+                                                    <i class="uil uil-globe"></i> <?php echo htmlspecialchars($language['language_name']); ?>
+                                                </h5>
+                                                <div class="row">
+                                                    <?php foreach($language['decks'] as $deck): ?>
+                                                        <div class="col-12 mb-20">
+                                                            <div class="vocab-deck-card" style="background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #e0e0e0;">
+                                                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                                                    <h6 style="margin: 0; font-weight: 600; color: #333; font-size: 16px;">
+                                                                        <?php echo htmlspecialchars($deck['deck_title']); ?>
+                                                                    </h6>
+                                                                    <span style="font-size: 12px; color: #666; background: #f5f5f5; padding: 4px 8px; border-radius: 4px;">
+                                                                        Day <?php echo $deck['current_learning_day']; ?>
                                                                     </span>
                                                                 </div>
-                                                                <div style="width: 100%; background: #e0e0e0; border-radius: 10px; height: 8px; overflow: hidden;">
-                                                                    <div style="width: <?php echo $deck['progress_percent']; ?>%; height: 100%; background: linear-gradient(90deg, #ed2a26, #ff4444); border-radius: 10px; transition: width 0.3s ease;"></div>
+                                                                
+                                                                <!-- Progress Bar -->
+                                                                <div style="margin-bottom: 15px;">
+                                                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                                                        <span style="font-size: 13px; color: #666;">Progress</span>
+                                                                        <span style="font-size: 13px; font-weight: 600; color: #ed2a26;">
+                                                                            <?php echo $deck['progress_percent']; ?>%
+                                                                        </span>
+                                                                    </div>
+                                                                    <div style="width: 100%; background: #e0e0e0; border-radius: 10px; height: 8px; overflow: hidden;">
+                                                                        <div style="width: <?php echo $deck['progress_percent']; ?>%; height: 100%; background: linear-gradient(90deg, #ed2a26, #ff4444); border-radius: 10px; transition: width 0.3s ease;"></div>
+                                                                    </div>
+                                                                    <div style="font-size: 11px; color: #999; margin-top: 5px;">
+                                                                        <?php echo $deck['mastered_cards']; ?> mastered / <?php echo $deck['total_cards']; ?> total
+                                                                        <?php if($deck['learned_cards'] > 0): ?>
+                                                                            <span style="margin-left: 8px;">(<?php echo $deck['learned_cards']; ?> learned)</span>
+                                                                        <?php endif; ?>
+                                                                    </div>
                                                                 </div>
-                                                                <div style="font-size: 11px; color: #999; margin-top: 5px;">
-                                                                    <?php echo $deck['mastered_cards']; ?> mastered / <?php echo $deck['total_cards']; ?> total
-                                                                    <?php if($deck['learned_cards'] > 0): ?>
-                                                                        <span style="margin-left: 8px;">(<?php echo $deck['learned_cards']; ?> learned)</span>
+                                                                
+                                                                <!-- Stats -->
+                                                                <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+                                                                    <?php if($deck['recall_words'] > 0): ?>
+                                                                        <div style="flex: 1; min-width: 80px;">
+                                                                            <div style="font-size: 11px; color: #999; margin-bottom: 3px;">Recall</div>
+                                                                            <div style="font-size: 18px; font-weight: 600; color: #ff9800;">
+                                                                                <?php echo $deck['recall_words']; ?>
+                                                                            </div>
+                                                                        </div>
+                                                                    <?php endif; ?>
+                                                                    <?php if($deck['new_words'] > 0): ?>
+                                                                        <div style="flex: 1; min-width: 80px;">
+                                                                            <div style="font-size: 11px; color: #999; margin-bottom: 3px;">New</div>
+                                                                            <div style="font-size: 18px; font-weight: 600; color: #4caf50;">
+                                                                                <?php echo $deck['new_words']; ?>
+                                                                            </div>
+                                                                        </div>
                                                                     <?php endif; ?>
                                                                 </div>
+                                                                
+                                                                <!-- Start Learning Button -->
+                                                                <a href="vocab_learning.php?language_id=<?php echo $language['language_id']; ?>&deck_id=<?php echo $deck['deck_id']; ?>" 
+                                                                class="btn btn-primary" 
+                                                                style="width: 100%; background: linear-gradient(90deg, #ed2a26, #ff4444); border: none; color: white; padding: 10px; border-radius: 6px; text-align: center; text-decoration: none; display: block; font-weight: 600; transition: transform 0.2s;">
+                                                                    <i class="uil uil-play"></i> Start Learning
+                                                                </a>
                                                             </div>
-                                                            
-                                                            <!-- Stats -->
-                                                            <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
-                                                                <?php if($deck['recall_words'] > 0): ?>
-                                                                    <div style="flex: 1; min-width: 80px;">
-                                                                        <div style="font-size: 11px; color: #999; margin-bottom: 3px;">Recall</div>
-                                                                        <div style="font-size: 18px; font-weight: 600; color: #ff9800;">
-                                                                            <?php echo $deck['recall_words']; ?>
-                                                                        </div>
-                                                                    </div>
-                                                                <?php endif; ?>
-                                                                <?php if($deck['new_words'] > 0): ?>
-                                                                    <div style="flex: 1; min-width: 80px;">
-                                                                        <div style="font-size: 11px; color: #999; margin-bottom: 3px;">New</div>
-                                                                        <div style="font-size: 18px; font-weight: 600; color: #4caf50;">
-                                                                            <?php echo $deck['new_words']; ?>
-                                                                        </div>
-                                                                    </div>
-                                                                <?php endif; ?>
-                                                            </div>
-                                                            
-                                                            <!-- Start Learning Button -->
-                                                            <a href="vocab_learning.php?language_id=<?php echo $language['language_id']; ?>&deck_id=<?php echo $deck['deck_id']; ?>" 
-                                                               class="btn btn-primary" 
-                                                               style="width: 100%; background: linear-gradient(90deg, #ed2a26, #ff4444); border: none; color: white; padding: 10px; border-radius: 6px; text-align: center; text-decoration: none; display: block; font-weight: 600; transition: transform 0.2s;">
-                                                                <i class="uil uil-play"></i> Start Learning
-                                                            </a>
                                                         </div>
-                                                    </div>
-                                                <?php endforeach; ?>
+                                                    <?php endforeach; ?>
+                                                </div>
                                             </div>
+                                        <?php endforeach; ?>
+                                    <?php elseif($user && isset($user['id'])): ?>
+                                        <div style="text-align: center; padding: 40px; color: #999;">
+                                            <i class="uil uil-book-open" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
+                                            <p style="margin: 0;">No vocabulary learning progress yet.</p>
+                                            <a href="vocab_learning.php" style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: linear-gradient(90deg, #ed2a26, #ff4444); color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                                                Start Learning
+                                            </a>
                                         </div>
-                                    <?php endforeach; ?>
-                                <?php elseif($user && isset($user['id'])): ?>
-                                    <div style="text-align: center; padding: 40px; color: #999;">
-                                        <i class="uil uil-book-open" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
-                                        <p style="margin: 0;">No vocabulary learning progress yet.</p>
-                                        <a href="vocab_learning.php" style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: linear-gradient(90deg, #ed2a26, #ff4444); color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">
-                                            Start Learning
-                                        </a>
-                                    </div>
-                                <?php else: ?>
-                                    <div style="text-align: center; padding: 40px; color: #999;">
-                                        <i class="uil uil-sign-in-alt" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
-                                        <p style="margin: 0;">Please <a href="login.php" style="color: #ed2a26; text-decoration: none;">login</a> to view your vocabulary learning progress.</p>
-                                    </div>
-                                <?php endif; ?>
-                             </div>
+                                    <?php else: ?>
+                                        <div style="text-align: center; padding: 40px; color: #999;">
+                                            <i class="uil uil-sign-in-alt" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
+                                            <p style="margin: 0;">Please <a href="login.php" style="color: #ed2a26; text-decoration: none;">login</a> to view your vocabulary learning progress.</p>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <?php } ?>
 
                         <?php if($user){ ?>
                             <h4>My Learning</h4>

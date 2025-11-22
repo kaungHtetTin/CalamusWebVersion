@@ -1178,7 +1178,7 @@
                             <div class="col-md-6 text-right">
                                 <div class="learning-stats">
                                     <span class="learning-day">Learning Day: <span id="learning-day-num">-</span></span>
-                                    <span class="ml-3">New: <span id="new-words-count">0</span> | Recall: <span id="recall-words-count">0</span></span>
+                                    <span class="ml-3">New: <span id="new-words-count">0</span> | Review: <span id="recall-words-count">0</span></span>
                                 </div>
                             </div>
                         </div>

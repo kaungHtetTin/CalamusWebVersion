@@ -221,7 +221,7 @@
                                                                 <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
                                                                     <?php if($deck['recall_words'] > 0): ?>
                                                                         <div style="flex: 1; min-width: 80px;">
-                                                                            <div style="font-size: 11px; color: #999; margin-bottom: 3px;">Recall</div>
+                                                                            <div style="font-size: 11px; color: #999; margin-bottom: 3px;">Review</div>
                                                                             <div style="font-size: 18px; font-weight: 600; color: #ff9800;">
                                                                                 <?php echo $deck['recall_words']; ?>
                                                                             </div>

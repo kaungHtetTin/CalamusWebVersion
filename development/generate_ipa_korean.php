@@ -1,11 +1,11 @@
 <?php
 /**
- * Generate IPA (International Phonetic Alphabet) symbols for English words using DeepSeek AI
+ * Generate IPA (International Phonetic Alphabet) symbols for Korean words using DeepSeek AI
  * 
  * Usage:
  * 1. Set your DeepSeek API key in $deepseek_api_key below
  * 2. Configure $language_id and $deck_id (or set $deck_id to null for all decks)
- * 3. Run: php generate_ipa_english.php
+ * 3. Run: php generate_ipa_korean.php
  * 
  * The script will:
  * - Fetch all words without IPA from the database
@@ -17,8 +17,8 @@
 include('../classes/connect.php');
 
 // Configuration
-$language_id = 2; // English language ID
-$deck_id = 2; // Deck ID (optional, set to null to process all decks)
+$language_id = 1; // Korean language ID
+$deck_id = 1; // Deck ID (optional, set to null to process all decks)
 $deepseek_api_key = 'YOUR_DEEPSEEK_API_KEY'; // Replace with your DeepSeek API key
 $deepseek_api_url = 'https://api.deepseek.com/v1/chat/completions';
 
@@ -38,23 +38,23 @@ if ($deepseek_api_key === 'YOUR_DEEPSEEK_API_KEY') {
 $db = new Database();
 $conn = $db->connect();
 
-// Set UTF-8 encoding
+// Set UTF-8 encoding for proper Korean character handling
 if ($conn) {
     $conn->set_charset("utf8mb4");
 }
 
 /**
- * Call DeepSeek API to get IPA symbol and Myanmar phonetic for a word
+ * Call DeepSeek API to get IPA symbol and Myanmar phonetic for a Korean word
  */
 function getIPAAndMyanmarPhoneticFromDeepSeek($word, $api_key, $api_url) {
-    $prompt = "For the English word \"$word\", provide:\n1. The IPA (International Phonetic Alphabet) pronunciation in the format /.../\n2. The Myanmar (Burmese) phonetic transcription\n\nReturn in this exact format: /ipa/ - Myanmar phonetic\n\nExample: /həˈloʊ/ - ဟယ်လို\n\nDo not include any explanation, description, or additional text - only the IPA and Myanmar phonetic separated by ' - '.";
+    $prompt = "For the Korean word \"$word\", provide:\n1. The IPA (International Phonetic Alphabet) pronunciation in the format /.../\n2. The Myanmar (Burmese) phonetic transcription\n\nReturn in this exact format: /ipa/ - Myanmar phonetic\n\nExample: /kaɡe/ - ကာဂဲ\n\nDo not include any explanation, description, or additional text - only the IPA and Myanmar phonetic separated by ' - '.";
     
     $data = [
         'model' => 'deepseek-chat',
         'messages' => [
             [
                 'role' => 'system',
-                'content' => 'You are a linguistic expert specializing in English phonetics and Myanmar (Burmese) language. When asked for IPA and Myanmar phonetic, respond with ONLY the format: /ipa/ - Myanmar phonetic, without any additional text, explanations, or formatting. Use standard American English pronunciation for IPA and accurate Myanmar phonetic transcription.'
+                'content' => 'You are a linguistic expert specializing in Korean phonetics and Myanmar (Burmese) language. When asked for IPA and Myanmar phonetic, respond with ONLY the format: /ipa/ - Myanmar phonetic, without any additional text, explanations, or formatting. Use standard Korean pronunciation (Seoul dialect) for IPA and accurate Myanmar phonetic transcription.'
             ],
             [
                 'role' => 'user',
@@ -165,7 +165,7 @@ $query = "SELECT c.id, c.word, c.deck_id
           $where_clause
           ORDER BY c.id ASC";
 
-echo "Fetching words without IPA...\n";
+echo "Fetching Korean words without IPA...\n";
 $words = $db->read($query);
 
 if (!$words || empty($words)) {

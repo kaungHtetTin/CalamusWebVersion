@@ -20,7 +20,7 @@ if ($conn) {
     $conn->set_charset("utf8mb4");
 }
 
-$language_id = 1; // Korean language ID
+$language_id = 2; // Korean language ID
 
 // Query to fetch all Korean words with word and ipa columns
 $query = "SELECT word, ipa 
@@ -193,8 +193,8 @@ $totalWords = $words ? count($words) : 0;
 <body>
     <div class="container">
         <div class="header">
-            <h1>한국어 단어</h1>
-            <p>Korean Words with IPA</p>
+            <h1>English Words</h1>
+            <p>English Words with IPA</p>
         </div>
         
         <div class="stats">
@@ -234,4 +234,3 @@ $totalWords = $words ? count($words) : 0;
     </div>
 </body>
 </html>
-

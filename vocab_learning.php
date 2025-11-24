@@ -1109,6 +1109,388 @@
         background-position: 100% 100%, 0% 0%, 50% 50%, 75% 25%, 25% 75%;
     }
 }
+
+/* ============================================
+   NIGHT MODE STYLES FOR VOCAB LEARNING PAGE
+   ============================================ */
+
+/* Flashcard Container & Wrapper */
+.night-mode .flashcard-container {
+    background: transparent;
+}
+
+.night-mode .flashcard-front,
+.night-mode .flashcard-back {
+    background: linear-gradient(135deg, #333 0%, #242424 100%) !important;
+    border: 1px solid #242424;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.night-mode .flashcard-front:hover,
+.night-mode .flashcard-back:hover {
+    box-shadow: 0 12px 32px rgba(237, 42, 38, 0.3);
+}
+
+/* Card Content */
+.night-mode .card-word {
+    color: #fff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.night-mode .card-ipa {
+    color: #c7c7c7 !important;
+}
+
+/* Right Side Selector Panel */
+.night-mode .right_side {
+    background: linear-gradient(135deg, #333 0%, #242424 100%) !important;
+    border: 1px solid #242424 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.night-mode .right_side:hover {
+    box-shadow: 0 8px 30px rgba(237, 42, 38, 0.3);
+}
+
+.night-mode .right_side h4 {
+    color: #fff !important;
+    border-bottom-color: #ed2a26 !important;
+}
+
+/* Selector Group */
+.night-mode .selector-group label {
+    color: #fff !important;
+}
+
+.night-mode .selector-group select {
+    background-color: #333 !important;
+    border-color: #242424 !important;
+    color: #fff !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ed2a26' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+}
+
+.night-mode .selector-group select:hover {
+    border-color: #ed2a26 !important;
+    box-shadow: 0 2px 8px rgba(237, 42, 38, 0.3);
+}
+
+.night-mode .selector-group select:focus {
+    border-color: #ed2a26 !important;
+    box-shadow: 0 0 0 3px rgba(237, 42, 38, 0.2);
+    background-color: #242424 !important;
+}
+
+.night-mode .selector-group select:disabled {
+    background-color: #242424 !important;
+    border-color: #333 !important;
+    color: #7f8c8d !important;
+    opacity: 0.7;
+}
+
+.night-mode .selector-group select option {
+    background-color: #333 !important;
+    color: #fff !important;
+}
+
+.night-mode .selector-group select option:checked {
+    background-color: #ed2a26 !important;
+    color: #ffffff !important;
+}
+
+.night-mode .selector-group select option:hover {
+    background-color: #242424 !important;
+}
+
+/* Start Learning Button */
+.night-mode #btn-start-learning {
+    background: linear-gradient(135deg, #ed2a26 0%, #c9221f 100%);
+    box-shadow: 0 4px 15px rgba(237, 42, 38, 0.4);
+}
+
+.night-mode #btn-start-learning:hover {
+    background: linear-gradient(135deg, #c9221f 0%, #a51c19 100%);
+    box-shadow: 0 6px 20px rgba(237, 42, 38, 0.5);
+}
+
+.night-mode #btn-start-learning:disabled {
+    background: #545454 !important;
+    color: #999 !important;
+}
+
+/* Selector Status Indicator */
+.night-mode .selector-status {
+    background: #95a5a6;
+}
+
+/* Skip Confirmation Dialog */
+.night-mode .skip-dialog-overlay {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.night-mode .skip-dialog-content {
+    background: linear-gradient(135deg, #333 0%, #242424 100%) !important;
+    border: 2px solid #242424 !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+}
+
+.night-mode .skip-dialog-header {
+    background: linear-gradient(135deg, #242424 0%, #333 100%) !important;
+    border-bottom-color: #242424 !important;
+}
+
+.night-mode .skip-dialog-header h3 {
+    color: #fff !important;
+}
+
+.night-mode .skip-dialog-body p {
+    color: #c7c7c7 !important;
+}
+
+.night-mode .skip-dialog-footer {
+    background: #242424 !important;
+    border-top-color: #242424 !important;
+}
+
+.night-mode .skip-dialog-cancel {
+    background: #545454 !important;
+    color: #fff !important;
+}
+
+.night-mode .skip-dialog-cancel:hover {
+    background: #666 !important;
+}
+
+.night-mode .skip-dialog-ok {
+    background: linear-gradient(135deg, #ed2a26 0%, #c9221f 100%);
+}
+
+.night-mode .skip-dialog-ok:hover {
+    background: linear-gradient(135deg, #c9221f 0%, #a51c19 100%);
+}
+
+/* Card Translation & Examples */
+.night-mode .card-translation {
+    color: #fff !important;
+    background: linear-gradient(135deg, #242424 0%, #333 100%) !important;
+    border-left-color: #ed2a26 !important;
+}
+
+.night-mode .card-examples {
+    color: #c7c7c7 !important;
+}
+
+.night-mode .card-examples .example {
+    background: rgba(237, 42, 38, 0.15) !important;
+    border-left-color: #ed2a26 !important;
+}
+
+.night-mode .card-examples .example:hover {
+    background: rgba(237, 42, 38, 0.25) !important;
+}
+
+/* Custom Scrollbars */
+.night-mode .card-examples::-webkit-scrollbar-track {
+    background: #242424;
+}
+
+.night-mode .card-examples::-webkit-scrollbar-thumb {
+    background: #ed2a26;
+}
+
+.night-mode .card-examples::-webkit-scrollbar-thumb:hover {
+    background: #c9221f;
+}
+
+.night-mode .answer-section::-webkit-scrollbar-track {
+    background: #242424;
+}
+
+.night-mode .answer-section::-webkit-scrollbar-thumb {
+    background: #ed2a26;
+}
+
+.night-mode .answer-section::-webkit-scrollbar-thumb:hover {
+    background: #c9221f;
+}
+
+/* Buttons */
+.night-mode .btn-show-answer {
+    background: linear-gradient(135deg, #ed2a26 0%, #c9221f 100%);
+    box-shadow: 0 4px 12px rgba(237, 42, 38, 0.4);
+}
+
+.night-mode .btn-show-answer:hover {
+    background: linear-gradient(135deg, #c9221f 0%, #a51c19 100%);
+    box-shadow: 0 8px 20px rgba(237, 42, 38, 0.5);
+}
+
+.night-mode .btn-skip {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.night-mode .btn-skip:hover {
+    background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+    box-shadow: 0 8px 20px rgba(231, 76, 60, 0.5);
+}
+
+/* Rating Section */
+.night-mode .rating-label {
+    color: #c7c7c7 !important;
+}
+
+.night-mode .rating-btn {
+    background: linear-gradient(135deg, #333 0%, #242424 100%) !important;
+    border-color: #545454 !important;
+    color: #fff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.night-mode .rating-btn:hover {
+    background: linear-gradient(135deg, #ed2a26 0%, #c9221f 100%) !important;
+    border-color: #ed2a26 !important;
+    color: white !important;
+    box-shadow: 0 8px 20px rgba(237, 42, 38, 0.4);
+}
+
+.night-mode .rating-btn:disabled {
+    background: #242424 !important;
+    border-color: #333 !important;
+    color: #666 !important;
+    opacity: 0.4;
+}
+
+/* Loading Overlay */
+.night-mode .loading-overlay {
+    background: rgba(0, 0, 0, 0.9) !important;
+    backdrop-filter: blur(4px);
+}
+
+.night-mode .loading-overlay p {
+    color: #ed2a26 !important;
+}
+
+.night-mode .spinner {
+    border-color: rgba(237, 42, 38, 0.2);
+    border-top-color: #ed2a26;
+    border-right-color: #ed2a26;
+    box-shadow: 0 0 20px rgba(237, 42, 38, 0.4);
+}
+
+/* Skeleton Loader */
+.night-mode .skeleton-card {
+    background: #333 !important;
+    border: 1px solid #242424;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.night-mode .skeleton-line,
+.night-mode .skeleton-button {
+    background: linear-gradient(90deg, #242424 25%, #333 50%, #242424 75%);
+}
+
+/* Flashcard Header */
+.night-mode .flashcard-header {
+    background: linear-gradient(135deg, #242424 0%, #333 100%) !important;
+    border: 1px solid #242424 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.night-mode .card-progress {
+    color: #fff !important;
+}
+
+.night-mode .learning-stats {
+    color: #c7c7c7 !important;
+}
+
+.night-mode .learning-day {
+    color: #ed2a26 !important;
+}
+
+/* Completed State */
+.night-mode .completed-state {
+    background: transparent;
+}
+
+.night-mode .completed-state h4 {
+    color: #ed2a26 !important;
+}
+
+.night-mode .completed-state p {
+    color: #c7c7c7 !important;
+}
+
+.night-mode .completed-state .btn {
+    background: linear-gradient(135deg, #ed2a26 0%, #c9221f 100%);
+    box-shadow: 0 6px 20px rgba(237, 42, 38, 0.4);
+}
+
+.night-mode .completed-state .btn:hover {
+    background: linear-gradient(135deg, #c9221f 0%, #a51c19 100%);
+    box-shadow: 0 10px 35px rgba(237, 42, 38, 0.5);
+}
+
+/* Empty State */
+.night-mode #empty-state {
+    color: #c7c7c7;
+}
+
+.night-mode #empty-state h4 {
+    color: #fff !important;
+}
+
+.night-mode #empty-state p {
+    color: #c7c7c7 !important;
+}
+
+/* Alert Message */
+.night-mode .alert-info {
+    background-color: #242424 !important;
+    border-color: #ed2a26 !important;
+    color: #c7c7c7 !important;
+}
+
+.night-mode .alert-info strong {
+    color: #fff !important;
+}
+
+.night-mode .alert-info .close {
+    color: #c7c7c7 !important;
+    opacity: 0.8;
+}
+
+.night-mode .alert-info .close:hover {
+    color: #fff !important;
+    opacity: 1;
+}
+
+/* Text Center Login Message */
+.night-mode .text-center p {
+    color: #c7c7c7 !important;
+}
+
+.night-mode .text-center .btn {
+    background: linear-gradient(135deg, #ed2a26 0%, #c9221f 100%);
+    color: white !important;
+}
+
+.night-mode .text-center .btn:hover {
+    background: linear-gradient(135deg, #c9221f 0%, #a51c19 100%);
+}
+
+/* Flashcard Section */
+.night-mode .flashcard_section {
+    background: transparent;
+}
+
+/* Additional utility classes */
+.night-mode .sa4d25 {
+    background: transparent;
+}
+
+.night-mode .container-fluid {
+    background: transparent;
+}
 </style>
 	<!-- Body Start -->
 <div class="wrapper">

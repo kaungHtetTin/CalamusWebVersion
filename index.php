@@ -350,6 +350,151 @@
             </div>
         </div>
     </div>
+
+<style>
+/* ============================================
+   NIGHT MODE STYLES FOR VOCAB LEARNING PROGRESS SECTION
+   ============================================ */
+
+/* Vocab Learning Progress Container */
+.night-mode .vocab-learning-progress {
+    background: transparent;
+}
+
+/* Language Section */
+.night-mode .vocab-language-section {
+    background: transparent;
+}
+
+.night-mode .vocab-language-title {
+    color: #fff !important;
+}
+
+.night-mode .vocab-language-title i {
+    color: #ed2a26;
+}
+
+/* Deck Card - Override inline styles */
+.night-mode .vocab-deck-card {
+    background: #333 !important;
+    border: 1px solid #242424 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Deck Card Header - Title */
+.night-mode .vocab-deck-card h6 {
+    color: #fff !important;
+}
+
+/* Day Badge */
+.night-mode .vocab-deck-card span[style*="font-size: 12px; color: #666"] {
+    color: #c7c7c7 !important;
+    background: #242424 !important;
+}
+
+/* Progress Label */
+.night-mode .vocab-deck-card span[style*="font-size: 13px; color: #666"]:not([style*="font-weight: 600"]) {
+    color: #c7c7c7 !important;
+}
+
+/* Progress Percentage */
+.night-mode .vocab-deck-card span[style*="font-size: 13px; font-weight: 600; color: #ed2a26"] {
+    color: #ed2a26 !important;
+}
+
+/* Progress Bar Container */
+.night-mode .vocab-deck-card div[style*="width: 100%; background: #e0e0e0"] {
+    background: #242424 !important;
+}
+
+/* Progress Bar Fill - keep the gradient */
+.night-mode .vocab-deck-card div[style*="background: linear-gradient(90deg, #ed2a26"] {
+    background: linear-gradient(90deg, #ed2a26, #ff4444) !important;
+}
+
+/* Progress Stats Text */
+.night-mode .vocab-deck-card div[style*="font-size: 11px; color: #999"] {
+    color: #c7c7c7 !important;
+}
+
+/* Stats Section Labels */
+.night-mode .vocab-deck-card div[style*="font-size: 11px; color: #999; margin-bottom: 3px"] {
+    color: #c7c7c7 !important;
+}
+
+/* Review Count (Orange) */
+.night-mode .vocab-deck-card div[style*="font-size: 18px; font-weight: 600; color: #ff9800"] {
+    color: #ff9800 !important;
+}
+
+/* New Count (Green) */
+.night-mode .vocab-deck-card div[style*="font-size: 18px; font-weight: 600; color: #4caf50"] {
+    color: #4caf50 !important;
+}
+
+/* Start Learning Button */
+.night-mode .vocab-deck-card .btn-primary,
+.night-mode .vocab-deck-card a[style*="background: linear-gradient(90deg, #ed2a26"] {
+    background: linear-gradient(90deg, #ed2a26, #ff4444) !important;
+    color: white !important;
+    border: none !important;
+}
+
+.night-mode .vocab-deck-card .btn-primary:hover,
+.night-mode .vocab-deck-card a[style*="background: linear-gradient(90deg, #ed2a26"]:hover {
+    background: linear-gradient(90deg, #c9221f, #e63939) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(237, 42, 38, 0.4);
+}
+
+/* Empty State - No Progress */
+.night-mode .vocab-learning-progress > div[style*="text-align: center; padding: 40px; color: #999"] {
+    color: #c7c7c7 !important;
+}
+
+.night-mode .vocab-learning-progress > div[style*="text-align: center; padding: 40px; color: #999"] p {
+    color: #c7c7c7 !important;
+}
+
+.night-mode .vocab-learning-progress > div[style*="text-align: center; padding: 40px; color: #999"] a:not([href="login.php"]) {
+    background: linear-gradient(90deg, #ed2a26, #ff4444) !important;
+    color: white !important;
+}
+
+.night-mode .vocab-learning-progress > div[style*="text-align: center; padding: 40px; color: #999"] a:not([href="login.php"]):hover {
+    background: linear-gradient(90deg, #c9221f, #e63939) !important;
+}
+
+/* Empty State - Login Required */
+.night-mode .vocab-learning-progress > div[style*="text-align: center; padding: 40px; color: #999"] p {
+    color: #c7c7c7 !important;
+}
+
+.night-mode .vocab-learning-progress > div[style*="text-align: center; padding: 40px; color: #999"] a[href="login.php"] {
+    color: #ed2a26 !important;
+}
+
+.night-mode .vocab-learning-progress > div[style*="text-align: center; padding: 40px; color: #999"] a[href="login.php"]:hover {
+    color: #ff4444 !important;
+    text-decoration: underline;
+}
+
+/* Section Title */
+.night-mode .section3125 .item_title {
+    color: #fff !important;
+}
+
+/* Icon Colors */
+.night-mode .vocab-learning-progress i {
+    color: #c7c7c7;
+}
+
+.night-mode .vocab-learning-progress .uil-book-open,
+.night-mode .vocab-learning-progress .uil-sign-in-alt {
+    opacity: 0.7;
+}
+</style>
+
 <?php 
     include('layouts/footer.php');
 ?>

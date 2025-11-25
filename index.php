@@ -10,6 +10,11 @@
     include('classes/LearningFlow.php');
 
     $page_title="Home";
+    
+    // SEO Meta Data
+    $page_description = "Calamus Education - Learn English and Korean languages through interactive online courses, vocabulary learning, and expert instruction. Explore featured courses, connect with instructors, and start your language learning journey today.";
+    $page_keywords = "Calamus Education, Learn English Myanmar, Learn Korean Myanmar, Online Language Courses, English Courses, Korean Courses, Vocabulary Learning, Language Education Myanmar";
+    $page_image = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . "/assets/images/calamuslogo.png";
  
 
     $Auth=new Auth();

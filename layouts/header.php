@@ -14,16 +14,84 @@ if($user) $unreadCount=$Notification->unreadCount($user['learner_phone']);
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, shrink-to-fit=9">
-		<meta name="description" content="Calamus Education">
-		<meta name="author" content="Calamus Education">		
-		<title>Calamus | <?php echo $page_title; ?> </title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+		<?php
+		// SEO Configuration
+		$site_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
+		$current_url = $site_url . $_SERVER['REQUEST_URI'];
+		$site_name = "Calamus Education";
+		$default_description = "Calamus Education - Learn English and Korean languages through interactive courses, vocabulary learning, and expert instruction. Join thousands of students improving their language skills.";
+		$default_keywords = "Calamus Education, Learn English, Learn Korean, Language Learning, Online Courses, Vocabulary Learning, Myanmar Education";
+		
+		// Page-specific SEO data (can be set in individual pages)
+		$page_description = isset($page_description) ? $page_description : $default_description;
+		$page_keywords = isset($page_keywords) ? $page_keywords : $default_keywords;
+		$page_image = isset($page_image) ? $page_image : $site_url . "/assets/images/calamuslogo.png";
+		$canonical_url = isset($canonical_url) ? $canonical_url : $current_url;
+		?>
+		
+		<!-- Primary Meta Tags -->
+		<title><?php echo htmlspecialchars($page_title . " | " . $site_name); ?></title>
+		<meta name="title" content="<?php echo htmlspecialchars($page_title . " | " . $site_name); ?>">
+		<meta name="description" content="<?php echo htmlspecialchars($page_description); ?>">
+		<meta name="keywords" content="<?php echo htmlspecialchars($page_keywords); ?>">
+		<meta name="author" content="Calamus Education">
+		<meta name="robots" content="index, follow">
+		<meta name="language" content="English">
+		<meta name="revisit-after" content="7 days">
+		
+		<!-- Canonical URL -->
+		<link rel="canonical" href="<?php echo htmlspecialchars($canonical_url); ?>">
+		
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website">
+		<meta property="og:url" content="<?php echo htmlspecialchars($canonical_url); ?>">
+		<meta property="og:title" content="<?php echo htmlspecialchars($page_title . " | " . $site_name); ?>">
+		<meta property="og:description" content="<?php echo htmlspecialchars($page_description); ?>">
+		<meta property="og:image" content="<?php echo htmlspecialchars($page_image); ?>">
+		<meta property="og:site_name" content="<?php echo htmlspecialchars($site_name); ?>">
+		<meta property="og:locale" content="en_US">
+		
+		<!-- Twitter Card -->
+		<meta name="twitter:card" content="summary_large_image">
+		<meta name="twitter:url" content="<?php echo htmlspecialchars($canonical_url); ?>">
+		<meta name="twitter:title" content="<?php echo htmlspecialchars($page_title . " | " . $site_name); ?>">
+		<meta name="twitter:description" content="<?php echo htmlspecialchars($page_description); ?>">
+		<meta name="twitter:image" content="<?php echo htmlspecialchars($page_image); ?>">
+		<meta name="twitter:site" content="@calamuseducation">
 		
 		<!-- Favicon Icon -->
 		<link rel="icon" type="image/png" href="assets/images/logo.png">
+		<link rel="apple-touch-icon" href="assets/images/logo.png">
+		
+		<!-- Structured Data (Schema.org) -->
+		<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "EducationalOrganization",
+			"name": "Calamus Education",
+			"url": "<?php echo $site_url; ?>",
+			"logo": "<?php echo $site_url; ?>/assets/images/calamuslogo.png",
+			"description": "<?php echo htmlspecialchars($default_description, ENT_QUOTES); ?>",
+			"address": {
+				"@type": "PostalAddress",
+				"addressCountry": "MM"
+			},
+			"sameAs": [
+				"https://www.facebook.com/easyenglishcalamus",
+				"https://www.facebook.com/easykoreancalamus",
+				"https://www.youtube.com/@calamuseducationmyanmar5078"
+			],
+			"offers": {
+				"@type": "Offer",
+				"category": "Education"
+			}
+		}
+		</script>
 		
 		<!-- Stylesheets -->
-		<link href='http://fonts.googleapis.com/css?family=Roboto:400,700,500' rel='stylesheet'>
+		<link href='https://fonts.googleapis.com/css?family=Roboto:400,700,500' rel='stylesheet'>
 		<link href='assets/vendor/unicons-2.0.1/css/unicons.css' rel='stylesheet'>
 		<link href="assets/css/vertical-responsive-menu.min.css" rel="stylesheet">
 		<link href="assets/css/style.css" rel="stylesheet">
@@ -55,8 +123,8 @@ if($user) $unreadCount=$Notification->unreadCount($user['learner_phone']);
 			<span class="collapse_menu--label"></span>
 		</button>
 		<div class="main_logo" id="logo">
-			<a href="index.php"><img src="assets/images/calamuslogo.png" alt="" style="height:40px"></a>
-			<a href="index.php"><img class="logo-inverse" src="images/ct_logo.svg" alt=""></a>
+			<a href="index.php"><img src="assets/images/calamuslogo.png" alt="Calamus Education - Learn English and Korean Languages" style="height:40px"></a>
+			<a href="index.php"><img class="logo-inverse" src="images/ct_logo.svg" alt="Calamus Education Logo"></a>
 		</div>
 		<div class="search120">
 			<div class="ui search">
@@ -318,14 +386,14 @@ if($user) $unreadCount=$Notification->unreadCount($user['learner_phone']);
 				<ul>
 					<li class="menu--item">
 						<a style="padding-top:5px;" href="admin_team.php?team=english" class="menu--link user_img <?php if($page_title=='Admin Team - English') echo 'active' ?>">
-							<img src="icon/easyenglish_icon.png" alt="">
+							<img src="icon/easyenglish_icon.png" alt="Easy English App Icon">
 							Easy English 
 							<div class="alrt_dot"></div>
 						</a>
 					</li>
 					<li class="menu--item">
 						<a style="padding-top:5px;" href="admin_team.php?team=korea"  class="menu--link user_img <?php if($page_title=='Admin Team - Korea') echo 'active' ?>">
-							<img src="icon/easykorean_icon.png" alt="">
+							<img src="icon/easykorean_icon.png" alt="Easy Korean App Icon">
 							Easy Korean
 						</a>
 						<div class="alrt_dot"></div>

@@ -17,9 +17,66 @@
     $Teacher=new Teacher();
     $teacher_id=$_GET['teacher_id'];
     $profile=$Teacher->detail($teacher_id);
+    
+    // Check if instructor exists
+    if(empty($profile)) {
+        header("Location: all_instructor.php");
+        exit;
+    }
+    
     $courses=$Teacher->courses($teacher_id);
+    
+    // SEO Meta Data for Instructor Profile Page
+    $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http");
+    $base_url = $protocol . "://" . $_SERVER['HTTP_HOST'];
+    $site_url = $base_url . "/calamus";
+    
+    $page_title = htmlspecialchars($profile['name'], ENT_QUOTES, 'UTF-8') . " - Instructor";
+    $total_students = $Teacher->getNumberOfStudent($teacher_id);
+    $page_description = "Learn from " . htmlspecialchars($profile['name'], ENT_QUOTES, 'UTF-8') . 
+        ", " . htmlspecialchars($profile['rank'], ENT_QUOTES, 'UTF-8') . " at Calamus Education. " .
+        "Teaching " . $profile['total_course'] . " courses to " . $total_students . " students. " .
+        "Expert language instructor specializing in online education.";
+    
+    // Ensure description is within 160 characters
+    if (strlen($page_description) > 160) {
+        $page_description = substr($page_description, 0, 157) . "...";
+    }
+    
+    $page_keywords = htmlspecialchars($profile['name'], ENT_QUOTES, 'UTF-8') . ", " .
+        htmlspecialchars($profile['rank'], ENT_QUOTES, 'UTF-8') . ", " .
+        "Language Instructor, Calamus Education, Online Teacher, " .
+        "English Teacher, Korean Teacher, Myanmar";
+    
+    $page_image = !empty($profile['profile']) ? 
+        (strpos($profile['profile'], 'http') === 0 ? $profile['profile'] : $site_url . "/" . ltrim($profile['profile'], '/')) : 
+        $site_url . "/assets/images/logo.png";
+    
+    $canonical_url = $site_url . "/instructor_profile.php?teacher_id=" . $teacher_id;
         
     include('layouts/header.php');
+?>
+
+<!-- Person/Instructor Schema Markup (Structured Data) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "<?php echo htmlspecialchars($profile['name'], ENT_QUOTES, 'UTF-8'); ?>",
+  "jobTitle": "<?php echo htmlspecialchars($profile['rank'], ENT_QUOTES, 'UTF-8'); ?>",
+  "worksFor": {
+    "@type": "EducationalOrganization",
+    "name": "Calamus Education",
+    "url": "<?php echo $site_url; ?>"
+  },
+  "url": "<?php echo $canonical_url; ?>",
+  "image": "<?php echo $page_image; ?>",
+  "sameAs": [
+    <?php if(!empty($profile['facebook'])): ?>"<?php echo htmlspecialchars($profile['facebook'], ENT_QUOTES, 'UTF-8'); ?>"<?php endif; ?>
+    <?php if(!empty($profile['telegram']) && $profile['telegram'] != 'null'): ?><?php if(!empty($profile['facebook'])): ?>,<?php endif; ?>"<?php echo htmlspecialchars($profile['telegram'], ENT_QUOTES, 'UTF-8'); ?>"<?php endif; ?>
+  ]
+}
+</script>
 ?>
 	<!-- Body Start -->
 <div class="wrapper _bg4586">
@@ -33,7 +90,7 @@
 									 
 									<div class="dp_dt150">						
 										<div class="img148">
-											<img src="<?php echo $profile['profile']; ?>" alt="">										
+											<img src="<?php echo $profile['profile']; ?>" alt="<?php echo htmlspecialchars($profile['name'], ENT_QUOTES, 'UTF-8'); ?> - Instructor Profile Photo">										
 										</div>
 										<div class="prfledt1">
 											<h2><?php echo $profile['name']; ?></h2>
@@ -110,7 +167,7 @@
                                                     <div class="col-lg-4 col-md-4  col-sm-6 col-xs-12">
                                                         <div class="fcrse_1 mt-30">
                                                             <a href="course_detail.php?course_id=<?php echo $course['course_id']; ?>" class="fcrse_img">
-                                                                 <img src="<?php echo $course['web_cover'];?>"style="" alt="">
+                                                                 <img src="<?php echo $course['web_cover'];?>"style="" alt="<?php echo htmlspecialchars($course['title'], ENT_QUOTES, 'UTF-8'); ?> - <?php echo htmlspecialchars(ucfirst($course['major']), ENT_QUOTES, 'UTF-8'); ?> Course">
 
                                                                 <div class="course-overlay">
                                                                     <div class="badge_seller"><?php echo ucfirst($course['major']) ?></div>

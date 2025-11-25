@@ -17,6 +17,18 @@
     $Course=new Course();
     $Teacher=new Teacher();
     $courses=$Course->get();
+    
+    // SEO Meta Data for Explore Page
+    $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http");
+    $base_url = $protocol . "://" . $_SERVER['HTTP_HOST'];
+    $site_url = $base_url . "/calamus";
+    
+    $page_title = "Explore Courses";
+    $total_courses = count($courses);
+    $page_description = "Explore " . $total_courses . " online language courses at Calamus Education. Learn English and Korean through interactive courses, expert instruction, and comprehensive curriculum. Find the perfect course for your learning journey.";
+    $page_keywords = "Explore Courses, Online Language Courses, English Courses, Korean Courses, Calamus Education, Language Learning Myanmar, Online Education";
+    $page_image = $site_url . "/assets/images/logo.png";
+    $canonical_url = $site_url . "/explore.php";
  
     include('layouts/header.php');
 ?>
@@ -86,7 +98,7 @@
                     <div class="fcrse_1 mt-30">
                         <a href="course_detail.php?course_id=${course.course_id}" class="fcrse_img">
                             
-                            <img src="${course.web_cover}"alt="">
+                            <img src="${course.web_cover}" alt="${course.title} - ${course.major} Course Cover">
                             
                             <div class="course-overlay">
                                 <div class="badge_seller">${course.major}</div>

@@ -2,7 +2,7 @@
 /**
  * Sitemap Generator for Calamus Education
  * This file generates a sitemap.xml dynamically
- * Access via: https://www.calamuseducation.com/sitemap.php
+ * Access via: https://www.calamuseducation.com/calamus/sitemap.php
  */
 
 header('Content-Type: application/xml; charset=utf-8');
@@ -10,7 +10,8 @@ header('Content-Type: application/xml; charset=utf-8');
 // Get base URL
 $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http");
 $base_url = $protocol . "://" . $_SERVER['HTTP_HOST'];
-$site_url = $base_url;
+// Add /calamus subdirectory to base URL
+$site_url = $base_url . "/calamus";
 
 // Include database connection
 include('classes/connect.php');

@@ -1,31 +1,31 @@
 # robots.txt for Calamus Education
-# https://www.calamuseducation.com/robots.txt
+# https://www.calamuseducation.com/calamus/robots.txt
 
 User-agent: *
-Allow: /
+Allow: /calamus/
 
 # Disallow admin and private areas
-Disallow: /api/
-Disallow: /classes/
-Disallow: /development/
-Disallow: /uploads/chats/
-Disallow: /layouts/
-Disallow: /assets/vendor/
-Disallow: /*.php$
-Allow: /*.php$
+Disallow: /calamus/api/
+Disallow: /calamus/classes/
+Disallow: /calamus/development/
+Disallow: /calamus/uploads/chats/
+Disallow: /calamus/layouts/
+Disallow: /calamus/assets/vendor/
+Disallow: /calamus/*.php$
+Allow: /calamus/*.php$
 
 # Allow important pages
-Allow: /index.php
-Allow: /about_us.php
-Allow: /contact_us.php
-Allow: /explore.php
-Allow: /course_detail.php
-Allow: /instructor_profile.php
-Allow: /discuss.php
-Allow: /vocab_learning.php
+Allow: /calamus/index.php
+Allow: /calamus/about_us.php
+Allow: /calamus/contact_us.php
+Allow: /calamus/explore.php
+Allow: /calamus/course_detail.php
+Allow: /calamus/instructor_profile.php
+Allow: /calamus/discuss.php
+Allow: /calamus/vocab_learning.php
 
 # Sitemap location
-Sitemap: https://www.calamuseducation.com/sitemap.xml
+Sitemap: https://www.calamuseducation.com/calamus/sitemap.php
 
 # Crawl delay (optional - adjust if needed)
 # Crawl-delay: 1

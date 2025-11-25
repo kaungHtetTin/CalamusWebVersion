@@ -18,16 +18,25 @@ if($user) $unreadCount=$Notification->unreadCount($user['learner_phone']);
 		
 		<?php
 		// SEO Configuration
-		$site_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
-		$current_url = $site_url . $_SERVER['REQUEST_URI'];
+		$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http");
+		$base_url = $protocol . "://" . $_SERVER['HTTP_HOST'];
+		// Add /calamus subdirectory to base URL
+		$site_url = $base_url . "/calamus";
+		// Get current URL - ensure it includes /calamus
+		$request_uri = $_SERVER['REQUEST_URI'];
+		if (strpos($request_uri, '/calamus') === 0) {
+			$current_url = $base_url . $request_uri;
+		} else {
+			$current_url = $site_url . $request_uri;
+		}
 		$site_name = "Calamus Education";
-		$default_description = "Calamus Education - Learn English and Korean languages through interactive courses, vocabulary learning, and expert instruction. Join thousands of students improving their language skills.";
-		$default_keywords = "Calamus Education, Learn English, Learn Korean, Language Learning, Online Courses, Vocabulary Learning, Myanmar Education";
+		$default_description = "Calamus Education - Learn English and Korean languages through interactive courses, vocabulary learning, and expert instruction. Join thousands of Myanmar students improving their language skills.";
+		$default_keywords = "Calamus Education, Learn English, Learn Korean, Language Learning, Online Courses, Vocabulary Learning, Myanmar Education, Easy English, Easy Korean, English for Myanmar, Korean for Myanmar";
 		
 		// Page-specific SEO data (can be set in individual pages)
 		$page_description = isset($page_description) ? $page_description : $default_description;
 		$page_keywords = isset($page_keywords) ? $page_keywords : $default_keywords;
-		$page_image = isset($page_image) ? $page_image : $site_url . "/assets/images/calamuslogo.png";
+		$page_image = isset($page_image) ? $page_image : $site_url . "/assets/images/logo.png";
 		$canonical_url = isset($canonical_url) ? $canonical_url : $current_url;
 		?>
 		
@@ -72,7 +81,7 @@ if($user) $unreadCount=$Notification->unreadCount($user['learner_phone']);
 			"@type": "EducationalOrganization",
 			"name": "Calamus Education",
 			"url": "<?php echo $site_url; ?>",
-			"logo": "<?php echo $site_url; ?>/assets/images/calamuslogo.png",
+			"logo": "<?php echo $site_url; ?>/assets/images/logo.png",
 			"description": "<?php echo htmlspecialchars($default_description, ENT_QUOTES); ?>",
 			"address": {
 				"@type": "PostalAddress",
@@ -123,8 +132,8 @@ if($user) $unreadCount=$Notification->unreadCount($user['learner_phone']);
 			<span class="collapse_menu--label"></span>
 		</button>
 		<div class="main_logo" id="logo">
-			<a href="index.php"><img src="assets/images/calamuslogo.png" alt="Calamus Education - Learn English and Korean Languages" style="height:40px"></a>
-			<a href="index.php"><img class="logo-inverse" src="images/ct_logo.svg" alt="Calamus Education Logo"></a>
+			<a href="index.php"><img src="assets/images/logo.png" alt="Calamus Education - Learn English and Korean Languages" style="height:40px"></a>
+			<a href="index.php"><img class="logo-inverse" src="assets/images/logo.png" alt="Calamus Education Logo" style="height:40px"></a>
 		</div>
 		<div class="search120">
 			<div class="ui search">

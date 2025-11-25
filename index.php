@@ -14,7 +14,8 @@
     // SEO Meta Data
     $page_description = "Calamus Education - Learn English and Korean languages through interactive online courses, vocabulary learning, and expert instruction. Explore featured courses, connect with instructors, and start your language learning journey today.";
     $page_keywords = "Calamus Education, Learn English Myanmar, Learn Korean Myanmar, Online Language Courses, English Courses, Korean Courses, Vocabulary Learning, Language Education Myanmar";
-    $page_image = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . "/assets/images/calamuslogo.png";
+    $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http");
+    $page_image = $protocol . "://" . $_SERVER['HTTP_HOST'] . "/calamus/assets/images/logo.png";
  
 
     $Auth=new Auth();
@@ -63,7 +64,7 @@
                                 <div class="item">
                                     <div class="fcrse_1 mb-20">
                                         <a href="course_detail.php?course_id=<?php echo $course['course_id']; ?>" class="fcrse_img">
-                                            <img src="<?php echo $course['web_cover'] ?>"style="" alt="">
+                                            <img src="<?php echo $course['web_cover'] ?>"style="" alt="<?php echo htmlspecialchars($course['title'], ENT_QUOTES, 'UTF-8'); ?> - <?php echo htmlspecialchars(ucfirst($course['major']), ENT_QUOTES, 'UTF-8'); ?> Course">
                                             <div class="course-overlay">
                                                 <div class="badge_seller"><?php echo ucfirst($course['major']) ?></div>
                                                 <div class="crse_reviews">
@@ -102,7 +103,7 @@
                                 <div class="item">
                                     <div class="fcrse_1 mb-20">
                                         <a href="course_detail.php?course_id=<?php echo $course['course_id']; ?>" class="fcrse_img">
-                                            <img src="<?php echo $course['web_cover'] ?>"style="" alt="">
+                                            <img src="<?php echo $course['web_cover'] ?>"style="" alt="<?php echo htmlspecialchars($course['title'], ENT_QUOTES, 'UTF-8'); ?> - <?php echo htmlspecialchars(ucfirst($course['major']), ENT_QUOTES, 'UTF-8'); ?> Course">
                                             <div class="course-overlay">
                                                 <div class="badge_seller"><?php echo ucfirst($course['major']) ?></div>
                                                 <div class="crse_reviews">
@@ -143,7 +144,7 @@
                                     <div class="item">
                                         <div class="fcrse_1 mb-20">
                                             <div class="tutor_img">
-                                                <a href="instructor_profile.php?teacher_id=<?php echo $teacher['id']; ?>"><img src="<?php echo $teacher['profile']; ?>" alt=""></a>												
+                                                <a href="instructor_profile.php?teacher_id=<?php echo $teacher['id']; ?>"><img src="<?php echo $teacher['profile']; ?>" alt="<?php echo htmlspecialchars($teacher['name'], ENT_QUOTES, 'UTF-8'); ?> - Instructor Profile"></a>												
                                             </div>
                                             <div class="tutor_content_dt">
                                                 <div class="tutor150">
@@ -291,7 +292,7 @@
                                                 <div class="fcrse_3" style="background:<?php echo $course['background_color']?>;color:white">
                                                     <div style="display:flex;">
                                                         <div style="width:70px;">
-                                                            <img src="<?php echo $course['cover_url'] ?>" alt="" style="height:70px;margin-top:20px;margin-left:10px;margin-right:10px;margin-bottom:-10px;">
+                                                            <img src="<?php echo $course['cover_url'] ?>" alt="<?php echo htmlspecialchars($course['title'], ENT_QUOTES, 'UTF-8'); ?> Course Icon" style="height:70px;margin-top:20px;margin-left:10px;margin-right:10px;margin-bottom:-10px;">
                                                         </div>
 
                                                         <div style="flex:1;margin-right:10px;">
@@ -316,13 +317,13 @@
                         <div class="row">
                             <div class="col-lg-12 col-12 col-md-6">
                                <a href="vip_plan.php">
-                                    <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easyenglish_vip.png"/>
+                                    <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easyenglish_vip.png" alt="Easy English VIP Plan - Calamus Education"/>
                                </a>
                             </div>
 
                             <div class="col-lg-12 col-12 col-md-6">
                                <a href="vip_plan.php">
-                                    <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easykoreanvipbanner.png"/>
+                                    <img class="mb-30" style="width:100%;" src="https://www.calamuseducation.com/uploads/icons/easykoreanvipbanner.png" alt="Easy Korean VIP Plan - Calamus Education"/>
                                </a>
                             </div>
                         </div>
@@ -333,11 +334,11 @@
                             <div class="cater_ttle">
                                 <h4>Use Mobile App</h4>
                             </div>
-                            <div><img style="width: 100%" src="<?php echo $app['cover'];?>"/></div>
+                            <div><img style="width: 100%" src="<?php echo $app['cover'];?>" alt="<?php echo htmlspecialchars($app['name'], ENT_QUOTES, 'UTF-8'); ?> App - Calamus Education"/></div>
                             <a href="<?php echo $app['url']; ?>">
                                 <div style=" background:#1B2730;padding:10px;display:flex;">
                                     <div>
-                                        <img src="<?php echo $app['icon']; ?>" style="width: 40px; height:40px; float:left;margin-right:10px;"/>  
+                                        <img src="<?php echo $app['icon']; ?>" style="width: 40px; height:40px; float:left;margin-right:10px;" alt="<?php echo htmlspecialchars($app['name'], ENT_QUOTES, 'UTF-8'); ?> App Icon"/>  
                                     </div>
                                     <div style="flex:1">
                                             <div style="color:white; font-size:12px;"><?php echo $app['name'] ?></div>

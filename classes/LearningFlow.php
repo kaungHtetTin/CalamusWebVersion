@@ -603,18 +603,18 @@ class LearningFlow {
         $languageId = (int)$languageId;
         $deckId = (int)$deckId;
         
-        // Check if user has any progress for this deck
-        $checkQuery = "SELECT COUNT(*) as count 
-                       FROM user_card_states ucs
-                       INNER JOIN cards c ON c.id = ucs.card_id
-                       WHERE ucs.user_id = $userId 
-                       AND c.deck_id = $deckId";
-        $checkResult = $this->db->read($checkQuery);
+        // // Check if user has any progress for this deck
+        // $checkQuery = "SELECT COUNT(*) as count 
+        //                FROM user_card_states ucs
+        //                INNER JOIN cards c ON c.id = ucs.card_id
+        //                WHERE ucs.user_id = $userId 
+        //                AND c.deck_id = $deckId";
+        // $checkResult = $this->db->read($checkQuery);
         
-        // If no progress, return null
-        if (empty($checkResult) || (int)$checkResult[0]['count'] == 0) {
-            return null;
-        }
+        // // If no progress, return null
+        // if (empty($checkResult) || (int)$checkResult[0]['count'] == 0) {
+        //     return null;
+        // }
         
         // Get current learning day for this deck
         $learningDayNumber = $this->getCurrentLearningDay($userId, $languageId, $deckId);

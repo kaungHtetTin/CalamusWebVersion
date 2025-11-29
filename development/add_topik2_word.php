@@ -28,7 +28,7 @@ if ($conn) {
 }
 
 $language_id = 1; // Korean language ID
-$deck_id = 2; // TOPIK 2 deck ID
+$deck_id = 3; // TOPIK 2 deck ID
 
 $successCount = 0;
 $errorCount = 0;

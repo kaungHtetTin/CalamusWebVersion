@@ -12,7 +12,7 @@ include('../classes/connect.php');
 mb_internal_encoding('UTF-8');
 header('Content-Type: text/html; charset=UTF-8');
 
-$json = file_get_contents('korean_topik_2.json');
+$json = file_get_contents('topik2_plus.json');
 $data = json_decode($json, true);
 
 if (!$data) {

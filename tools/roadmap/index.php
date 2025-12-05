@@ -1,18 +1,24 @@
 <?php
 session_start();
 
-require_once __DIR__ . '/../classes/connect.php';
-require_once __DIR__ . '/../classes/auth.php';
+require_once __DIR__ . '/../../classes/connect.php';
+require_once __DIR__ . '/../../classes/auth.php';
 
 // Require login
 if (!isset($_SESSION['calamus_userid'])) {
-    header('Location: ../login.php');
-    exit;
+
+    if( isset($_GET['userid'])) {
+        $userId = (int) $_GET['userid'];
+    }else{
+        header('Location: ../../login.php');
+        die;
+    }
+}else{
+  $userId = (int) $_SESSION['calamus_userid'];
 }
 
 $major = isset($_GET['major']) ? strtolower((string) $_GET['major']) : 'english';
 
-$userId = (int) $_SESSION['calamus_userid'];
 $db = new Database();
 
 // Load roadmap definitions for this major
@@ -159,7 +165,7 @@ function h($str)
             </div>
 
             <div class="roadmap-actions" style="flex: 0 0 auto; text-align: right;">
-              <a class="roadmap-button" href="checklist.php?id=<?php echo urlencode($rm['id']); ?>">
+              <a class="roadmap-button" href="checklist.php?id=<?php echo urlencode($rm['id']); ?>&userid=<?php echo urlencode($userId); ?>">
                 Open checklist
                 <span>→</span>
               </a>

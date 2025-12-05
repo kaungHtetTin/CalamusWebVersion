@@ -1,16 +1,16 @@
 <?php
 session_start();
 
-require_once __DIR__ . '/../classes/connect.php';
-require_once __DIR__ . '/../classes/auth.php';
+require_once __DIR__ . '/../../classes/connect.php';
+require_once __DIR__ . '/../../classes/auth.php';
 
 // Require login to track per-user roadmap progress
 if (!isset($_SESSION['calamus_userid'])) {
 
-    if( isset($_GET['user_id'])) {
-        $userId = (int) $_GET['user_id'];
+    if( isset($_GET['userid'])) {
+        $userId = (int) $_GET['userid'];
     }else{
-        header('Location: ../login.php');
+        header('Location: ../../login.php');
         die;
     }
 }else{

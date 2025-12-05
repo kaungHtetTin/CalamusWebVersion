@@ -1,0 +1,209 @@
+{
+  "title": "A1 English Learning Roadmap",
+  "subtitle": "CEFR A1 (Beginner) \u2013 Grammar, Vocabulary & Functional Skills Checklist",
+  "sections": [
+    {
+      "id": "grammar",
+      "title": "1. Grammar Checklist",
+      "subsections": [
+        {
+          "id": "basics",
+          "title": "1.1 The Basics",
+          "items": [
+            {
+              "id": "verb_to_be",
+              "label": "Verb \"to be\" \u2013 Present (forms and basic use)",
+              "children": [
+                { "id": "verb_to_be_positive", "label": "Positive: I am, you are, he/she/it is, we are, they are" },
+                { "id": "verb_to_be_negative", "label": "Negative: I am not, he isn't, they aren't" },
+                { "id": "verb_to_be_questions", "label": "Questions: Am I\u2026? Is he\u2026? Are they\u2026?" },
+                { "id": "verb_to_be_short_answers", "label": "Short answers: Yes, I am. / No, he isn\u2019t." }
+              ]
+            },
+            {
+              "id": "subject_pronouns",
+              "label": "Subject pronouns (I, you, he, she, it, we, they)"
+            },
+            {
+              "id": "object_pronouns",
+              "label": "Object pronouns (me, you, him, her, it, us, them)"
+            },
+            {
+              "id": "possessive_adjectives",
+              "label": "Possessive adjectives (my, your, his, her, its, our, their)"
+            },
+            {
+              "id": "demonstratives",
+              "label": "Demonstratives (this, that, these, those)"
+            }
+          ]
+        },
+        {
+          "id": "nouns_articles",
+          "title": "1.2 Nouns & Articles",
+          "items": [
+            { "id": "articles_basic", "label": "Articles \u2013 a, an, the" },
+            { "id": "zero_article", "label": "Zero article \u2013 when no article is used" },
+            { "id": "plural_regular", "label": "Plural nouns \u2013 regular (-s, -es, -ies)" },
+            { "id": "plural_irregular", "label": "Plural nouns \u2013 common irregular (man/men, woman/women, etc.)" },
+            { "id": "countable_uncountable", "label": "Countable vs. uncountable nouns \u2013 basic understanding" },
+            { "id": "quantifiers_some_any", "label": "Quantifiers \u2013 some / any" },
+            { "id": "quantifiers_much_many", "label": "Quantifiers \u2013 much / many" },
+            { "id": "quantifiers_a_lot_of", "label": "Quantifiers \u2013 a lot of" }
+          ]
+        },
+        {
+          "id": "present_tenses",
+          "title": "1.3 Present Tenses",
+          "items": [
+            { "id": "present_simple_uses", "label": "Present Simple \u2013 uses (habits, routines, facts)" },
+            { "id": "present_simple_3rd_person", "label": "Present Simple \u2013 3rd person singular spelling (-s, -es)" },
+            { "id": "present_simple_do_does", "label": "Present Simple \u2013 auxiliary verbs do / does (questions & negatives)" },
+            { "id": "adverbs_frequency_list", "label": "Adverbs of frequency (always, usually, often, sometimes, hardly ever, never)" },
+            { "id": "adverbs_frequency_position", "label": "Adverbs of frequency \u2013 position in the sentence" },
+            { "id": "present_continuous_use", "label": "Present Continuous \u2013 use (actions happening now / around now)" },
+            { "id": "present_continuous_structure", "label": "Present Continuous \u2013 structure (be + verb-ing)" },
+            { "id": "present_continuous_spelling", "label": "Present Continuous \u2013 spelling rules for -ing" }
+          ]
+        },
+        {
+          "id": "past_tense",
+          "title": "1.4 Past Tense",
+          "items": [
+            { "id": "past_be", "label": "Past Simple \u2013 verb \"to be\" (was / were)" },
+            { "id": "past_regular_positive", "label": "Past Simple \u2013 regular verbs (positive: -ed)" },
+            { "id": "past_regular_negative", "label": "Past Simple \u2013 regular verbs (negative: didn\u2019t + base form)" },
+            { "id": "past_regular_questions", "label": "Past Simple \u2013 regular verbs (questions: Did + subject + base form?)" },
+            { "id": "past_ed_pronunciation", "label": "Past Simple \u2013 pronunciation of -ed (/t/, /d/, /\u026ad/)" },
+            {
+              "id": "past_irregular_core",
+              "label": "Past Simple \u2013 common irregular verbs",
+              "children": [
+                { "id": "past_irregular_go", "label": "go \u2192 went" },
+                { "id": "past_irregular_have", "label": "have \u2192 had" },
+                { "id": "past_irregular_do", "label": "do \u2192 did" },
+                { "id": "past_irregular_get", "label": "get \u2192 got" },
+                { "id": "past_irregular_eat", "label": "eat \u2192 ate" },
+                { "id": "past_irregular_see", "label": "see \u2192 saw" },
+                { "id": "past_irregular_buy", "label": "buy \u2192 bought" },
+                { "id": "past_irregular_come", "label": "come \u2192 came" },
+                { "id": "past_irregular_make", "label": "make \u2192 made" },
+                { "id": "past_irregular_say", "label": "say \u2192 said" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "future_modals",
+          "title": "1.5 Future & Modals",
+          "items": [
+            { "id": "going_to_future", "label": "\u201cGoing to\u201d future \u2013 use (plans and intentions)" },
+            { "id": "can_ability", "label": "Can / can\u2019t \u2013 ability" },
+            { "id": "can_possibility", "label": "Can / can\u2019t \u2013 possibility" },
+            { "id": "can_permission", "label": "Can / can\u2019t \u2013 asking for permission" }
+          ]
+        },
+        {
+          "id": "other_structures",
+          "title": "1.6 Other Key Structures",
+          "items": [
+            { "id": "imperatives", "label": "Imperatives \u2013 instructions and commands (Open the door. Don\u2019t sit there.)" },
+            { "id": "there_is_are", "label": "There is / there are \u2013 positive, negative, questions" },
+            { "id": "there_was_were", "label": "There was / there were \u2013 simple past forms" },
+            { "id": "question_words", "label": "Question words \u2013 who, what, where, when, why, how, how much, how many" },
+            { "id": "prepositions_place", "label": "Prepositions of place \u2013 in, on, at, under, behind, next to, in front of, between" },
+            { "id": "prepositions_time", "label": "Prepositions of time \u2013 in (months/years), on (days), at (clock time)" },
+            { "id": "linkers", "label": "Linkers / conjunctions \u2013 and, but, or, because" },
+            { "id": "verb_patterns_ing", "label": "Verb patterns \u2013 like / love / hate + -ing (I like swimming.)" },
+            { "id": "verb_patterns_to_inf", "label": "Verb patterns \u2013 want / would like + to + infinitive (I want to go.)" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vocabulary",
+      "title": "2. Vocabulary Checklist",
+      "subsections": [
+        {
+          "id": "personal_details",
+          "title": "2.1 Personal Details",
+          "items": [
+            { "id": "numbers", "label": "Numbers: 1\u2013100 and 1000+" },
+            { "id": "ordinal_numbers", "label": "Ordinal numbers: 1st, 2nd, 3rd, etc. (for dates)" },
+            { "id": "countries_nationalities", "label": "Countries and nationalities" },
+            { "id": "family_members", "label": "Family members (mother, father, uncle, cousin, etc.)" },
+            { "id": "jobs", "label": "Jobs and occupations" },
+            { "id": "colors", "label": "Colors" }
+          ]
+        },
+        {
+          "id": "time_calendar",
+          "title": "2.2 Time & Calendar",
+          "items": [
+            { "id": "days_of_week", "label": "Days of the week" },
+            { "id": "months", "label": "Months of the year" },
+            { "id": "seasons", "label": "Seasons" },
+            { "id": "telling_time", "label": "Telling the time (o'clock, half past, quarter to/past)" }
+          ]
+        },
+        {
+          "id": "daily_life",
+          "title": "2.3 Daily Life",
+          "items": [
+            { "id": "daily_routine_verbs", "label": "Daily routine verbs (wake up, get dressed, have breakfast, go to work/school)" },
+            { "id": "common_verbs", "label": "Common verbs (have, go, do, make, work, study, live, like, play, watch, listen)" },
+            { "id": "food_drink", "label": "Food & drink (meals, vegetables, fruits, ordering drinks)" },
+            { "id": "clothes_accessories", "label": "Clothes & accessories" }
+          ]
+        },
+        {
+          "id": "world_around_you",
+          "title": "2.4 The World Around You",
+          "items": [
+            { "id": "house_rooms", "label": "The house \u2013 rooms (kitchen, bathroom, bedroom, etc.)" },
+            { "id": "house_furniture", "label": "The house \u2013 furniture (table, chair, bed, etc.)" },
+            { "id": "places_in_town", "label": "Places in a town (bank, supermarket, station, café, park, hospital)" },
+            { "id": "transport", "label": "Transport (car, bus, train, plane, taxi, bicycle)" },
+            { "id": "weather", "label": "Weather (sunny, rainy, cloudy, windy, hot, cold, snowing)" },
+            { "id": "body", "label": "The body (head, hand, leg, face, eye, ear, mouth)" }
+          ]
+        },
+        {
+          "id": "describing",
+          "title": "2.5 Describing Things & People",
+          "items": [
+            { "id": "common_adjectives", "label": "Common adjectives" },
+            { "id": "opposites", "label": "Opposites \u2013 big/small, old/new, hot/cold, good/bad, expensive/cheap, fast/slow" },
+            { "id": "feelings", "label": "Feelings \u2013 happy, sad, tired, hungry, thirsty, bored, excited" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "functional",
+      "title": "3. Functional Topics Checklist",
+      "note": "These are everyday situations you should be able to handle at A1 level.",
+      "subsections": [
+        {
+          "id": "functional_topics",
+          "title": "",
+          "items": [
+            { "id": "introductions", "label": "Introductions \u2013 greeting people, introducing yourself and others" },
+            { "id": "personal_information", "label": "Personal information \u2013 ask/answer about name, age, job, origin, address" },
+            { "id": "family_topic", "label": "Family \u2013 describe your family members" },
+            { "id": "daily_routine_topic", "label": "Daily routine \u2013 describe what you do every day" },
+            { "id": "shopping", "label": "Shopping \u2013 ask for things, ask prices, try on clothes" },
+            { "id": "restaurant", "label": "Restaurant \u2013 order food and drinks, ask for the bill" },
+            { "id": "directions", "label": "Directions \u2013 ask for and give simple directions (go straight, turn left/right)" },
+            { "id": "house_topic", "label": "House \u2013 describe your home or apartment" },
+            { "id": "likes_dislikes", "label": "Likes & dislikes \u2013 talk about hobbies, food, interests" },
+            { "id": "past_events", "label": "Past events \u2013 talk about what you did yesterday or last weekend" },
+            { "id": "future_plans", "label": "Future plans \u2013 talk about what you are going to do next week" },
+            { "id": "weather_topic", "label": "Weather \u2013 talk about the current weather" },
+            { "id": "health", "label": "Health \u2013 say how you feel (illness, pain: I have a headache, I feel sick)" }
+          ]
+        }
+      ]
+    }
+  ]
+}

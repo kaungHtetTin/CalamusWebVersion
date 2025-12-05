@@ -268,7 +268,7 @@ function is_checked($itemId, $checkedIds) {
         <p class="subtitle"><?php echo h($checklistData['subtitle']); ?></p>
       <?php endif; ?>
 
-      <form id="a1-form" method="post" action="checklist.php?id=<?php echo h($id); ?>">
+      <form id="a1-form" method="post" action="checklist.php?id=<?php echo h($id); ?>&userid=<?php echo h($userId); ?>">
         <?php foreach ($checklistData['sections'] as $section): ?>
           <section>
             <h2><?php echo h($section['title'] ?? ''); ?></h2>
@@ -324,6 +324,7 @@ function is_checked($itemId, $checkedIds) {
             <?php endif; ?>
           </section>
         <?php endforeach; ?>
+        <input type="hidden" name="userid" value="<?php echo h($userId); ?>">
       </form>
 
       <!-- Floating Update Button -->

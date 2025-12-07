@@ -195,7 +195,7 @@ function formatFileSize($bytes) {
     <?php if ($books && !empty($books)): ?>
       <div class="books-list">
         <?php foreach ($books as $book): ?>
-          <a href="download.php?id=<?php echo $book['id']; ?>&major=<?php echo urlencode($major); ?>" class="book-card">
+          <a href="https://www.calamuseducation.com/<?php echo h($book['pdf_file']); ?>" class="book-card">
             <div class="book-cover">
               <?php if (!empty($book['cover_image']) && file_exists('../../' . $book['cover_image'])): ?>
                 <img src="../../<?php echo h($book['cover_image']); ?>" alt="<?php echo h($book['title']); ?>" />

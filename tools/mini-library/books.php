@@ -95,38 +95,44 @@ function formatFileSize($bytes) {
       color: #666;
     }
 
-    .books-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 20px;
+    .books-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
     .book-card {
       background: #fff;
-      border-radius: 8px;
-      overflow: hidden;
+      border-radius: 6px;
       border: 1px solid #e0e0e0;
       transition: all 0.2s ease;
       cursor: pointer;
       text-decoration: none;
       color: inherit;
-      display: block;
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      gap: 10px;
     }
 
     .book-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateX(4px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-color: #4a90e2;
     }
 
     .book-cover {
-      width: 100%;
-      height: 240px;
+      width: 50px;
+      height: 65px;
+      min-width: 50px;
       background: #f0f0f0;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
       overflow: hidden;
+      border-radius: 3px;
+      flex-shrink: 0;
     }
 
     .book-cover img {
@@ -136,19 +142,21 @@ function formatFileSize($bytes) {
     }
 
     .book-cover .pdf-icon {
-      font-size: 64px;
+      font-size: 24px;
       color: #d32f2f;
     }
 
     .book-info {
-      padding: 12px;
+      flex: 1;
+      min-width: 0;
+      padding: 0;
     }
 
     .book-title {
       font-size: 14px;
       font-weight: 600;
       color: #333;
-      line-height: 1.4;
+      line-height: 1.3;
       margin-bottom: 4px;
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -185,7 +193,7 @@ function formatFileSize($bytes) {
     </div>
 
     <?php if ($books && !empty($books)): ?>
-      <div class="books-grid">
+      <div class="books-list">
         <?php foreach ($books as $book): ?>
           <a href="download.php?id=<?php echo $book['id']; ?>&major=<?php echo urlencode($major); ?>" class="book-card">
             <div class="book-cover">

@@ -45,8 +45,27 @@ if ($method === 'GET') {
     $userId = isset($_GET['user_id']) ? (int) $_GET['user_id'] : 0;
     
     if ($conversationId > 0) {
-        // Get single conversation by ID
-        $query = "SELECT * FROM conversations WHERE id = $conversationId LIMIT 1";
+        // Get single conversation by ID with friend profile
+        // user_id is required to determine which user is the "friend"
+        if ($userId <= 0) {
+            sendResponse(false, null, 'user_id is required when fetching conversation by id');
+        }
+        
+        $query = "SELECT c.*,
+                  CASE 
+                      WHEN c.user1_id = $userId THEN c.user2_id 
+                      ELSE c.user1_id 
+                  END as other_user_id,
+                  l.learner_phone as friend_phone,
+                  l.learner_name as friend_name,
+                  l.learner_image as friend_image
+                  FROM conversations c
+                  LEFT JOIN learners l ON (
+                      (c.user1_id = $userId AND l.learner_phone = c.user2_id) OR
+                      (c.user2_id = $userId AND l.learner_phone = c.user1_id)
+                  )
+                  WHERE c.id = $conversationId LIMIT 1";
+        
         $conversation = $db->read($query);
         
         if ($conversation === false) {
@@ -57,19 +76,40 @@ if ($method === 'GET') {
             sendResponse(false, null, 'Conversation not found');
         }
         
-        sendResponse(true, $conversation[0]);
+        // Format friend profile data
+        $conv = $conversation[0];
+        $friendProfile = null;
+        if (!empty($conv['friend_phone'])) {
+            $friendProfile = [
+                'phone' => $conv['friend_phone'],
+                'name' => $conv['friend_name'],
+                'image' => $conv['friend_image']
+            ];
+            // Remove individual friend fields from main object
+            unset($conv['friend_phone'], $conv['friend_name'], $conv['friend_image']);
+        }
+        $conv['friend'] = $friendProfile;
+        
+        sendResponse(true, $conv);
         
     } elseif ($userId > 0) {
-        // Get all conversations where user is either user1 or user2
+        // Get all conversations where user is either user1 or user2 with friend profiles
         $query = "SELECT c.*, 
                   CASE 
                       WHEN c.user1_id = $userId THEN c.user2_id 
                       ELSE c.user1_id 
                   END as other_user_id,
+                  l.learner_phone as friend_phone,
+                  l.learner_name as friend_name,
+                  l.learner_image as friend_image,
                   (SELECT COUNT(*) FROM messages m WHERE m.conversation_id = c.id AND m.sender_id != $userId AND m.is_read = 0) as unread_count,
                   (SELECT message_text FROM messages m WHERE m.conversation_id = c.id ORDER BY m.created_at DESC LIMIT 1) as last_message_text,
                   (SELECT message_type FROM messages m WHERE m.conversation_id = c.id ORDER BY m.created_at DESC LIMIT 1) as last_message_type
                   FROM conversations c 
+                  LEFT JOIN learners l ON (
+                      (c.user1_id = $userId AND l.learner_phone = c.user2_id) OR
+                      (c.user2_id = $userId AND l.learner_phone = c.user1_id)
+                  )
                   WHERE c.user1_id = $userId OR c.user2_id = $userId 
                   ORDER BY c.last_message_at DESC, c.created_at DESC";
         
@@ -77,6 +117,24 @@ if ($method === 'GET') {
         
         if ($conversations === false) {
             sendResponse(false, null, 'Failed to fetch conversations');
+        }
+        
+        // Format friend profile data for each conversation
+        if ($conversations) {
+            foreach ($conversations as &$conv) {
+                $friendProfile = null;
+                if (!empty($conv['friend_phone'])) {
+                    $friendProfile = [
+                        'phone' => $conv['friend_phone'],
+                        'name' => $conv['friend_name'],
+                        'image' => $conv['friend_image']
+                    ];
+                    // Remove individual friend fields from main object
+                    unset($conv['friend_phone'], $conv['friend_name'], $conv['friend_image']);
+                }
+                $conv['friend'] = $friendProfile;
+            }
+            unset($conv); // Break reference
         }
         
         sendResponse(true, $conversations ? $conversations : []);

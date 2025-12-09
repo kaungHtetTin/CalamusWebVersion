@@ -23,6 +23,28 @@ function sanitize($value) {
     return htmlspecialchars(strip_tags(trim($value)));
 }
 
+// Helper function to convert MySQL datetime to Unix timestamp (milliseconds)
+function datetimeToTimestamp($datetime) {
+    if (empty($datetime) || $datetime === null) {
+        return null;
+    }
+    // Convert MySQL datetime to Unix timestamp (seconds) then to milliseconds
+    $timestamp = strtotime($datetime);
+    return $timestamp !== false ? $timestamp * 1000 : null;
+}
+
+// Helper function to convert timestamp fields in array
+function convertTimestamps($data, $fields = ['created_at']) {
+    if (is_array($data)) {
+        foreach ($fields as $field) {
+            if (isset($data[$field])) {
+                $data[$field] = datetimeToTimestamp($data[$field]);
+            }
+        }
+    }
+    return $data;
+}
+
 // Parse input for PUT/DELETE methods
 function parseInput() {
     $input = file_get_contents('php://input');
@@ -43,12 +65,20 @@ if ($method === 'GET') {
     // Get single message by ID or list messages for a conversation
     $messageId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
     $conversationId = isset($_GET['conversation_id']) ? (int) $_GET['conversation_id'] : 0;
+    $major = isset($_GET['major']) ? sanitize($_GET['major']) : '';
     $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 50;
     $offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
     
     if ($messageId > 0) {
         // Get single message by ID
-        $query = "SELECT * FROM messages WHERE id = $messageId LIMIT 1";
+        if (empty($major)) {
+            sendResponse(false, null, 'major is required');
+        }
+        
+        $conn = $db->connect();
+        $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
+        
+        $query = "SELECT * FROM messages WHERE id = $messageId AND major = $majorEscaped LIMIT 1";
         $message = $db->read($query);
         
         if ($message === false) {
@@ -59,16 +89,24 @@ if ($method === 'GET') {
             sendResponse(false, null, 'Message not found');
         }
         
-        sendResponse(true, $message[0]);
+        $msg = convertTimestamps($message[0]);
+        sendResponse(true, $msg);
         
     } elseif ($conversationId > 0) {
         // Get messages for a conversation
+        if (empty($major)) {
+            sendResponse(false, null, 'major is required');
+        }
+        
         // Validate limit
         if ($limit > 100) $limit = 100;
         if ($limit < 1) $limit = 50;
         
+        $conn = $db->connect();
+        $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
+        
         $query = "SELECT * FROM messages 
-                  WHERE conversation_id = $conversationId 
+                  WHERE conversation_id = $conversationId AND major = $majorEscaped
                   ORDER BY created_at ASC 
                   LIMIT $limit OFFSET $offset";
         
@@ -76,6 +114,14 @@ if ($method === 'GET') {
         
         if ($messages === false) {
             sendResponse(false, null, 'Failed to fetch messages');
+        }
+        
+        // Convert timestamps for all messages
+        if ($messages) {
+            foreach ($messages as &$msg) {
+                $msg = convertTimestamps($msg);
+            }
+            unset($msg); // Break reference
         }
         
         sendResponse(true, $messages ? $messages : []);
@@ -88,6 +134,7 @@ if ($method === 'GET') {
     // Send a message
     $conversationId = isset($_POST['conversation_id']) ? (int) $_POST['conversation_id'] : 0;
     $senderId = isset($_POST['sender_id']) ? (int) $_POST['sender_id'] : 0;
+    $major = isset($_POST['major']) ? sanitize($_POST['major']) : '';
     $messageType = isset($_POST['message_type']) ? sanitize($_POST['message_type']) : 'text';
     $messageText = isset($_POST['message_text']) ? sanitize($_POST['message_text']) : null;
     $filePath = isset($_POST['file_path']) ? sanitize($_POST['file_path']) : null;
@@ -102,6 +149,10 @@ if ($method === 'GET') {
         sendResponse(false, null, 'conversation_id and sender_id are required');
     }
     
+    if (empty($major)) {
+        sendResponse(false, null, 'major is required');
+    }
+    
     // Validate message content based on type
     if ($messageType === 'text') {
         if (empty($messageText)) {
@@ -113,8 +164,11 @@ if ($method === 'GET') {
         }
     }
     
-    // Verify conversation exists
-    $convQuery = "SELECT * FROM conversations WHERE id = $conversationId LIMIT 1";
+    $conn = $db->connect();
+    $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
+    
+    // Verify conversation exists (with matching major)
+    $convQuery = "SELECT * FROM conversations WHERE id = $conversationId AND major = $majorEscaped LIMIT 1";
     $conversation = $db->read($convQuery);
     
     if (!$conversation || empty($conversation)) {
@@ -128,15 +182,14 @@ if ($method === 'GET') {
     }
     
     // Escape strings for SQL
-    $conn = $db->connect();
     $messageTextEscaped = $messageText ? "'" . mysqli_real_escape_string($conn, $messageText) . "'" : "NULL";
     $filePathEscaped = $filePath ? "'" . mysqli_real_escape_string($conn, $filePath) . "'" : "NULL";
     $fileSizeEscaped = $fileSize ? $fileSize : "NULL";
     $messageTypeEscaped = "'" . mysqli_real_escape_string($conn, $messageType) . "'";
     
-    // Insert message
-    $insertQuery = "INSERT INTO messages (conversation_id, sender_id, message_type, message_text, file_path, file_size) 
-                    VALUES ($conversationId, $senderId, $messageTypeEscaped, $messageTextEscaped, $filePathEscaped, $fileSizeEscaped)";
+    // Insert message (with major from conversation)
+    $insertQuery = "INSERT INTO messages (conversation_id, sender_id, major, message_type, message_text, file_path, file_size) 
+                    VALUES ($conversationId, $senderId, $majorEscaped, $messageTypeEscaped, $messageTextEscaped, $filePathEscaped, $fileSizeEscaped)";
     
     $result = $db->save($insertQuery);
     
@@ -145,15 +198,16 @@ if ($method === 'GET') {
     }
     
     // Update conversation's last_message_at
-    $updateQuery = "UPDATE conversations SET last_message_at = NOW() WHERE id = $conversationId";
+    $updateQuery = "UPDATE conversations SET last_message_at = NOW() WHERE id = $conversationId AND major = $majorEscaped";
     $db->save($updateQuery);
     
     // Get the created message
-    $messageQuery = "SELECT * FROM messages WHERE conversation_id = $conversationId ORDER BY id DESC LIMIT 1";
+    $messageQuery = "SELECT * FROM messages WHERE conversation_id = $conversationId AND major = $majorEscaped ORDER BY id DESC LIMIT 1";
     $newMessage = $db->read($messageQuery);
     
     if ($newMessage && !empty($newMessage)) {
-        sendResponse(true, $newMessage[0]);
+        $msg = convertTimestamps($newMessage[0]);
+        sendResponse(true, $msg);
     } else {
         sendResponse(false, null, 'Message sent but failed to retrieve');
     }
@@ -162,13 +216,21 @@ if ($method === 'GET') {
     // Update message
     $input = parseInput();
     $messageId = isset($input['id']) ? (int) $input['id'] : 0;
+    $major = isset($input['major']) ? sanitize($input['major']) : '';
     
     if ($messageId <= 0) {
         sendResponse(false, null, 'id is required');
     }
     
-    // Check if message exists
-    $checkQuery = "SELECT * FROM messages WHERE id = $messageId LIMIT 1";
+    if (empty($major)) {
+        sendResponse(false, null, 'major is required');
+    }
+    
+    $conn = $db->connect();
+    $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
+    
+    // Check if message exists (with matching major)
+    $checkQuery = "SELECT * FROM messages WHERE id = $messageId AND major = $majorEscaped LIMIT 1";
     $existing = $db->read($checkQuery);
     
     if (!$existing || empty($existing)) {
@@ -211,7 +273,7 @@ if ($method === 'GET') {
         sendResponse(false, null, 'No valid fields to update');
     }
     
-    $updateQuery = "UPDATE messages SET " . implode(', ', $updates) . " WHERE id = $messageId";
+    $updateQuery = "UPDATE messages SET " . implode(', ', $updates) . " WHERE id = $messageId AND major = $majorEscaped";
     $result = $db->save($updateQuery);
     
     if (!$result) {
@@ -221,7 +283,8 @@ if ($method === 'GET') {
     // Get updated message
     $updated = $db->read($checkQuery);
     if ($updated && !empty($updated)) {
-        sendResponse(true, $updated[0]);
+        $msg = convertTimestamps($updated[0]);
+        sendResponse(true, $msg);
     } else {
         sendResponse(false, null, 'Message updated but failed to retrieve');
     }
@@ -230,13 +293,21 @@ if ($method === 'GET') {
     // Delete message
     $input = parseInput();
     $messageId = isset($input['id']) ? (int) $input['id'] : (isset($_GET['id']) ? (int) $_GET['id'] : 0);
+    $major = isset($input['major']) ? sanitize($input['major']) : (isset($_GET['major']) ? sanitize($_GET['major']) : '');
     
     if ($messageId <= 0) {
         sendResponse(false, null, 'id is required');
     }
     
-    // Check if message exists
-    $checkQuery = "SELECT * FROM messages WHERE id = $messageId LIMIT 1";
+    if (empty($major)) {
+        sendResponse(false, null, 'major is required');
+    }
+    
+    $conn = $db->connect();
+    $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
+    
+    // Check if message exists (with matching major)
+    $checkQuery = "SELECT * FROM messages WHERE id = $messageId AND major = $majorEscaped LIMIT 1";
     $existing = $db->read($checkQuery);
     
     if (!$existing || empty($existing)) {
@@ -254,7 +325,7 @@ if ($method === 'GET') {
     }
     
     // Delete message
-    $deleteQuery = "DELETE FROM messages WHERE id = $messageId";
+    $deleteQuery = "DELETE FROM messages WHERE id = $messageId AND major = $majorEscaped";
     $result = $db->save($deleteQuery);
     
     if (!$result) {

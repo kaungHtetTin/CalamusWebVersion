@@ -18,15 +18,28 @@ function sendResponse($success, $data = null, $error = null) {
     exit;
 }
 
+// Helper function to sanitize input
+function sanitize($value) {
+    return htmlspecialchars(strip_tags(trim($value)));
+}
+
 if ($method === 'POST') {
     // Mark message(s) as read
     $messageId = isset($_POST['message_id']) ? (int) $_POST['message_id'] : 0;
     $conversationId = isset($_POST['conversation_id']) ? (int) $_POST['conversation_id'] : 0;
     $userId = isset($_POST['user_id']) ? (int) $_POST['user_id'] : 0;
+    $major = isset($_POST['major']) ? sanitize($_POST['major']) : '';
+    
+    if (empty($major)) {
+        sendResponse(false, null, 'major is required');
+    }
+    
+    $conn = $db->connect();
+    $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
     
     if ($messageId > 0) {
         // Mark single message as read
-        $query = "UPDATE messages SET is_read = 1 WHERE id = $messageId";
+        $query = "UPDATE messages SET is_read = 1 WHERE id = $messageId AND major = $majorEscaped";
         $result = $db->save($query);
         
         if (!$result) {
@@ -40,6 +53,7 @@ if ($method === 'POST') {
         $query = "UPDATE messages SET is_read = 1 
                   WHERE conversation_id = $conversationId 
                   AND sender_id != $userId 
+                  AND major = $majorEscaped
                   AND is_read = 0";
         $result = $db->save($query);
         
@@ -51,6 +65,7 @@ if ($method === 'POST') {
         $countQuery = "SELECT COUNT(*) as count FROM messages 
                        WHERE conversation_id = $conversationId 
                        AND sender_id != $userId 
+                       AND major = $majorEscaped
                        AND is_read = 1";
         $countResult = $db->read($countQuery);
         $count = $countResult && !empty($countResult) ? $countResult[0]['count'] : 0;

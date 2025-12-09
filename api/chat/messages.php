@@ -1,0 +1,271 @@
+<?php
+header('Content-Type: application/json');
+include('../../classes/connect.php');
+
+$db = new Database();
+$method = $_SERVER['REQUEST_METHOD'];
+
+// Helper function to send JSON response
+function sendResponse($success, $data = null, $error = null) {
+    $response = ['success' => $success];
+    if ($data !== null) {
+        $response['data'] = $data;
+    }
+    if ($error !== null) {
+        $response['error'] = $error;
+    }
+    echo json_encode($response);
+    exit;
+}
+
+// Helper function to sanitize input
+function sanitize($value) {
+    return htmlspecialchars(strip_tags(trim($value)));
+}
+
+// Parse input for PUT/DELETE methods
+function parseInput() {
+    $input = file_get_contents('php://input');
+    $contentType = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '';
+    
+    // Handle JSON input
+    if (strpos($contentType, 'application/json') !== false) {
+        $parsed = json_decode($input, true);
+        return $parsed ? array_merge($_POST, $parsed) : $_POST;
+    }
+    
+    // Handle form-urlencoded input
+    parse_str($input, $parsed);
+    return array_merge($_POST, $parsed);
+}
+
+if ($method === 'GET') {
+    // Get single message by ID or list messages for a conversation
+    $messageId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+    $conversationId = isset($_GET['conversation_id']) ? (int) $_GET['conversation_id'] : 0;
+    $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 50;
+    $offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
+    
+    if ($messageId > 0) {
+        // Get single message by ID
+        $query = "SELECT * FROM messages WHERE id = $messageId LIMIT 1";
+        $message = $db->read($query);
+        
+        if ($message === false) {
+            sendResponse(false, null, 'Failed to fetch message');
+        }
+        
+        if (!$message || empty($message)) {
+            sendResponse(false, null, 'Message not found');
+        }
+        
+        sendResponse(true, $message[0]);
+        
+    } elseif ($conversationId > 0) {
+        // Get messages for a conversation
+        // Validate limit
+        if ($limit > 100) $limit = 100;
+        if ($limit < 1) $limit = 50;
+        
+        $query = "SELECT * FROM messages 
+                  WHERE conversation_id = $conversationId 
+                  ORDER BY created_at ASC 
+                  LIMIT $limit OFFSET $offset";
+        
+        $messages = $db->read($query);
+        
+        if ($messages === false) {
+            sendResponse(false, null, 'Failed to fetch messages');
+        }
+        
+        sendResponse(true, $messages ? $messages : []);
+        
+    } else {
+        sendResponse(false, null, 'Either id or conversation_id is required');
+    }
+    
+} elseif ($method === 'POST') {
+    // Send a message
+    $conversationId = isset($_POST['conversation_id']) ? (int) $_POST['conversation_id'] : 0;
+    $senderId = isset($_POST['sender_id']) ? (int) $_POST['sender_id'] : 0;
+    $messageType = isset($_POST['message_type']) ? sanitize($_POST['message_type']) : 'text';
+    $messageText = isset($_POST['message_text']) ? sanitize($_POST['message_text']) : null;
+    $filePath = isset($_POST['file_path']) ? sanitize($_POST['file_path']) : null;
+    $fileSize = isset($_POST['file_size']) ? (int) $_POST['file_size'] : null;
+    
+    // Validate message type
+    if (!in_array($messageType, ['text', 'voice', 'image'])) {
+        sendResponse(false, null, 'Invalid message_type. Must be: text, voice, or image');
+    }
+    
+    if ($conversationId <= 0 || $senderId <= 0) {
+        sendResponse(false, null, 'conversation_id and sender_id are required');
+    }
+    
+    // Validate message content based on type
+    if ($messageType === 'text') {
+        if (empty($messageText)) {
+            sendResponse(false, null, 'message_text is required for text messages');
+        }
+    } else {
+        if (empty($filePath)) {
+            sendResponse(false, null, 'file_path is required for voice and image messages');
+        }
+    }
+    
+    // Verify conversation exists
+    $convQuery = "SELECT * FROM conversations WHERE id = $conversationId LIMIT 1";
+    $conversation = $db->read($convQuery);
+    
+    if (!$conversation || empty($conversation)) {
+        sendResponse(false, null, 'Conversation not found');
+    }
+    
+    // Verify sender is part of the conversation
+    $conv = $conversation[0];
+    if ($conv['user1_id'] != $senderId && $conv['user2_id'] != $senderId) {
+        sendResponse(false, null, 'Sender is not part of this conversation');
+    }
+    
+    // Escape strings for SQL
+    $conn = $db->connect();
+    $messageTextEscaped = $messageText ? "'" . mysqli_real_escape_string($conn, $messageText) . "'" : "NULL";
+    $filePathEscaped = $filePath ? "'" . mysqli_real_escape_string($conn, $filePath) . "'" : "NULL";
+    $fileSizeEscaped = $fileSize ? $fileSize : "NULL";
+    $messageTypeEscaped = "'" . mysqli_real_escape_string($conn, $messageType) . "'";
+    
+    // Insert message
+    $insertQuery = "INSERT INTO messages (conversation_id, sender_id, message_type, message_text, file_path, file_size) 
+                    VALUES ($conversationId, $senderId, $messageTypeEscaped, $messageTextEscaped, $filePathEscaped, $fileSizeEscaped)";
+    
+    $result = $db->save($insertQuery);
+    
+    if (!$result) {
+        sendResponse(false, null, 'Failed to send message');
+    }
+    
+    // Update conversation's last_message_at
+    $updateQuery = "UPDATE conversations SET last_message_at = NOW() WHERE id = $conversationId";
+    $db->save($updateQuery);
+    
+    // Get the created message
+    $messageQuery = "SELECT * FROM messages WHERE conversation_id = $conversationId ORDER BY id DESC LIMIT 1";
+    $newMessage = $db->read($messageQuery);
+    
+    if ($newMessage && !empty($newMessage)) {
+        sendResponse(true, $newMessage[0]);
+    } else {
+        sendResponse(false, null, 'Message sent but failed to retrieve');
+    }
+    
+} elseif ($method === 'PUT' || $method === 'PATCH') {
+    // Update message
+    $input = parseInput();
+    $messageId = isset($input['id']) ? (int) $input['id'] : 0;
+    
+    if ($messageId <= 0) {
+        sendResponse(false, null, 'id is required');
+    }
+    
+    // Check if message exists
+    $checkQuery = "SELECT * FROM messages WHERE id = $messageId LIMIT 1";
+    $existing = $db->read($checkQuery);
+    
+    if (!$existing || empty($existing)) {
+        sendResponse(false, null, 'Message not found');
+    }
+    
+    $message = $existing[0];
+    $conn = $db->connect();
+    $updates = [];
+    
+    // Update message_text (only for text messages)
+    if (isset($input['message_text']) && $message['message_type'] === 'text') {
+        $messageText = sanitize($input['message_text']);
+        if (!empty($messageText)) {
+            $messageTextEscaped = "'" . mysqli_real_escape_string($conn, $messageText) . "'";
+            $updates[] = "message_text = $messageTextEscaped";
+        }
+    }
+    
+    // Update file_path (for voice/image messages)
+    if (isset($input['file_path']) && in_array($message['message_type'], ['voice', 'image'])) {
+        $filePath = sanitize($input['file_path']);
+        $filePathEscaped = "'" . mysqli_real_escape_string($conn, $filePath) . "'";
+        $updates[] = "file_path = $filePathEscaped";
+    }
+    
+    // Update file_size
+    if (isset($input['file_size'])) {
+        $fileSize = (int) $input['file_size'];
+        $updates[] = "file_size = $fileSize";
+    }
+    
+    // Update is_read status
+    if (isset($input['is_read'])) {
+        $isRead = (int) $input['is_read'];
+        $updates[] = "is_read = $isRead";
+    }
+    
+    if (empty($updates)) {
+        sendResponse(false, null, 'No valid fields to update');
+    }
+    
+    $updateQuery = "UPDATE messages SET " . implode(', ', $updates) . " WHERE id = $messageId";
+    $result = $db->save($updateQuery);
+    
+    if (!$result) {
+        sendResponse(false, null, 'Failed to update message');
+    }
+    
+    // Get updated message
+    $updated = $db->read($checkQuery);
+    if ($updated && !empty($updated)) {
+        sendResponse(true, $updated[0]);
+    } else {
+        sendResponse(false, null, 'Message updated but failed to retrieve');
+    }
+    
+} elseif ($method === 'DELETE') {
+    // Delete message
+    $input = parseInput();
+    $messageId = isset($input['id']) ? (int) $input['id'] : (isset($_GET['id']) ? (int) $_GET['id'] : 0);
+    
+    if ($messageId <= 0) {
+        sendResponse(false, null, 'id is required');
+    }
+    
+    // Check if message exists
+    $checkQuery = "SELECT * FROM messages WHERE id = $messageId LIMIT 1";
+    $existing = $db->read($checkQuery);
+    
+    if (!$existing || empty($existing)) {
+        sendResponse(false, null, 'Message not found');
+    }
+    
+    $message = $existing[0];
+    
+    // Delete associated file if it exists
+    if (!empty($message['file_path']) && in_array($message['message_type'], ['voice', 'image'])) {
+        $filePath = '../../' . $message['file_path'];
+        if (file_exists($filePath)) {
+            @unlink($filePath);
+        }
+    }
+    
+    // Delete message
+    $deleteQuery = "DELETE FROM messages WHERE id = $messageId";
+    $result = $db->save($deleteQuery);
+    
+    if (!$result) {
+        sendResponse(false, null, 'Failed to delete message');
+    }
+    
+    sendResponse(true, ['id' => $messageId, 'deleted' => true]);
+    
+} else {
+    sendResponse(false, null, 'Method not allowed');
+}
+
+?>
+

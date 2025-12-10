@@ -38,27 +38,6 @@ function getUserTableName($major) {
     return isset($tableMap[$major]) ? $tableMap[$major] : null;
 }
 
-// Helper function to get user phone from fcm_token and major
-function getUserPhoneFromToken($db, $fcmToken, $major) {
-    $tableName = getUserTableName($major);
-    if (!$tableName) {
-        return null;
-    }
-    
-    $conn = $db->connect();
-    $fcmTokenEscaped = "'" . mysqli_real_escape_string($conn, $fcmToken) . "'";
-    
-    // Query the appropriate user data table
-    $query = "SELECT phone FROM $tableName WHERE token = $fcmTokenEscaped LIMIT 1";
-    $result = $db->read($query);
-    
-    if ($result && !empty($result)) {
-        return (int) $result[0]['phone']; // Return phone as integer (user_id)
-    }
-    
-    return null;
-}
-
 // Helper function to get fcm_token from user phone and major
 function getFcmTokenFromPhone($db, $phone, $major) {
     $tableName = getUserTableName($major);
@@ -121,28 +100,21 @@ function parseInput() {
 if ($method === 'GET') {
     // Get single conversation by ID or list conversations for a user
     $conversationId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-    $fcmToken = isset($_GET['fcm_token']) ? sanitize($_GET['fcm_token']) : '';
+    $userId = isset($_GET['user_id']) ? (int) $_GET['user_id'] : 0;
     $major = isset($_GET['major']) ? sanitize($_GET['major']) : '';
     
-    // Validate required parameters
-    if (empty($major)) {
-        sendResponse(false, null, 'major is required');
-    }
-    
-    if (empty($fcmToken)) {
-        sendResponse(false, null, 'fcm_token is required');
-    }
-    
-    // Get user phone from fcm_token
-    $userId = getUserPhoneFromToken($db, $fcmToken, $major);
-    if ($userId === null) {
-        sendResponse(false, null, 'Invalid fcm_token or major');
-    }
-    
-    $conn = $db->connect();
-    $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
-    
     if ($conversationId > 0) {
+        // Get single conversation by ID with friend profile
+        if ($userId <= 0) {
+            sendResponse(false, null, 'user_id is required when fetching conversation by id');
+        }
+        
+        if (empty($major)) {
+            sendResponse(false, null, 'major is required');
+        }
+        
+        $conn = $db->connect();
+        $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
         // Get single conversation by ID with friend profile
         $query = "SELECT c.*,
                   CASE 
@@ -192,8 +164,15 @@ if ($method === 'GET') {
         
         sendResponse(true, $conv);
         
-    } else {
+    } elseif ($userId > 0) {
         // Get all conversations where user is either user1 or user2 with friend profiles
+        if (empty($major)) {
+            sendResponse(false, null, 'major is required');
+        }
+        
+        $conn = $db->connect();
+        $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
+        
         $query = "SELECT c.*, 
                   CASE 
                       WHEN c.user1_id = $userId THEN c.user2_id 
@@ -245,6 +224,9 @@ if ($method === 'GET') {
         }
         
         sendResponse(true, $conversations ? $conversations : []);
+        
+    } else {
+        sendResponse(false, null, 'Either id or user_id is required');
     }
     
 } elseif ($method === 'POST') {

@@ -116,6 +116,7 @@ if ($method === 'GET') {
         $query = "SELECT * FROM messages 
                   WHERE conversation_id = $conversationId AND major = $majorEscaped";
         
+        $needReverse = false;
         if ($beforeId > 0) {
             // Load older messages: messages before the specified ID
             // Order DESC to get most recent older messages first, then reverse for chronological display
@@ -131,12 +132,14 @@ if ($method === 'GET') {
         } else {
             // Initial load: get latest messages (most recent first)
             // Order DESC to get newest messages, then reverse for chronological display
-            $query .= " ORDER BY id ASC LIMIT $limit";
-      
+            $query .= " ORDER BY id DESC LIMIT $limit";
+            $needReverse = true;
         }
         
         $messages = $db->read($query);
-        
+        if($needReverse && $messages){
+            $messages = array_reverse($messages);
+        }
         if ($messages === false) {
             sendResponse(false, null, 'Failed to fetch messages');
         }

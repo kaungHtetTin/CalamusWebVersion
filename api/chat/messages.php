@@ -67,7 +67,7 @@ if ($method === 'GET') {
     $conversationId = isset($_GET['conversation_id']) ? (int) $_GET['conversation_id'] : 0;
     $major = isset($_GET['major']) ? sanitize($_GET['major']) : '';
     $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 50;
-    $offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
+    $oldestMessageId = isset($_GET['oldest_message_id']) ? (int) $_GET['oldest_message_id'] : 0;
     
     if ($messageId > 0) {
         // Get single message by ID
@@ -105,10 +105,17 @@ if ($method === 'GET') {
         $conn = $db->connect();
         $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
         
+        // Build query with cursor-based pagination using oldest_message_id
         $query = "SELECT * FROM messages 
-                  WHERE conversation_id = $conversationId AND major = $majorEscaped
-                  ORDER BY created_at ASC 
-                  LIMIT $limit OFFSET $offset";
+                  WHERE conversation_id = $conversationId AND major = $majorEscaped";
+        
+        // Add cursor condition if oldest_message_id is provided
+        if ($oldestMessageId > 0) {
+            $query .= " AND id > $oldestMessageId";
+        }
+        
+        $query .= " ORDER BY created_at ASC 
+                  LIMIT $limit";
         
         $messages = $db->read($query);
         

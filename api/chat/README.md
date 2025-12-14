@@ -157,15 +157,41 @@ Delete a conversation and all its messages (CASCADE).
 
 ### 1. GET - List Messages
 
-**Endpoint:** `messages.php?conversation_id={conversation_id}&limit={limit}&offset={offset}`
+**Endpoint:** `messages.php?conversation_id={conversation_id}&major={major}&limit={limit}&before_id={before_id}&after_id={after_id}`
 
-Get messages from a conversation.
+Get messages from a conversation using cursor-based pagination.
 
 **Parameters:**
 
 - `conversation_id` (required): Conversation ID
-- `limit` (optional): Number of messages (default: 50, max: 100)
-- `offset` (optional): Offset for pagination (default: 0)
+- `major` (required): Major field (e.g., 'ee', 'ek')
+- `limit` (optional): Number of messages per page (default: 50, max: 100)
+- `before_id` (optional): Message ID to load older messages (messages with id < before_id)
+- `after_id` (optional): Message ID to load newer messages (messages with id > after_id)
+
+**Pagination Usage:**
+
+1. **Initial Load**: No cursor parameters
+
+   ```
+   GET messages.php?conversation_id=1&major=ee&limit=50
+   ```
+
+   Returns the latest 50 messages (ordered chronologically, oldest first)
+
+2. **Load Older Messages** (scroll up): Use `before_id` with the oldest message ID you currently have
+
+   ```
+   GET messages.php?conversation_id=1&major=ee&limit=50&before_id=100
+   ```
+
+   Returns up to 50 messages older than message ID 100
+
+3. **Load Newer Messages** (poll for updates): Use `after_id` with the newest message ID you currently have
+   ```
+   GET messages.php?conversation_id=1&major=ee&limit=50&after_id=200
+   ```
+   Returns up to 50 messages newer than message ID 200
 
 **Response:**
 
@@ -182,11 +208,13 @@ Get messages from a conversation.
       "file_path": null,
       "file_size": null,
       "is_read": 0,
-      "created_at": "2024-01-15 10:30:00"
+      "created_at": 1705312200000
     }
   ]
 }
 ```
+
+**Note:** Messages are always returned in chronological order (oldest first). The `created_at` field is returned as a Unix timestamp in milliseconds.
 
 ### 2. GET - Get Single Message
 

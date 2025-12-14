@@ -105,32 +105,34 @@ if ($method === 'GET') {
         $conn = $db->connect();
         $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
         
-        // Get pagination parameters
-        $newestMessageId = isset($_GET['newest_message_id']) ? (int) $_GET['newest_message_id'] : 0;
-        $direction = isset($_GET['direction']) ? sanitize($_GET['direction']) : ''; // 'older' or 'newer'
+        // Simple cursor-based pagination
+        // before_id: Load older messages (messages with id < before_id)
+        // after_id: Load newer messages (messages with id > after_id)
+        // No cursor: Initial load - get latest messages
+        $beforeId = isset($_GET['before_id']) ? (int) $_GET['before_id'] : 0;
+        $afterId = isset($_GET['after_id']) ? (int) $_GET['after_id'] : 0;
         
-        // Build query with cursor-based pagination
+        // Build base query
         $query = "SELECT * FROM messages 
                   WHERE conversation_id = $conversationId AND major = $majorEscaped";
         
-        // Handle pagination based on parameters
-        if ($oldestMessageId > 0 && $direction === 'older') {
-            // Fetch older messages: id < oldest_message_id (messages before the oldest we have)
-            // Order by created_at DESC to get the most recent older messages first, then reverse for chronological order
-            $query .= " AND id < $oldestMessageId";
-            $query .= " ORDER BY created_at DESC LIMIT $limit";
-            $needReverse = true; // We'll reverse the order to return chronologically (oldest first)
-        } elseif ($newestMessageId > 0 || ($oldestMessageId > 0 && $direction !== 'older')) {
-            // Fetch newer messages: id > newest_message_id (or oldest_message_id for backward compatibility)
-            // Order by created_at ASC to get messages in chronological order
-            $cursorId = $newestMessageId > 0 ? $newestMessageId : $oldestMessageId;
-            $query .= " AND id > $cursorId";
-            $query .= " ORDER BY created_at ASC LIMIT $limit";
+        if ($beforeId > 0) {
+            // Load older messages: messages before the specified ID
+            // Order DESC to get most recent older messages first, then reverse for chronological display
+            $query .= " AND id < $beforeId";
+            $query .= " ORDER BY id DESC LIMIT $limit";
+            $needReverse = true;
+        } elseif ($afterId > 0) {
+            // Load newer messages: messages after the specified ID
+            // Order ASC for chronological order
+            $query .= " AND id > $afterId";
+            $query .= " ORDER BY id ASC LIMIT $limit";
             $needReverse = false;
         } else {
-            // Initial load: no cursor, get first messages in chronological order
-            $query .= " ORDER BY created_at ASC LIMIT $limit";
-            $needReverse = false;
+            // Initial load: get latest messages (most recent first)
+            // Order DESC to get newest messages, then reverse for chronological display
+            $query .= " ORDER BY id DESC LIMIT $limit";
+            $needReverse = true;
         }
         
         $messages = $db->read($query);
@@ -139,8 +141,9 @@ if ($method === 'GET') {
             sendResponse(false, null, 'Failed to fetch messages');
         }
         
-        // Reverse order if needed (for older messages, we fetched DESC but want to return ASC)
-        if (isset($needReverse) && $needReverse && $messages) {
+        // Reverse to return messages in chronological order (oldest first)
+        // This is standard for chat apps - display oldest at top, newest at bottom
+        if ($needReverse && $messages) {
             $messages = array_reverse($messages);
         }
         

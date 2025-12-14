@@ -131,7 +131,7 @@ if ($method === 'GET') {
         } else {
             // Initial load: get latest messages (most recent first)
             // Order DESC to get newest messages, then reverse for chronological display
-            $query .= " ORDER BY id DESC LIMIT $limit";
+            $query .= " ORDER BY id ASC LIMIT $limit";
       
         }
         

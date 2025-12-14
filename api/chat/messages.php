@@ -105,22 +105,43 @@ if ($method === 'GET') {
         $conn = $db->connect();
         $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
         
-        // Build query with cursor-based pagination using oldest_message_id
+        // Get pagination parameters
+        $newestMessageId = isset($_GET['newest_message_id']) ? (int) $_GET['newest_message_id'] : 0;
+        $direction = isset($_GET['direction']) ? sanitize($_GET['direction']) : ''; // 'older' or 'newer'
+        
+        // Build query with cursor-based pagination
         $query = "SELECT * FROM messages 
                   WHERE conversation_id = $conversationId AND major = $majorEscaped";
         
-        // Add cursor condition if oldest_message_id is provided
-        if ($oldestMessageId > 0) {
-            $query .= " AND id > $oldestMessageId";
+        // Handle pagination based on parameters
+        if ($oldestMessageId > 0 && $direction === 'older') {
+            // Fetch older messages: id < oldest_message_id (messages before the oldest we have)
+            // Order by created_at DESC to get the most recent older messages first, then reverse for chronological order
+            $query .= " AND id < $oldestMessageId";
+            $query .= " ORDER BY created_at DESC LIMIT $limit";
+            $needReverse = true; // We'll reverse the order to return chronologically (oldest first)
+        } elseif ($newestMessageId > 0 || ($oldestMessageId > 0 && $direction !== 'older')) {
+            // Fetch newer messages: id > newest_message_id (or oldest_message_id for backward compatibility)
+            // Order by created_at ASC to get messages in chronological order
+            $cursorId = $newestMessageId > 0 ? $newestMessageId : $oldestMessageId;
+            $query .= " AND id > $cursorId";
+            $query .= " ORDER BY created_at ASC LIMIT $limit";
+            $needReverse = false;
+        } else {
+            // Initial load: no cursor, get first messages in chronological order
+            $query .= " ORDER BY created_at ASC LIMIT $limit";
+            $needReverse = false;
         }
-        
-        $query .= " ORDER BY created_at ASC 
-                  LIMIT $limit";
         
         $messages = $db->read($query);
         
         if ($messages === false) {
             sendResponse(false, null, 'Failed to fetch messages');
+        }
+        
+        // Reverse order if needed (for older messages, we fetched DESC but want to return ASC)
+        if (isset($needReverse) && $needReverse && $messages) {
+            $messages = array_reverse($messages);
         }
         
         // Convert timestamps for all messages

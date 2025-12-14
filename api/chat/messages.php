@@ -121,18 +121,18 @@ if ($method === 'GET') {
             // Order DESC to get most recent older messages first, then reverse for chronological display
             $query .= " AND id < $beforeId";
             $query .= " ORDER BY id DESC LIMIT $limit";
-            $needReverse = true;
+       
         } elseif ($afterId > 0) {
             // Load newer messages: messages after the specified ID
             // Order ASC for chronological order
             $query .= " AND id > $afterId";
             $query .= " ORDER BY id ASC LIMIT $limit";
-            $needReverse = false;
+          
         } else {
             // Initial load: get latest messages (most recent first)
             // Order DESC to get newest messages, then reverse for chronological display
             $query .= " ORDER BY id DESC LIMIT $limit";
-            $needReverse = true;
+      
         }
         
         $messages = $db->read($query);
@@ -143,9 +143,6 @@ if ($method === 'GET') {
         
         // Reverse to return messages in chronological order (oldest first)
         // This is standard for chat apps - display oldest at top, newest at bottom
-        if ($needReverse && $messages) {
-            $messages = array_reverse($messages);
-        }
         
         // Convert timestamps for all messages
         if ($messages) {

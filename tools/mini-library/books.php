@@ -194,8 +194,8 @@ function formatFileSize($bytes) {
 
     <?php if ($books && !empty($books)): ?>
       <div class="books-list">
-        <?php foreach ($books as $book): ?>
-          <a href="https://www.calamuseducation.com/<?php echo h($book['pdf_file']); ?>" class="book-card">
+        <?php foreach ($books as $key=>$book): ?>
+          <a  class="book-card" data-id="<?php echo $key ?>">
             <div class="book-cover">
               <?php if (!empty($book['cover_image']) && file_exists('../../' . $book['cover_image'])): ?>
                 <img src="../../<?php echo h($book['cover_image']); ?>" alt="<?php echo h($book['title']); ?>" />
@@ -223,14 +223,17 @@ function formatFileSize($bytes) {
   const bookCards = document.querySelectorAll('.book-card');
   bookCards.forEach(card => {
     card.addEventListener('click', () => {
-      const bookId = card.getAttribute('data-id');
+    const bookId = card.getAttribute('data-id');
+      console.log(bookId)
       openInBrowser('https://www.calamuseducation.com/' + books[bookId].pdf_file);
+     
     });
   });
 
   function openInBrowser(link) {
-      // Get link from URL parameter, or use default
+       window.location = link;
       AndroidInterface.openBrowser(link); 
+     
     }
 </script>
 

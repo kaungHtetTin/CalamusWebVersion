@@ -173,6 +173,7 @@ if ($method === 'GET') {
         $conn = $db->connect();
         $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
         
+        // Optimized query using JOINs instead of correlated subqueries
         $query = "SELECT c.*, 
                   CASE 
                       WHEN c.user1_id = $userId THEN c.user2_id 
@@ -181,14 +182,31 @@ if ($method === 'GET') {
                   l.learner_phone as friend_phone,
                   l.learner_name as friend_name,
                   l.learner_image as friend_image,
-                  (SELECT COUNT(*) FROM messages m WHERE m.conversation_id = c.id AND m.sender_id != $userId AND m.is_read = 0) as unread_count,
-                  (SELECT message_text FROM messages m WHERE m.conversation_id = c.id ORDER BY m.created_at DESC LIMIT 1) as last_message_text,
-                  (SELECT message_type FROM messages m WHERE m.conversation_id = c.id ORDER BY m.created_at DESC LIMIT 1) as last_message_type
+                  COALESCE(uc.unread_count, 0) as unread_count,
+                  lm.message_text as last_message_text,
+                  lm.message_type as last_message_type
                   FROM conversations c 
                   LEFT JOIN learners l ON (
                       (c.user1_id = $userId AND l.learner_phone = c.user2_id) OR
                       (c.user2_id = $userId AND l.learner_phone = c.user1_id)
                   )
+                  LEFT JOIN (
+                      SELECT conversation_id, COUNT(*) as unread_count
+                      FROM messages
+                      WHERE sender_id != $userId AND is_read = 0 AND major = $majorEscaped
+                      GROUP BY conversation_id
+                  ) uc ON uc.conversation_id = c.id
+                  LEFT JOIN (
+                      SELECT m1.conversation_id, m1.message_text, m1.message_type
+                      FROM messages m1
+                      INNER JOIN (
+                          SELECT conversation_id, MAX(id) as max_id
+                          FROM messages
+                          WHERE major = $majorEscaped
+                          GROUP BY conversation_id
+                      ) m2 ON m1.conversation_id = m2.conversation_id AND m1.id = m2.max_id
+                      WHERE m1.major = $majorEscaped
+                  ) lm ON lm.conversation_id = c.id
                   WHERE (c.user1_id = $userId OR c.user2_id = $userId) AND c.major = $majorEscaped
                   ORDER BY c.last_message_at DESC, c.created_at DESC";
         
@@ -198,13 +216,39 @@ if ($method === 'GET') {
             sendResponse(false, null, 'Failed to fetch conversations');
         }
         
+        // Batch fetch FCM tokens for all friends at once
+        $friendPhones = [];
+        if ($conversations) {
+            foreach ($conversations as $conv) {
+                if (!empty($conv['friend_phone'])) {
+                    $friendPhones[] = (int) $conv['friend_phone'];
+                }
+            }
+        }
+        
+        // Fetch all FCM tokens in a single query
+        $fcmTokens = [];
+        if (!empty($friendPhones)) {
+            $tableName = getUserTableName($major);
+            if ($tableName) {
+                $phoneList = implode(',', array_map('intval', array_unique($friendPhones)));
+                $fcmQuery = "SELECT phone, token FROM $tableName WHERE phone IN ($phoneList)";
+                $fcmResults = $db->read($fcmQuery);
+                if ($fcmResults) {
+                    foreach ($fcmResults as $row) {
+                        $fcmTokens[(int) $row['phone']] = $row['token'];
+                    }
+                }
+            }
+        }
+        
         // Format friend profile data for each conversation
         if ($conversations) {
             foreach ($conversations as &$conv) {
                 $friendProfile = null;
                 if (!empty($conv['friend_phone'])) {
-                    // Get friend's fcm_token
-                    $friendFcmToken = getFcmTokenFromPhone($db, $conv['friend_phone'], $major);
+                    $friendPhone = (int) $conv['friend_phone'];
+                    $friendFcmToken = isset($fcmTokens[$friendPhone]) ? $fcmTokens[$friendPhone] : null;
                     
                     $friendProfile = [
                         'phone' => $conv['friend_phone'],

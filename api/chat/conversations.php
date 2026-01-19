@@ -173,40 +173,16 @@ if ($method === 'GET') {
         $conn = $db->connect();
         $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
         
-        // Optimized query using JOINs instead of correlated subqueries
-        $query = "SELECT c.*, 
+        // Strategy: Fetch conversations first, then batch-fetch all related data
+        // This avoids complex JOINs with OR conditions that can't use indexes
+        
+        // Step 1: Fetch all conversations (simple query with OR, but it's the only one)
+        $query = "SELECT c.*,
                   CASE 
                       WHEN c.user1_id = $userId THEN c.user2_id 
                       ELSE c.user1_id 
-                  END as other_user_id,
-                  l.learner_phone as friend_phone,
-                  l.learner_name as friend_name,
-                  l.learner_image as friend_image,
-                  COALESCE(uc.unread_count, 0) as unread_count,
-                  lm.message_text as last_message_text,
-                  lm.message_type as last_message_type
+                  END as other_user_id
                   FROM conversations c 
-                  LEFT JOIN learners l ON (
-                      (c.user1_id = $userId AND l.learner_phone = c.user2_id) OR
-                      (c.user2_id = $userId AND l.learner_phone = c.user1_id)
-                  )
-                  LEFT JOIN (
-                      SELECT conversation_id, COUNT(*) as unread_count
-                      FROM messages
-                      WHERE sender_id != $userId AND is_read = 0 AND major = $majorEscaped
-                      GROUP BY conversation_id
-                  ) uc ON uc.conversation_id = c.id
-                  LEFT JOIN (
-                      SELECT m1.conversation_id, m1.message_text, m1.message_type
-                      FROM messages m1
-                      INNER JOIN (
-                          SELECT conversation_id, MAX(id) as max_id
-                          FROM messages
-                          WHERE major = $majorEscaped
-                          GROUP BY conversation_id
-                      ) m2 ON m1.conversation_id = m2.conversation_id AND m1.id = m2.max_id
-                      WHERE m1.major = $majorEscaped
-                  ) lm ON lm.conversation_id = c.id
                   WHERE (c.user1_id = $userId OR c.user2_id = $userId) AND c.major = $majorEscaped
                   ORDER BY c.last_message_at DESC, c.created_at DESC";
         
@@ -216,17 +192,88 @@ if ($method === 'GET') {
             sendResponse(false, null, 'Failed to fetch conversations');
         }
         
-        // Batch fetch FCM tokens for all friends at once
+        if (!$conversations || empty($conversations)) {
+            sendResponse(true, []);
+        }
+        
+        // Step 2: Collect all conversation IDs and friend phone numbers
+        $conversationIds = [];
         $friendPhones = [];
-        if ($conversations) {
-            foreach ($conversations as $conv) {
-                if (!empty($conv['friend_phone'])) {
-                    $friendPhones[] = (int) $conv['friend_phone'];
+        
+        foreach ($conversations as $conv) {
+            $convId = (int) $conv['id'];
+            $conversationIds[] = $convId;
+            
+            $otherUserId = (int) $conv['other_user_id'];
+            if ($otherUserId > 0) {
+                $friendPhones[] = $otherUserId;
+            }
+        }
+        
+        // Step 3: Batch fetch all unread counts in one query
+        $unreadCounts = [];
+        if (!empty($conversationIds)) {
+            $idList = implode(',', $conversationIds);
+            $unreadQuery = "SELECT conversation_id, COUNT(*) as unread_count
+                           FROM messages
+                           WHERE conversation_id IN ($idList) 
+                             AND sender_id != $userId 
+                             AND is_read = 0 
+                             AND major = $majorEscaped
+                           GROUP BY conversation_id";
+            $unreadResults = $db->read($unreadQuery);
+            if ($unreadResults) {
+                foreach ($unreadResults as $row) {
+                    $unreadCounts[(int) $row['conversation_id']] = (int) $row['unread_count'];
                 }
             }
         }
         
-        // Fetch all FCM tokens in a single query
+        // Step 4: Batch fetch all last messages in one query (more efficient than subquery per row)
+        $lastMessages = [];
+        if (!empty($conversationIds)) {
+            $idList = implode(',', $conversationIds);
+            // Use window function if MySQL 8.0+, otherwise use optimized subquery
+            $lastMessageQuery = "SELECT m1.conversation_id, m1.message_text, m1.message_type
+                                FROM messages m1
+                                INNER JOIN (
+                                    SELECT conversation_id, MAX(id) as max_id
+                                    FROM messages
+                                    WHERE conversation_id IN ($idList) AND major = $majorEscaped
+                                    GROUP BY conversation_id
+                                ) m2 ON m1.conversation_id = m2.conversation_id AND m1.id = m2.max_id
+                                WHERE m1.major = $majorEscaped";
+            $lastMessageResults = $db->read($lastMessageQuery);
+            if ($lastMessageResults) {
+                foreach ($lastMessageResults as $row) {
+                    $lastMessages[(int) $row['conversation_id']] = [
+                        'text' => $row['message_text'],
+                        'type' => $row['message_type']
+                    ];
+                }
+            }
+        }
+        
+        // Step 5: Batch fetch all learner profiles in one query
+        $learnerProfiles = [];
+        if (!empty($friendPhones)) {
+            $phoneList = implode(',', array_map('intval', array_unique($friendPhones)));
+            $learnerQuery = "SELECT learner_phone, learner_name, learner_image 
+                            FROM learners 
+                            WHERE learner_phone IN ($phoneList)";
+            $learnerResults = $db->read($learnerQuery);
+            if ($learnerResults) {
+                foreach ($learnerResults as $row) {
+                    $learnerProfiles[(int) $row['learner_phone']] = [
+                        'phone' => $row['learner_phone'],
+                        'name' => $row['learner_name'],
+                        'image' => $row['learner_image']
+                    ];
+                }
+            }
+        }
+        
+        // Step 6: Batch fetch all FCM tokens in one query
         $fcmTokens = [];
         if (!empty($friendPhones)) {
             $tableName = getUserTableName($major);
@@ -242,30 +289,40 @@ if ($method === 'GET') {
             }
         }
         
-        // Format friend profile data for each conversation
-        if ($conversations) {
-            foreach ($conversations as &$conv) {
-                $friendProfile = null;
-                if (!empty($conv['friend_phone'])) {
-                    $friendPhone = (int) $conv['friend_phone'];
-                    $friendFcmToken = isset($fcmTokens[$friendPhone]) ? $fcmTokens[$friendPhone] : null;
-                    
-                    $friendProfile = [
-                        'phone' => $conv['friend_phone'],
-                        'name' => $conv['friend_name'],
-                        'image' => $conv['friend_image'],
-                        'fcm_token' => $friendFcmToken
-                    ];
-                    // Remove individual friend fields from main object
-                    unset($conv['friend_phone'], $conv['friend_name'], $conv['friend_image']);
-                }
-                $conv['friend'] = $friendProfile;
-                
-                // Convert timestamps to Unix milliseconds
-                $conv = convertTimestamps($conv);
+        // Step 7: Combine all data in memory (using RAM as requested)
+        foreach ($conversations as &$conv) {
+            $convId = (int) $conv['id'];
+            $otherUserId = (int) $conv['other_user_id'];
+            
+            // Add unread count
+            $conv['unread_count'] = isset($unreadCounts[$convId]) ? $unreadCounts[$convId] : 0;
+            
+            // Add last message
+            if (isset($lastMessages[$convId])) {
+                $conv['last_message_text'] = $lastMessages[$convId]['text'];
+                $conv['last_message_type'] = $lastMessages[$convId]['type'];
+            } else {
+                $conv['last_message_text'] = null;
+                $conv['last_message_type'] = null;
             }
-            unset($conv); // Break reference
+            
+            // Add friend profile
+            $friendProfile = null;
+            if ($otherUserId > 0 && isset($learnerProfiles[$otherUserId])) {
+                $friendData = $learnerProfiles[$otherUserId];
+                $friendProfile = [
+                    'phone' => $friendData['phone'],
+                    'name' => $friendData['name'],
+                    'image' => $friendData['image'],
+                    'fcm_token' => isset($fcmTokens[$otherUserId]) ? $fcmTokens[$otherUserId] : null
+                ];
+            }
+            $conv['friend'] = $friendProfile;
+            
+            // Convert timestamps to Unix milliseconds
+            $conv = convertTimestamps($conv);
         }
+        unset($conv); // Break reference
         
         sendResponse(true, $conversations ? $conversations : []);
         

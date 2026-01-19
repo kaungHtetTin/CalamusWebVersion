@@ -315,7 +315,7 @@ if ($method === 'GET') {
     $result = $db->save($insertQuery);
     
     if (!$result) {
-        sendResponse(false, null, 'Failed to create conversation');
+        sendResponse(false, null, 'Failed to create conversation ' .$insertQuery );
     }
     
     // Get the created conversation

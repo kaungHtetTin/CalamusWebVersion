@@ -128,6 +128,45 @@ export const discussionAPI = {
     if (userId) params += `&userId=${userId}`;
     return fetchAPI(`/discussions/get.php?${params}`);
   },
+  
+  /**
+   * Get comments for a post
+   * @param {number} postId - Post ID
+   * @param {string} userId - Optional user ID for like status
+   */
+  getComments: (postId, userId = null) => {
+    let params = `postId=${postId}`;
+    if (userId) params += `&userId=${userId}`;
+    return fetchAPI(`/discussions/comments.php?${params}`);
+  },
+  
+  /**
+   * Get single post detail with comments
+   * @param {number} postId - Post ID
+   * @param {string} userId - Optional user ID for like status
+   */
+  getPostDetail: (postId, userId = null) => {
+    let params = `postId=${postId}`;
+    if (userId) params += `&userId=${userId}`;
+    return fetchAPI(`/discussions/detail.php?${params}`);
+  },
+};
+
+/**
+ * Additional Lessons API endpoints
+ */
+export const additionalLessonsAPI = {
+  /**
+   * Get courses with categories for a language channel
+   * @param {string} channel - Language channel (english/korea)
+   */
+  getCourses: (channel = 'english') => fetchAPI(`/additional-lessons/courses.php?channel=${channel}`),
+  
+  /**
+   * Get lessons for a specific category
+   * @param {number} categoryId - Category ID
+   */
+  getLessons: (categoryId) => fetchAPI(`/additional-lessons/lessons.php?categoryId=${categoryId}`),
 };
 
 export default {
@@ -136,4 +175,5 @@ export default {
   videoChannel: videoChannelAPI,
   song: songAPI,
   discussion: discussionAPI,
+  additionalLessons: additionalLessonsAPI,
 };

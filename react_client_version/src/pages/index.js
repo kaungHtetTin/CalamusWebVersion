@@ -6,3 +6,6 @@ export { default as VideoChannel } from './VideoChannel';
 export { default as WatchVideo } from './WatchVideo';
 export { default as SongWithLyrics } from './SongWithLyrics';
 export { default as Discussion } from './Discussion';
+export { default as PostDetail } from './PostDetail';
+export { default as AdditionalLessons } from './AdditionalLessons';
+export { default as LessonList } from './LessonList';

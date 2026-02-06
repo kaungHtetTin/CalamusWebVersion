@@ -4,7 +4,7 @@ import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme/theme';
 import { Layout } from './components/Layout';
 import { DrawerProvider } from './context/DrawerContext';
-import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion } from './pages';
+import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList } from './pages';
 
 function App() {
   return (
@@ -21,10 +21,12 @@ function App() {
             <Route path="/explore" element={<Explore />} />
             <Route path="/vocab-learning" element={<PlaceholderPage title="Vocab Learning" />} />
             <Route path="/my-learning" element={<PlaceholderPage title="My Learning" />} />
-            <Route path="/additional-lessons/:channel" element={<PlaceholderPage title="Additional Lessons" />} />
+            <Route path="/additional-lessons/:channel" element={<AdditionalLessons />} />
+            <Route path="/additional-lessons/:channel/category/:categoryId" element={<LessonList />} />
             <Route path="/video-channel/:channel" element={<VideoChannel />} />
             <Route path="/watch/:id" element={<WatchVideo />} />
             <Route path="/discussion/:category" element={<Discussion />} />
+            <Route path="/post/:postId" element={<PostDetail />} />
             <Route path="/songs/:category" element={<SongWithLyrics />} />
             <Route path="/admin-team/:team" element={<PlaceholderPage title="Admin Team" />} />
             <Route path="/settings" element={<PlaceholderPage title="Settings" />} />

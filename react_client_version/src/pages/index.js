@@ -4,3 +4,5 @@ export { default as Explore } from './Explore';
 export { default as CourseDetail } from './CourseDetail';
 export { default as VideoChannel } from './VideoChannel';
 export { default as WatchVideo } from './WatchVideo';
+export { default as SongWithLyrics } from './SongWithLyrics';
+export { default as Discussion } from './Discussion';

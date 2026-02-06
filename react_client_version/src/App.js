@@ -4,7 +4,7 @@ import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme/theme';
 import { Layout } from './components/Layout';
 import { DrawerProvider } from './context/DrawerContext';
-import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo } from './pages';
+import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion } from './pages';
 
 function App() {
   return (
@@ -24,8 +24,8 @@ function App() {
             <Route path="/additional-lessons/:channel" element={<PlaceholderPage title="Additional Lessons" />} />
             <Route path="/video-channel/:channel" element={<VideoChannel />} />
             <Route path="/watch/:id" element={<WatchVideo />} />
-            <Route path="/discussion/:channel" element={<PlaceholderPage title="Discussion" />} />
-            <Route path="/songs/:channel" element={<PlaceholderPage title="Songs with Lyrics" />} />
+            <Route path="/discussion/:category" element={<Discussion />} />
+            <Route path="/songs/:category" element={<SongWithLyrics />} />
             <Route path="/admin-team/:team" element={<PlaceholderPage title="Admin Team" />} />
             <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
             <Route path="/vip-plan" element={<PlaceholderPage title="VIP Plan" />} />

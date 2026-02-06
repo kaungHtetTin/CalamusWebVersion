@@ -88,8 +88,52 @@ export const videoChannelAPI = {
   getVideo: (id) => fetchAPI(`/video-channel/video.php?id=${id}`),
 };
 
+/**
+ * Song API endpoints
+ */
+export const songAPI = {
+  /**
+   * Get songs with popular songs, all songs, and artists
+   * @param {string} category - Category (english/korea)
+   * @param {number} page - Page number for pagination
+   */
+  get: (category = 'english', page = 1) => fetchAPI(`/songs/get.php?category=${category}&page=${page}`),
+  
+  /**
+   * Get lyrics for a song
+   * @param {string} url - Song URL identifier
+   */
+  getLyrics: (url) => fetchAPI(`/songs/lyrics.php?url=${url}`),
+  
+  /**
+   * Get songs by artist
+   * @param {string} category - Category (english/korea)
+   * @param {string} artist - Artist name
+   */
+  getByArtist: (category, artist) => fetchAPI(`/songs/by-artist.php?category=${category}&artist=${encodeURIComponent(artist)}`),
+};
+
+/**
+ * Discussion/Posts API endpoints
+ */
+export const discussionAPI = {
+  /**
+   * Get discussion posts
+   * @param {string} category - Category (english/korea)
+   * @param {number} page - Page number for pagination
+   * @param {string} userId - Optional user ID for like status
+   */
+  get: (category = 'english', page = 1, userId = null) => {
+    let params = `category=${category}&page=${page}`;
+    if (userId) params += `&userId=${userId}`;
+    return fetchAPI(`/discussions/get.php?${params}`);
+  },
+};
+
 export default {
   course: courseAPI,
   instructor: instructorAPI,
   videoChannel: videoChannelAPI,
+  song: songAPI,
+  discussion: discussionAPI,
 };

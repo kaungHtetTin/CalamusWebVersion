@@ -259,48 +259,18 @@ const VideoChannel = () => {
   if (loading) {
     return (
       <Box sx={{ minHeight: '100vh', bgcolor: '#fafafa' }}>
-        {/* Hero Skeleton */}
-        <Box 
-          sx={{ 
-            background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-            py: { xs: 3, sm: 4, md: 5 },
-            px: { xs: 2, sm: 0 },
-          }}
-        >
-          <Container maxWidth="lg">
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 1.5, sm: 3 }} alignItems="center">
-              <Skeleton 
-                variant="circular" 
-                sx={{ 
-                  width: { xs: 56, sm: 64, md: 80 }, 
-                  height: { xs: 56, sm: 64, md: 80 },
-                  bgcolor: alpha('#fff', 0.1),
-                }}
-              />
-              <Box sx={{ flex: 1, textAlign: { xs: 'center', sm: 'left' }, width: '100%' }}>
-                <Skeleton 
-                  variant="text" 
-                  sx={{ 
-                    width: { xs: 150, sm: 200 }, 
-                    height: { xs: 28, sm: 36 },
-                    bgcolor: alpha('#fff', 0.1), 
-                    mb: 0.5, 
-                    mx: { xs: 'auto', sm: 0 },
-                  }} 
-                />
-                <Skeleton 
-                  variant="text" 
-                  sx={{ 
-                    width: { xs: '100%', sm: 350 }, 
-                    maxWidth: 350,
-                    height: { xs: 18, sm: 22 },
-                    bgcolor: alpha('#fff', 0.1), 
-                    mx: { xs: 'auto', sm: 0 },
-                  }} 
-                />
-              </Box>
-            </Stack>
-          </Container>
+        {/* Header Skeleton */}
+        <Box sx={{ py: 3, px: { xs: 2, sm: 3 } }}>
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Skeleton 
+              variant="circular" 
+              sx={{ width: 48, height: 48 }}
+            />
+            <Box>
+              <Skeleton variant="text" sx={{ width: 150, height: 28 }} />
+              <Skeleton variant="text" sx={{ width: 200, height: 20 }} />
+            </Box>
+          </Stack>
         </Box>
 
         {/* Tabs Skeleton */}
@@ -383,72 +353,30 @@ const VideoChannel = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#fafafa' }}>
-      {/* Hero Section - Clean Design */}
-      <Box
-        sx={{
-          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-          py: { xs: 3, sm: 4, md: 5 },
-          px: { xs: 2, sm: 0 },
-        }}
-      >
-        <Container maxWidth="lg">
-          <Stack 
-            direction={{ xs: 'column', sm: 'row' }} 
-            spacing={{ xs: 1.5, sm: 2, md: 3 }} 
-            alignItems="center"
+      {/* Page Header */}
+      <Box sx={{ py: 3, px: { xs: 2, sm: 3 } }}>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Avatar
+            src={app.icon}
+            sx={{
+              width: 48,
+              height: 48,
+              bgcolor: alpha(theme.palette.primary.main, 0.1),
+            }}
           >
-            {/* App Icon */}
-            <Avatar
-              src={app.icon}
-              sx={{
-                width: { xs: 56, sm: 64, md: 80 },
-                height: { xs: 56, sm: 64, md: 80 },
-                border: '3px solid',
-                borderColor: alpha('#fff', 0.3),
-                boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
-                bgcolor: 'white',
-              }}
-            >
-              <Typography variant="h4" color="primary">
-                {app.name?.charAt(0)}
-              </Typography>
-            </Avatar>
-
-            {/* App Info */}
-            <Box sx={{ textAlign: { xs: 'center', sm: 'left' }, flex: 1 }}>
-              {/* App Name */}
-              <Typography 
-                variant="h4" 
-                fontWeight={700} 
-                color="white"
-                sx={{ 
-                  mb: 0.5,
-                  fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' },
-                }}
-              >
-                {app.name}
-              </Typography>
-
-              {/* Description */}
-              <Typography 
-                color="white"
-                sx={{ 
-                  opacity: 0.9,
-                  maxWidth: 500,
-                  fontSize: { xs: '0.8rem', sm: '0.875rem', md: '0.95rem' },
-                  lineHeight: 1.6,
-                  mx: { xs: 'auto', sm: 0 },
-                  display: { xs: '-webkit-box', sm: 'block' },
-                  WebkitLineClamp: { xs: 2, sm: 'unset' },
-                  WebkitBoxOrient: 'vertical',
-                  overflow: { xs: 'hidden', sm: 'visible' },
-                }}
-              >
-                {app.description}
-              </Typography>
-            </Box>
-          </Stack>
-        </Container>
+            <Typography variant="h6" color="primary">
+              {app.name?.charAt(0)}
+            </Typography>
+          </Avatar>
+          <Box>
+            <Typography variant="h5" fontWeight={700} color="text.primary">
+              {app.name}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {app.description}
+            </Typography>
+          </Box>
+        </Stack>
       </Box>
 
       {/* Tab Navigation - Multiline chips on mobile, Tabs on desktop */}

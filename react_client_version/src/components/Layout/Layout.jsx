@@ -1,20 +1,16 @@
 import React from 'react';
 import { Box, Toolbar, useMediaQuery, useTheme, styled } from '@mui/material';
 import Navbar from './Navbar';
-import Sidebar, { drawerWidth } from './Sidebar';
+import Sidebar from './Sidebar';
 import { useDrawer } from '../../context/DrawerContext';
 
-// Styled main content component for smooth transitions
+// Styled main content component
 const Main = styled('main')(({ theme }) => ({
   flexGrow: 1,
-  padding: theme.spacing(3),
+  padding: 0,
   minHeight: '100vh',
   backgroundColor: theme.palette.background.default,
-  transition: theme.transitions.create('margin', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  // No marginLeft needed - the Sidebar component handles the space in flex layout
+  overflow: 'hidden',
 }));
 
 const Layout = ({ children }) => {
@@ -31,7 +27,7 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', overflow: 'hidden' }}>
       <Navbar
         onMenuClick={toggleDrawer}
         isAuthenticated={isAuthenticated}

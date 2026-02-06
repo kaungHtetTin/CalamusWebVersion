@@ -43,6 +43,8 @@ try {
             'major' => $course['major'],
             'lessonsCount' => (int)$course['lessons_count'],
             'instructor' => $course['teacher_name'],
+            'instructorId' => (int)$course['teacher_id'],
+            'instructorImage' => $course['teacher_profile'] ?? null,
             'enrolledStudents' => (int)$enrolledStudents
         ];
     }, $courses);

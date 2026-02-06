@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme/theme';
 import { Layout } from './components/Layout';
-import { Home } from './pages';
+import { Home, InstructorProfile, Explore, CourseDetail } from './pages';
 
 function App() {
   return (
@@ -13,8 +13,10 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/instructor/:id" element={<InstructorProfile />} />
+            <Route path="/course/:id" element={<CourseDetail />} />
             {/* Add more routes as we build the app */}
-            <Route path="/explore" element={<PlaceholderPage title="Explore" />} />
+            <Route path="/explore" element={<Explore />} />
             <Route path="/vocab-learning" element={<PlaceholderPage title="Vocab Learning" />} />
             <Route path="/my-learning" element={<PlaceholderPage title="My Learning" />} />
             <Route path="/additional-lessons/:language" element={<PlaceholderPage title="Additional Lessons" />} />

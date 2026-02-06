@@ -33,10 +33,13 @@ class Lesson{
         ";
         $plans=$DB->read($query);
         
-        for($i=0;$i<count($plans);$i++){
-            $day=$plans[$i]['day'];
-            $day--;
-            $lessons[$day][]=$plans[$i];
+        $lessons = [];
+        if ($plans && is_array($plans)) {
+            for($i=0;$i<count($plans);$i++){
+                $day=$plans[$i]['day'];
+                $day--;
+                $lessons[$day][]=$plans[$i];
+            }
         }
         
         return $lessons;

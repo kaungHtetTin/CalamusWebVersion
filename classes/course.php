@@ -16,7 +16,8 @@ class Course {
         courses.major,
         courses.teacher_id,
         courses.lessons_count,
-        teachers.name as teacher_name
+        teachers.name as teacher_name,
+        teachers.profile as teacher_profile
         From courses 
         JOIN teachers ON teachers.id=courses.teacher_id";
         $result=$DB->read($query);
@@ -38,7 +39,8 @@ class Course {
         courses.major,
         courses.teacher_id,
         courses.lessons_count,
-        teachers.name as teacher_name
+        teachers.name as teacher_name,
+        teachers.profile as teacher_profile
         From courses 
         JOIN teachers ON teachers.id=courses.teacher_id
         ORDER BY rating DESC limit 5";
@@ -61,7 +63,8 @@ class Course {
         courses.major,
         courses.teacher_id,
         courses.lessons_count,
-        teachers.name as teacher_name
+        teachers.name as teacher_name,
+        teachers.profile as teacher_profile
         From courses 
         JOIN teachers ON teachers.id=courses.teacher_id
         ORDER BY courses.course_id DESC limit 5";

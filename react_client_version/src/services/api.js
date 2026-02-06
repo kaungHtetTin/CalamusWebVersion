@@ -51,8 +51,26 @@ export const courseAPI = {
     const params = major ? `?major=${major}` : '';
     return fetchAPI(`/courses/all.php${params}`);
   },
+  
+  /**
+   * Get course detail by ID
+   * @param {number} id - Course ID
+   */
+  getDetail: (id) => fetchAPI(`/courses/detail.php?id=${id}`),
+};
+
+/**
+ * Instructor API endpoints
+ */
+export const instructorAPI = {
+  /**
+   * Get instructor detail by ID
+   * @param {number} id - Instructor ID
+   */
+  getDetail: (id) => fetchAPI(`/instructors/detail.php?id=${id}`),
 };
 
 export default {
   course: courseAPI,
+  instructor: instructorAPI,
 };

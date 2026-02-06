@@ -13,6 +13,10 @@ import {
   MenuItem,
   Divider,
   ListItemIcon,
+  useScrollTrigger,
+  Slide,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -23,6 +27,24 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import { useNavigate } from 'react-router-dom';
+
+// Hide AppBar on scroll down (mobile only)
+function HideOnScroll({ children }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const trigger = useScrollTrigger();
+
+  // Only apply hide on scroll for mobile
+  if (!isMobile) {
+    return children;
+  }
+
+  return (
+    <Slide appear={false} direction="down" in={!trigger}>
+      {children}
+    </Slide>
+  );
+}
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -86,8 +108,9 @@ const Navbar = ({ onMenuClick, isAuthenticated = false, user = null }) => {
   };
 
   return (
-    <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-      <Toolbar>
+    <HideOnScroll>
+      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+        <Toolbar sx={{ minHeight: { xs: 56, sm: 64 } }}>
         <IconButton
           edge="start"
           color="inherit"
@@ -103,27 +126,14 @@ const Navbar = ({ onMenuClick, isAuthenticated = false, user = null }) => {
           src="/logo.png"
           alt="Calamus Education"
           sx={{
-            height: 40,
+            height: { xs: 32, sm: 40 },
+            width: { xs: 32, sm: 40 },
+            borderRadius: 1,
             cursor: 'pointer',
-            display: { xs: 'none', sm: 'block' },
+            objectFit: 'cover',
           }}
           onClick={() => navigate('/')}
         />
-
-        <Typography
-          variant="h6"
-          noWrap
-          component="div"
-          sx={{
-            display: { xs: 'block', sm: 'none' },
-            cursor: 'pointer',
-            color: 'primary.main',
-            fontWeight: 700,
-          }}
-          onClick={() => navigate('/')}
-        >
-          Calamus
-        </Typography>
 
         <Search>
           <SearchIconWrapper>
@@ -260,8 +270,9 @@ const Navbar = ({ onMenuClick, isAuthenticated = false, user = null }) => {
             <Typography variant="body2">No new notifications</Typography>
           </Box>
         </Menu>
-      </Toolbar>
-    </AppBar>
+        </Toolbar>
+      </AppBar>
+    </HideOnScroll>
   );
 };
 

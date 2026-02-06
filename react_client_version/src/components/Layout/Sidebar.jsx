@@ -49,7 +49,7 @@ const subMenuItems = [
     icon: <BrightnessIcon />,
     children: [
       { text: 'English Language', path: '/additional-lessons/english' },
-      { text: 'Korean Language', path: '/additional-lessons/korean' },
+      { text: 'Korean Language', path: '/additional-lessons/korea' },
     ],
   },
   {
@@ -57,7 +57,7 @@ const subMenuItems = [
     icon: <PlayCircleIcon />,
     children: [
       { text: 'English Language', path: '/video-channel/english' },
-      { text: 'Korean Language', path: '/video-channel/korean' },
+      { text: 'Korean Language', path: '/video-channel/korea' },
     ],
   },
   {
@@ -65,7 +65,7 @@ const subMenuItems = [
     icon: <ArticleIcon />,
     children: [
       { text: 'Easy English', path: '/discussion/english' },
-      { text: 'Easy Korean', path: '/discussion/korean' },
+      { text: 'Easy Korean', path: '/discussion/korea' },
     ],
   },
   {
@@ -73,7 +73,7 @@ const subMenuItems = [
     icon: <MusicNoteIcon />,
     children: [
       { text: 'English Song', path: '/songs/english' },
-      { text: 'Korean Song', path: '/songs/korean' },
+      { text: 'Korean Song', path: '/songs/korea' },
     ],
   },
 ];
@@ -87,7 +87,7 @@ const adminTeamItems = [
   {
     text: 'Easy Korean',
     icon: '/icons/easykorean_icon.png',
-    path: '/admin-team/korean',
+    path: '/admin-team/korea',
   },
 ];
 

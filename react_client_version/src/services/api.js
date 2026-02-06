@@ -70,7 +70,20 @@ export const instructorAPI = {
   getDetail: (id) => fetchAPI(`/instructors/detail.php?id=${id}`),
 };
 
+/**
+ * Video Channel API endpoints
+ */
+export const videoChannelAPI = {
+  /**
+   * Get video channel data
+   * @param {string} channel - Channel name
+   * @param {number} appId - App ID
+   */
+  get: (channel, appId) => fetchAPI(`/video-channel/get.php?channel=${channel}&app=${appId}`),
+};
+
 export default {
   course: courseAPI,
   instructor: instructorAPI,
+  videoChannel: videoChannelAPI,
 };

@@ -46,6 +46,43 @@ const theme = createTheme({
     },
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        // Custom Scrollbar Styling
+        '*': {
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#c1c1c1 transparent',
+        },
+        '*::-webkit-scrollbar': {
+          width: '8px',
+          height: '8px',
+        },
+        '*::-webkit-scrollbar-track': {
+          background: 'transparent',
+          borderRadius: '4px',
+        },
+        '*::-webkit-scrollbar-thumb': {
+          background: '#c1c1c1',
+          borderRadius: '4px',
+          border: '2px solid transparent',
+          backgroundClip: 'padding-box',
+          '&:hover': {
+            background: '#a8a8a8',
+            backgroundClip: 'padding-box',
+          },
+        },
+        // Tabs scrollbar - even thinner
+        '.MuiTabs-scroller::-webkit-scrollbar': {
+          height: '4px',
+        },
+        '.MuiTabs-scroller::-webkit-scrollbar-thumb': {
+          background: 'rgba(46, 125, 50, 0.3)',
+          '&:hover': {
+            background: 'rgba(46, 125, 50, 0.5)',
+          },
+        },
+      },
+    },
     MuiAppBar: {
       styleOverrides: {
         root: {
@@ -60,6 +97,20 @@ const theme = createTheme({
         paper: {
           backgroundColor: '#ffffff',
           borderRight: '1px solid #e0e0e0',
+          // Custom scrollbar for drawer
+          '&::-webkit-scrollbar': {
+            width: '6px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'transparent',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'rgba(46, 125, 50, 0.2)',
+            borderRadius: '3px',
+            '&:hover': {
+              background: 'rgba(46, 125, 50, 0.4)',
+            },
+          },
         },
       },
     },

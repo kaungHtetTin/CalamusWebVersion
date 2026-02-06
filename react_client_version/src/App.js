@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme/theme';
 import { Layout } from './components/Layout';
+import { DrawerProvider } from './context/DrawerContext';
 import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo } from './pages';
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
+        <DrawerProvider>
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
@@ -21,7 +23,7 @@ function App() {
             <Route path="/my-learning" element={<PlaceholderPage title="My Learning" />} />
             <Route path="/additional-lessons/:channel" element={<PlaceholderPage title="Additional Lessons" />} />
             <Route path="/video-channel/:channel" element={<VideoChannel />} />
-            <Route path="/watch" element={<WatchVideo />} />
+            <Route path="/watch/:id" element={<WatchVideo />} />
             <Route path="/discussion/:channel" element={<PlaceholderPage title="Discussion" />} />
             <Route path="/songs/:channel" element={<PlaceholderPage title="Songs with Lyrics" />} />
             <Route path="/admin-team/:team" element={<PlaceholderPage title="Admin Team" />} />
@@ -35,6 +37,7 @@ function App() {
             <Route path="/profile" element={<PlaceholderPage title="Profile" />} />
           </Routes>
         </Layout>
+        </DrawerProvider>
       </Router>
     </ThemeProvider>
   );

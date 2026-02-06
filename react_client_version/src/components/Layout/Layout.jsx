@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Box, Toolbar, useMediaQuery, useTheme, styled } from '@mui/material';
 import Navbar from './Navbar';
 import Sidebar, { drawerWidth } from './Sidebar';
+import { useDrawer } from '../../context/DrawerContext';
 
 // Styled main content component for smooth transitions
 const Main = styled('main')(({ theme }) => ({
@@ -19,11 +20,7 @@ const Main = styled('main')(({ theme }) => ({
 const Layout = ({ children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [drawerOpen, setDrawerOpen] = useState(true); // Drawer open by default on desktop
-
-  const handleDrawerToggle = () => {
-    setDrawerOpen(!drawerOpen);
-  };
+  const { drawerOpen, toggleDrawer } = useDrawer();
 
   // Mock user data - replace with actual auth context
   const isAuthenticated = true;
@@ -36,7 +33,7 @@ const Layout = ({ children }) => {
   return (
     <Box sx={{ display: 'flex' }}>
       <Navbar
-        onMenuClick={handleDrawerToggle}
+        onMenuClick={toggleDrawer}
         isAuthenticated={isAuthenticated}
         user={user}
       />
@@ -45,7 +42,7 @@ const Layout = ({ children }) => {
       <Sidebar
         variant={isMobile ? 'temporary' : 'persistent'}
         open={drawerOpen}
-        onClose={handleDrawerToggle}
+        onClose={toggleDrawer}
       />
 
       {/* Main Content */}

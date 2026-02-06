@@ -251,8 +251,8 @@ const VideoChannel = () => {
     setActiveTab(index);
   };
 
-  const handleVideoClick = (video, category) => {
-    navigate(`/watch?index=${video.index}&channel_id=${category.id}&channel=${data.app.name}`);
+  const handleVideoClick = (video) => {
+    navigate(`/watch/${video.id}`);
   };
 
   // Loading state
@@ -553,7 +553,7 @@ const VideoChannel = () => {
                 video={video}
                 channelId={activeCategory.id}
                 channelName={activeCategory.title}
-                onClick={() => handleVideoClick(video, activeCategory)}
+                onClick={() => handleVideoClick(video)}
               />
             ))}
           </VideoGrid>

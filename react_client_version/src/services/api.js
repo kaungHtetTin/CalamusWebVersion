@@ -80,6 +80,12 @@ export const videoChannelAPI = {
    * @param {number} appId - App ID
    */
   get: (channel, appId) => fetchAPI(`/video-channel/get.php?channel=${channel}&app=${appId}`),
+  
+  /**
+   * Get single video details with related videos
+   * @param {number} id - Lesson/Video ID
+   */
+  getVideo: (id) => fetchAPI(`/video-channel/video.php?id=${id}`),
 };
 
 export default {

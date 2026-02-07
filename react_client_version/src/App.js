@@ -4,42 +4,52 @@ import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme/theme';
 import { Layout } from './components/Layout';
 import { DrawerProvider } from './context/DrawerContext';
-import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList, VipPlan } from './pages';
+import { AuthProvider } from './context/AuthContext';
+import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList, VipPlan, Login, Profile } from './pages';
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
+        <AuthProvider>
         <DrawerProvider>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/instructor/:id" element={<InstructorProfile />} />
-            <Route path="/course/:id" element={<CourseDetail />} />
-            {/* Add more routes as we build the app */}
-            <Route path="/explore" element={<Explore />} />
-            <Route path="/vocab-learning" element={<PlaceholderPage title="Vocab Learning" />} />
-            <Route path="/my-learning" element={<PlaceholderPage title="My Learning" />} />
-            <Route path="/additional-lessons/:channel" element={<AdditionalLessons />} />
-            <Route path="/additional-lessons/:channel/category/:categoryId" element={<LessonList />} />
-            <Route path="/video-channel/:channel" element={<VideoChannel />} />
-            <Route path="/watch/:id" element={<WatchVideo />} />
-            <Route path="/discussion/:category" element={<Discussion />} />
-            <Route path="/post/:postId" element={<PostDetail />} />
-            <Route path="/songs/:category" element={<SongWithLyrics />} />
-            <Route path="/admin-team/:team" element={<PlaceholderPage title="Admin Team" />} />
-            <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
-            <Route path="/vip-plan" element={<VipPlan />} />
-            <Route path="/about" element={<PlaceholderPage title="About Us" />} />
-            <Route path="/contact" element={<PlaceholderPage title="Contact Us" />} />
-            <Route path="/terms" element={<PlaceholderPage title="Terms" />} />
-            <Route path="/privacy" element={<PlaceholderPage title="Privacy" />} />
-            <Route path="/login" element={<PlaceholderPage title="Login" />} />
-            <Route path="/profile" element={<PlaceholderPage title="Profile" />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          {/* Login/Register - outside Layout (no navbar/sidebar) */}
+          <Route path="/login" element={<Login />} />
+
+          {/* All other routes - inside Layout */}
+          <Route path="*" element={
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/instructor/:id" element={<InstructorProfile />} />
+                <Route path="/course/:id" element={<CourseDetail />} />
+                <Route path="/explore" element={<Explore />} />
+                <Route path="/vocab-learning" element={<PlaceholderPage title="Vocab Learning" />} />
+                <Route path="/my-learning" element={<PlaceholderPage title="My Learning" />} />
+                <Route path="/additional-lessons/:channel" element={<AdditionalLessons />} />
+                <Route path="/additional-lessons/:channel/category/:categoryId" element={<LessonList />} />
+                <Route path="/video-channel/:channel" element={<VideoChannel />} />
+                <Route path="/watch/:id" element={<WatchVideo />} />
+                <Route path="/discussion/:category" element={<Discussion />} />
+                <Route path="/post/:postId" element={<PostDetail />} />
+                <Route path="/songs/:category" element={<SongWithLyrics />} />
+                <Route path="/admin-team/:team" element={<PlaceholderPage title="Admin Team" />} />
+                <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
+                <Route path="/vip-plan" element={<VipPlan />} />
+                <Route path="/about" element={<PlaceholderPage title="About Us" />} />
+                <Route path="/contact" element={<PlaceholderPage title="Contact Us" />} />
+                <Route path="/terms" element={<PlaceholderPage title="Terms" />} />
+                <Route path="/privacy" element={<PlaceholderPage title="Privacy" />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/:userId" element={<Profile />} />
+              </Routes>
+            </Layout>
+          } />
+        </Routes>
         </DrawerProvider>
+        </AuthProvider>
       </Router>
     </ThemeProvider>
   );

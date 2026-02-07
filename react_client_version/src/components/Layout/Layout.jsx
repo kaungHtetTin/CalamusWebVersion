@@ -3,6 +3,7 @@ import { Box, Toolbar, useMediaQuery, useTheme, styled } from '@mui/material';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { useDrawer } from '../../context/DrawerContext';
+import { useAuth } from '../../context/AuthContext';
 
 // Styled main content component
 const Main = styled('main')(({ theme }) => ({
@@ -17,14 +18,7 @@ const Layout = ({ children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { drawerOpen, toggleDrawer } = useDrawer();
-
-  // Mock user data - replace with actual auth context
-  const isAuthenticated = true;
-  const user = {
-    name: 'John Doe',
-    email: 'john@example.com',
-    image: null,
-  };
+  const { user, isAuthenticated, logout } = useAuth();
 
   return (
     <Box sx={{ display: 'flex', overflow: 'hidden' }}>
@@ -32,6 +26,7 @@ const Layout = ({ children }) => {
         onMenuClick={toggleDrawer}
         isAuthenticated={isAuthenticated}
         user={user}
+        onLogout={logout}
       />
 
       {/* Drawer - temporary on mobile, persistent on desktop */}

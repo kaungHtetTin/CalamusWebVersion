@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -17,6 +17,8 @@ import {
   Slide,
   useMediaQuery,
   useTheme,
+  Skeleton,
+  CircularProgress,
 } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -26,7 +28,10 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
 import { useNavigate } from 'react-router-dom';
+import { notificationAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 // Hide AppBar on scroll down (mobile only)
 function HideOnScroll({ children }) {
@@ -93,10 +98,32 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-const Navbar = ({ onMenuClick, isAuthenticated = false, user = null }) => {
+// Format relative time
+const formatTimeAgo = (timestamp) => {
+  const now = Math.floor(Date.now() / 1000);
+  const diff = now - timestamp;
+
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+  return new Date(timestamp * 1000).toLocaleDateString();
+};
+
+const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLogout }) => {
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [notificationAnchor, setNotificationAnchor] = React.useState(null);
+  const { isAuthenticated: authIsAuth, user: authUser, loading: authLoading } = useAuth();
+  const isAuthenticated = authIsAuth ?? propIsAuth ?? false;
+  const user = authUser ?? propUser ?? null;
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [notificationAnchor, setNotificationAnchor] = useState(null);
+
+  // Notification state
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loadingNotifs, setLoadingNotifs] = useState(false);
+  const [notifsFetched, setNotifsFetched] = useState(false);
+  const [markingRead, setMarkingRead] = useState(false);
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -106,12 +133,65 @@ const Navbar = ({ onMenuClick, isAuthenticated = false, user = null }) => {
     setAnchorEl(null);
   };
 
+  // Fetch notifications when the menu opens
+  const fetchNotifications = useCallback(async () => {
+    if (!isAuthenticated || authLoading) return;
+    setLoadingNotifs(true);
+    try {
+      const response = await notificationAPI.get();
+      setNotifications(response.data?.notifications || []);
+      setUnreadCount(response.data?.unreadCount || 0);
+      setNotifsFetched(true);
+    } catch (err) {
+      // Silently ignore auth errors for notifications
+      if (err.message !== 'Not authenticated') {
+        console.error('Failed to fetch notifications:', err);
+      }
+    } finally {
+      setLoadingNotifs(false);
+    }
+  }, [isAuthenticated, authLoading]);
+
+  // Fetch unread count on mount (for the badge)
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      fetchNotifications();
+    } else {
+      setNotifications([]);
+      setUnreadCount(0);
+      setNotifsFetched(false);
+    }
+  }, [isAuthenticated, authLoading, fetchNotifications]);
+
   const handleNotificationOpen = (event) => {
     setNotificationAnchor(event.currentTarget);
+    // Refresh when opening
+    if (isAuthenticated) {
+      fetchNotifications();
+    }
   };
 
   const handleNotificationClose = () => {
     setNotificationAnchor(null);
+  };
+
+  const handleMarkAllRead = async () => {
+    if (markingRead || unreadCount === 0) return;
+    setMarkingRead(true);
+    try {
+      await notificationAPI.markRead();
+      setUnreadCount(0);
+      setNotifications((prev) => prev.map((n) => ({ ...n, seen: 1 })));
+    } catch (err) {
+      console.error('Failed to mark notifications as read:', err);
+    } finally {
+      setMarkingRead(false);
+    }
+  };
+
+  const handleNotificationClick = (notif) => {
+    handleNotificationClose();
+    navigate(`/post/${notif.postId}`);
   };
 
   return (
@@ -170,7 +250,7 @@ const Navbar = ({ onMenuClick, isAuthenticated = false, user = null }) => {
               color="inherit"
               onClick={handleNotificationOpen}
             >
-              <Badge badgeContent={4} color="secondary">
+              <Badge badgeContent={unreadCount} color="secondary" max={99}>
                 <NotificationsIcon />
               </Badge>
             </IconButton>
@@ -218,10 +298,10 @@ const Navbar = ({ onMenuClick, isAuthenticated = false, user = null }) => {
         >
           <Box sx={{ px: 2, py: 1 }}>
             <Typography variant="subtitle1" fontWeight={600}>
-              {user?.name || 'User Name'}
+              {user?.name || 'User'}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {user?.email || 'user@example.com'}
+              {user?.email || user?.phone || ''}
             </Typography>
           </Box>
           <Divider />
@@ -244,7 +324,7 @@ const Navbar = ({ onMenuClick, isAuthenticated = false, user = null }) => {
             Settings
           </MenuItem>
           <Divider />
-          <MenuItem onClick={() => navigate('/logout')}>
+          <MenuItem onClick={() => { onLogout && onLogout(); navigate('/'); }}>
             <ListItemIcon>
               <LogoutIcon fontSize="small" />
             </ListItemIcon>
@@ -261,8 +341,8 @@ const Navbar = ({ onMenuClick, isAuthenticated = false, user = null }) => {
             elevation: 0,
             sx: {
               mt: 1.5,
-              width: 320,
-              maxHeight: 400,
+              width: { xs: 300, sm: 360 },
+              maxHeight: 440,
               borderRadius: 2,
               boxShadow: '0 4px 24px rgba(0,0,0,0.1)',
               border: 'none',
@@ -271,14 +351,99 @@ const Navbar = ({ onMenuClick, isAuthenticated = false, user = null }) => {
           transformOrigin={{ horizontal: 'right', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
-          <Box sx={{ px: 2, py: 1 }}>
-            <Typography variant="subtitle1" fontWeight={600}>
+          {/* Header */}
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 1.5 }}>
+            <Typography variant="subtitle1" fontWeight={700}>
               Notifications
             </Typography>
+            {unreadCount > 0 && (
+              <Button
+                size="small"
+                startIcon={markingRead ? <CircularProgress size={14} /> : <DoneAllIcon fontSize="small" />}
+                onClick={handleMarkAllRead}
+                disabled={markingRead}
+                sx={{ textTransform: 'none', fontSize: '0.75rem', minWidth: 0 }}
+              >
+                Mark all read
+              </Button>
+            )}
           </Box>
           <Divider />
-          <Box sx={{ p: 2, textAlign: 'center', color: 'text.secondary' }}>
-            <Typography variant="body2">No new notifications</Typography>
+
+          {/* Notification list */}
+          <Box sx={{ overflowY: 'auto', maxHeight: 360 }}>
+            {loadingNotifs && !notifsFetched ? (
+              // Skeleton loading
+              [...Array(3)].map((_, i) => (
+                <Box key={i} sx={{ display: 'flex', gap: 1.5, px: 2, py: 1.5 }}>
+                  <Skeleton variant="circular" width={40} height={40} />
+                  <Box sx={{ flex: 1 }}>
+                    <Skeleton width="80%" height={18} />
+                    <Skeleton width="60%" height={14} sx={{ mt: 0.5 }} />
+                    <Skeleton width="30%" height={12} sx={{ mt: 0.5 }} />
+                  </Box>
+                </Box>
+              ))
+            ) : notifications.length === 0 ? (
+              <Box sx={{ p: 4, textAlign: 'center' }}>
+                <NotificationsIcon sx={{ fontSize: 40, color: 'text.disabled', mb: 1 }} />
+                <Typography variant="body2" color="text.secondary">
+                  No notifications yet
+                </Typography>
+              </Box>
+            ) : (
+              notifications.map((notif) => (
+                <Box
+                  key={notif.id}
+                  onClick={() => handleNotificationClick(notif)}
+                  sx={{
+                    display: 'flex',
+                    gap: 1.5,
+                    px: 2,
+                    py: 1.5,
+                    cursor: 'pointer',
+                    bgcolor: notif.seen ? 'transparent' : alpha('#2e7d32', 0.04),
+                    borderLeft: notif.seen ? 'none' : '3px solid',
+                    borderColor: 'primary.main',
+                    transition: 'background 0.15s ease',
+                    '&:hover': {
+                      bgcolor: alpha('#000', 0.04),
+                    },
+                  }}
+                >
+                  <Avatar
+                    src={notif.writerImage}
+                    sx={{ width: 40, height: 40, flexShrink: 0 }}
+                  />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography variant="body2" sx={{ lineHeight: 1.4 }}>
+                      <Typography component="span" variant="body2" fontWeight={600}>
+                        {notif.writerName}
+                      </Typography>{' '}
+                      {notif.action}
+                    </Typography>
+                    {notif.postBody && (
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{
+                          display: 'block',
+                          mt: 0.3,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {notif.postBody}
+                      </Typography>
+                    )}
+                    <Typography variant="caption" color="text.disabled" sx={{ mt: 0.3, display: 'block' }}>
+                      {formatTimeAgo(notif.time)}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))
+            )}
           </Box>
         </Menu>
         </Toolbar>

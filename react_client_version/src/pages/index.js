@@ -10,3 +10,5 @@ export { default as PostDetail } from './PostDetail';
 export { default as AdditionalLessons } from './AdditionalLessons';
 export { default as LessonList } from './LessonList';
 export { default as VipPlan } from './VipPlan';
+export { default as Login } from './Login';
+export { default as Profile } from './Profile';

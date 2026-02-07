@@ -28,6 +28,8 @@ import {
   ArrowBack as BackIcon,
 } from '@mui/icons-material';
 import { discussionAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import CommentItem from '../components/CommentItem';
 
 // Format relative time
 const formatRelativeTime = (timestamp) => {
@@ -52,131 +54,6 @@ const formatNumber = (num) => {
   if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
   if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
   return num.toString();
-};
-
-// Comment Item Component (Facebook-style)
-const CommentItem = ({ comment, isReply = false, onLikeComment }) => {
-  const [liked, setLiked] = useState(comment.isLiked === 1);
-  const [likeCount, setLikeCount] = useState(comment.likes || 0);
-  const [showReplyInput, setShowReplyInput] = useState(false);
-  
-  const handleLike = () => {
-    setLiked(!liked);
-    setLikeCount(liked ? likeCount - 1 : likeCount + 1);
-    if (onLikeComment) onLikeComment(comment.time, !liked);
-  };
-  
-  return (
-    <Box sx={{ ml: isReply ? 5 : 0, mb: 1.5 }}>
-      <Stack direction="row" spacing={1} alignItems="flex-start">
-        <Avatar
-          src={comment.userImage}
-          sx={{ 
-            width: isReply ? 24 : 32, 
-            height: isReply ? 24 : 32,
-          }}
-        />
-        <Box sx={{ flex: 1 }}>
-          <Box
-            sx={{
-              bgcolor: 'grey.100',
-              borderRadius: '18px',
-              px: 2,
-              py: 1,
-              display: 'inline-block',
-              maxWidth: '100%',
-            }}
-          >
-            <Typography 
-              variant="subtitle2" 
-              fontWeight={600} 
-              fontSize={isReply ? 12 : 13}
-              color="text.primary"
-              sx={{ lineHeight: 1.3 }}
-            >
-              {comment.userName}
-            </Typography>
-            <Typography 
-              variant="body2" 
-              fontSize={isReply ? 13 : 14}
-              color="text.primary"
-              sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.4 }}
-            >
-              {comment.body}
-            </Typography>
-          </Box>
-          
-          <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mt: 0.3, ml: 1.5 }}>
-            <Typography
-              variant="caption"
-              color={liked ? 'primary.main' : 'text.secondary'}
-              sx={{ 
-                cursor: 'pointer', 
-                fontWeight: liked ? 700 : 600,
-                fontSize: 12,
-                '&:hover': { textDecoration: 'underline' },
-              }}
-              onClick={handleLike}
-            >
-              Like{likeCount > 0 && ` · ${formatNumber(likeCount)}`}
-            </Typography>
-            {!isReply && (
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ 
-                  cursor: 'pointer',
-                  fontWeight: 600,
-                  fontSize: 12,
-                  '&:hover': { textDecoration: 'underline' },
-                }}
-                onClick={() => setShowReplyInput(!showReplyInput)}
-              >
-                Reply
-              </Typography>
-            )}
-            <Typography variant="caption" color="text.disabled" fontSize={12}>
-              {formatRelativeTime(comment.time)}
-            </Typography>
-          </Stack>
-          
-          {showReplyInput && (
-            <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-              <TextField
-                size="small"
-                placeholder="Write a reply..."
-                fullWidth
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '20px',
-                    fontSize: 13,
-                    bgcolor: 'grey.100',
-                    '& fieldset': { border: 'none' },
-                  },
-                }}
-              />
-              <IconButton size="small" color="primary">
-                <SendIcon fontSize="small" />
-              </IconButton>
-            </Stack>
-          )}
-          
-          {comment.replies && comment.replies.length > 0 && (
-            <Box sx={{ mt: 1.5 }}>
-              {comment.replies.map((reply) => (
-                <CommentItem 
-                  key={reply.id || reply.time} 
-                  comment={reply} 
-                  isReply={true}
-                  onLikeComment={onLikeComment}
-                />
-              ))}
-            </Box>
-          )}
-        </Box>
-      </Stack>
-    </Box>
-  );
 };
 
 // Loading Skeleton
@@ -258,6 +135,7 @@ const PostDetailSkeleton = () => (
 const PostDetail = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
@@ -267,16 +145,18 @@ const PostDetail = () => {
   const [likeCount, setLikeCount] = useState(0);
   const [saved, setSaved] = useState(false);
   const [commentText, setCommentText] = useState('');
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
   
   useEffect(() => {
     const fetchPostDetail = async () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await discussionAPI.getPostDetail(postId);
+        const response = await discussionAPI.getPostDetail(postId, user?.phone || null);
         setPost(response.data.post);
         setComments(response.data.comments || []);
         setLikeCount(response.data.post.postLikes || 0);
+        setLiked(response.data.post.isLiked === 1);
       } catch (err) {
         console.error('Failed to fetch post:', err);
         setError('Failed to load post. It may have been deleted or is unavailable.');
@@ -288,25 +168,100 @@ const PostDetail = () => {
     if (postId) {
       fetchPostDetail();
     }
-  }, [postId]);
+  }, [postId, user?.phone]);
   
-  const handleLike = () => {
+  const handleLike = async () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    // Optimistic update
     setLiked(!liked);
     setLikeCount(liked ? likeCount - 1 : likeCount + 1);
+    try {
+      const result = await discussionAPI.likePost(postId);
+      if (result.data) {
+        setLikeCount(result.data.count);
+        setLiked(result.data.isLiked);
+      }
+    } catch (err) {
+      // Revert on error
+      setLiked(liked);
+      setLikeCount(likeCount);
+      console.error('Like error:', err);
+    }
   };
   
   const handleSave = () => {
     setSaved(!saved);
   };
   
-  const handleLikeComment = (commentTime, isLiked) => {
-    console.log('Like comment:', commentTime, isLiked);
+  const updateCommentInTree = (list, commentId, updater) => {
+    return list.map((c) => {
+      if (c.time === commentId) return updater(c);
+      if (c.replies?.length) return { ...c, replies: updateCommentInTree(c.replies, commentId, updater) };
+      return c;
+    });
   };
-  
-  const handleSubmitComment = () => {
-    if (!commentText.trim()) return;
-    console.log('Submit comment:', commentText);
-    setCommentText('');
+
+  const removeCommentFromTree = (list, commentId) => {
+    return list.filter((c) => c.time !== commentId).map((c) => {
+      if (c.replies?.length) return { ...c, replies: removeCommentFromTree(c.replies, commentId) };
+      return c;
+    });
+  };
+
+  const addReplyToTree = (list, parentId, newComment) => {
+    return list.map((c) => {
+      if (c.time === parentId) return { ...c, replies: [...(c.replies || []), newComment] };
+      if (c.replies?.length) return { ...c, replies: addReplyToTree(c.replies, parentId, newComment) };
+      return c;
+    });
+  };
+
+  const handleLikeComment = async (commentTime, isLiked) => {
+    if (!isAuthenticated) { navigate('/login'); return; }
+    try {
+      const result = await discussionAPI.likeComment(postId, commentTime);
+      if (result.data) {
+        setComments((prev) => updateCommentInTree(prev, commentTime, (c) => ({
+          ...c, likes: result.data.count, isLiked: result.data.isLiked ? 1 : 0,
+        })));
+      }
+    } catch (err) { console.error('Like comment error:', err); }
+  };
+
+  const handleDeleteComment = async (pId, commentId) => {
+    const result = await discussionAPI.deleteComment(pId, commentId);
+    setComments((prev) => removeCommentFromTree(prev, commentId));
+    if (result.data?.commentsCount !== undefined) {
+      setPost((prev) => prev ? { ...prev, comments: result.data.commentsCount } : null);
+    }
+  };
+
+  const handleReplySubmit = async (parentId, body) => {
+    if (!isAuthenticated) { navigate('/login'); return; }
+    const result = await discussionAPI.createComment({ postId, body, parent: parentId });
+    if (result.data?.comment) {
+      setComments((prev) => addReplyToTree(prev, parentId, result.data.comment));
+      setPost((prev) => prev ? { ...prev, comments: (prev.comments || 0) + 1 } : null);
+    }
+  };
+
+  const handleSubmitComment = async () => {
+    const body = commentText.trim();
+    if (!body) return;
+    if (!isAuthenticated) { navigate('/login'); return; }
+    setCommentSubmitting(true);
+    try {
+      const result = await discussionAPI.createComment({ postId, body });
+      if (result.data?.comment) {
+        setComments((prev) => [result.data.comment, ...prev]);
+        setCommentText('');
+        setPost((prev) => prev ? { ...prev, comments: (prev.comments || 0) + 1 } : null);
+      }
+    } catch (err) { console.error('Submit comment error:', err); }
+    finally { setCommentSubmitting(false); }
   };
   
   const handleBack = () => {
@@ -377,10 +332,16 @@ const PostDetail = () => {
           <Stack direction="row" spacing={1.5} alignItems="center" sx={{ p: 2 }}>
             <Avatar
               src={post.userImage}
-              sx={{ width: 40, height: 40 }}
+              onClick={() => navigate(`/profile/${post.userId}`)}
+              sx={{ width: 40, height: 40, cursor: 'pointer' }}
             />
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="subtitle2" fontWeight={600}>
+              <Typography
+                variant="subtitle2"
+                fontWeight={600}
+                onClick={() => navigate(`/profile/${post.userId}`)}
+                sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+              >
                 {post.userName}
               </Typography>
               <Typography variant="caption" color="text.secondary">
@@ -546,7 +507,7 @@ const PostDetail = () => {
             <IconButton 
               color="primary" 
               onClick={handleSubmitComment}
-              disabled={!commentText.trim()}
+              disabled={!commentText.trim() || commentSubmitting}
             >
               <SendIcon />
             </IconButton>
@@ -569,8 +530,13 @@ const PostDetail = () => {
             comments.map((comment) => (
               <CommentItem
                 key={comment.id || comment.time}
+                postId={postId}
                 comment={comment}
+                currentUserId={user?.phone}
                 onLikeComment={handleLikeComment}
+                onDeleteComment={isAuthenticated ? handleDeleteComment : null}
+                onReplySubmit={isAuthenticated ? handleReplySubmit : null}
+                isAuthenticated={!!isAuthenticated}
               />
             ))
           )}

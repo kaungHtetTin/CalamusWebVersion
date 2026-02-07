@@ -6,7 +6,12 @@
 const API_BASE_URL = 'http://localhost/calamus/api';
 
 /**
- * Generic fetch wrapper with error handling
+ * Get stored auth token from localStorage
+ */
+const getToken = () => localStorage.getItem('calamus_token');
+
+/**
+ * Generic GET fetch wrapper with error handling
  */
 const fetchAPI = async (endpoint) => {
   try {
@@ -25,6 +30,75 @@ const fetchAPI = async (endpoint) => {
     return data;
   } catch (error) {
     console.error(`API Error (${endpoint}):`, error);
+    throw error;
+  }
+};
+
+/**
+ * POST fetch wrapper with JSON body
+ */
+const postAPI = async (endpoint, body = {}) => {
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    const token = getToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.error || 'API request failed');
+    }
+
+    return data;
+  } catch (error) {
+    if (error.message !== 'Not authenticated') {
+      console.error(`API Error (${endpoint}):`, error);
+    }
+    throw error;
+  }
+};
+
+/**
+ * Authenticated GET fetch wrapper (includes Bearer token)
+ */
+const authFetchAPI = async (endpoint) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.error || 'API request failed');
+    }
+
+    return data;
+  } catch (error) {
+    if (error.message !== 'Not authenticated') {
+      console.error(`API Error (${endpoint}):`, error);
+    }
     throw error;
   }
 };
@@ -155,6 +229,57 @@ export const discussionAPI = {
     if (userId) params += `&userId=${userId}`;
     return fetchAPI(`/discussions/detail.php?${params}`);
   },
+
+  /**
+   * Create a new discussion post
+   * @param {object} data - { body, category, image (base64) }
+   */
+  createPost: (data) => postAPI('/discussions/create.php', data),
+
+  /**
+   * Delete a post (owner only)
+   * @param {number} postId
+   */
+  deletePost: (postId) => postAPI('/discussions/delete.php', { postId }),
+
+  /**
+   * Report a post
+   * @param {number} postId
+   */
+  reportPost: (postId) => postAPI('/discussions/report.php', { postId }),
+
+  /**
+   * Hide a post (for current user only)
+   * @param {number} postId
+   */
+  hidePost: (postId) => postAPI('/discussions/hide.php', { postId }),
+
+  /**
+   * Like/Unlike a post (toggle)
+   * @param {number} postId
+   * @returns {Promise<{success, count, isLiked}>}
+   */
+  likePost: (postId) => postAPI('/discussions/like.php', { postId }),
+
+  /**
+   * Like/Unlike a comment (toggle)
+   * @param {number} postId
+   * @param {number} commentId - comment.time
+   */
+  likeComment: (postId, commentId) => postAPI('/discussions/comment-like.php', { postId, commentId }),
+
+  /**
+   * Delete a comment (owner only)
+   * @param {number} postId
+   * @param {number} commentId - comment.time
+   */
+  deleteComment: (postId, commentId) => postAPI('/discussions/comment-delete.php', { postId, commentId }),
+
+  /**
+   * Create a comment or reply
+   * @param {object} data - { postId, body, parent? }
+   */
+  createComment: (data) => postAPI('/discussions/comment-create.php', data),
 };
 
 /**
@@ -215,6 +340,62 @@ export const appsAPI = {
   get: () => fetchAPI('/apps/get.php'),
 };
 
+/**
+ * User Profile API endpoints
+ */
+export const userAPI = {
+  /**
+   * Get public profile + posts for any user
+   * @param {string} userId - User phone (learner_phone)
+   * @param {number} page - Page number for posts pagination
+   */
+  getProfile: (userId, page = 1, viewerId = null) => {
+    let params = `id=${userId}&page=${page}`;
+    if (viewerId) params += `&viewerId=${viewerId}`;
+    return fetchAPI(`/users/profile.php?${params}`);
+  },
+};
+
+/**
+ * Notification API endpoints
+ */
+export const notificationAPI = {
+  /**
+   * Get notifications for authenticated user
+   */
+  get: () => authFetchAPI('/notifications/get.php'),
+
+  /**
+   * Mark all notifications as read
+   */
+  markRead: () => postAPI('/notifications/mark-read.php'),
+};
+
+/**
+ * Auth API endpoints
+ */
+export const authAPI = {
+  /**
+   * Login with phone or email + password
+   */
+  login: (phone, password) => postAPI('/auth/login.php', { phone, password }),
+
+  /**
+   * Register a new account
+   */
+  register: (data) => postAPI('/auth/register.php', data),
+
+  /**
+   * Get current authenticated user (validates token)
+   */
+  me: () => authFetchAPI('/auth/me.php'),
+
+  /**
+   * Logout (invalidate token)
+   */
+  logout: () => postAPI('/auth/logout.php'),
+};
+
 export default {
   course: courseAPI,
   instructor: instructorAPI,
@@ -226,4 +407,7 @@ export default {
   pinnedPosts: pinnedPostsAPI,
   vipPlan: vipPlanAPI,
   apps: appsAPI,
+  user: userAPI,
+  notification: notificationAPI,
+  auth: authAPI,
 };

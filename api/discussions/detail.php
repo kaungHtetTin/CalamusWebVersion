@@ -74,6 +74,25 @@ try {
         $blogTitle = mb_convert_encoding($blogTitle, 'UTF-8', 'auto');
     }
     
+    // Check if viewer liked this post
+    $isLiked = 0;
+    if (!empty($userId)) {
+        $likeQuery = "SELECT * FROM mylikes WHERE content_id = {$postData['postId']}";
+        $likeResult = $DB->read($likeQuery);
+        if ($likeResult && is_array($likeResult)) {
+            foreach ($likeResult as $like) {
+                $likesArr = json_decode($like['likes'], true);
+                if ($likesArr) {
+                    $userIds = array_column($likesArr, 'user_id');
+                    if (in_array($userId, $userIds)) {
+                        $isLiked = 1;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     $post = [
         'postId' => (int)$postData['postId'],
         'body' => $body,
@@ -88,7 +107,9 @@ try {
         'blogTitle' => $blogTitle,
         'userName' => $userName,
         'userImage' => $postData['userImage'] ?? 'https://www.calamuseducation.com/uploads/placeholder.png',
+        'userId' => $postData['oderId'] ?? '',
         'category' => $postData['category'] ?? 'english',
+        'isLiked' => $isLiked,
     ];
     
     // Fetch comments for this post

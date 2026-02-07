@@ -310,6 +310,7 @@ const CourseDetail = () => {
               <Button
                 variant="contained"
                 size="large"
+                onClick={() => navigate('/vip-plan')}
                 sx={{
                   py: 1.5,
                   px: 4,

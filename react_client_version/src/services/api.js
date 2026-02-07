@@ -354,6 +354,10 @@ export const userAPI = {
     if (viewerId) params += `&viewerId=${viewerId}`;
     return fetchAPI(`/users/profile.php?${params}`);
   },
+  /**
+   * Get current authenticated user's enrolled courses and progress
+   */
+  getMyLearning: () => authFetchAPI('/users/my-learning.php'),
 };
 
 /**

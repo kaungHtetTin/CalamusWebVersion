@@ -13,6 +13,7 @@ import {
   IconButton,
   Rating,
   ButtonBase,
+  LinearProgress,
 } from '@mui/material';
 import {
   School as SchoolIcon,
@@ -23,7 +24,7 @@ import {
 } from '@mui/icons-material';
 
 // Professional Course Card Component
-export const CourseCard = ({ course, onBookmark }) => {
+export const CourseCard = ({ course, onBookmark, progress }) => {
   const navigate = useNavigate();
   const [isBookmarked, setIsBookmarked] = useState(false);
 
@@ -196,6 +197,35 @@ export const CourseCard = ({ course, onBookmark }) => {
         >
           {course.title}
         </Typography>
+
+        {/* Progress bar - only shown when explicitly passed (e.g., in MyLearning) */}
+        {progress !== undefined && typeof progress === 'number' && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
+            <Box sx={{ flex: 1 }}>
+              <LinearProgress
+                variant="determinate"
+                value={Math.max(0, Math.min(100, progress))}
+                sx={{
+                  height: 10,
+                  borderRadius: 2,
+                  backgroundColor: 'rgba(0,0,0,0.08)',
+                  '& .MuiLinearProgress-bar': {
+                    borderRadius: 2,
+                    background: `linear-gradient(90deg, #1976d2 0%, ${progress > 70 ? '#4caf50' : progress > 40 ? '#ff9800' : '#e53935'} 100%)`,
+                  },
+                }}
+              />
+            </Box>
+            <Typography
+              variant="body2"
+              fontWeight={600}
+              color="primary"
+              sx={{ minWidth: 50, textAlign: 'right' }}
+            >
+              {Math.round(progress)}%
+            </Typography>
+          </Box>
+        )}
 
         {/* Instructor - Clickable */}
         <ButtonBase

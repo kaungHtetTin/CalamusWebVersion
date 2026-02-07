@@ -84,7 +84,7 @@ const Explore = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      <Container maxWidth="xl" sx={{ py: 3 }}>
+      <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
         {/* Breadcrumbs */}
         <Breadcrumbs sx={{ mb: 3 }}>
           <Link
@@ -113,28 +113,23 @@ const Explore = () => {
         </Box>
 
         {/* Category Tabs */}
-        <Box sx={{ mb: 4, borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={{ mb: 4, borderBottom: '1px solid', borderColor: 'divider' }}>
           <Tabs
             value={selectedCategory}
             onChange={handleCategoryChange}
             sx={{
+              minHeight: 40,
               '& .MuiTabs-indicator': {
-                height: 3,
-                borderRadius: '3px 3px 0 0',
-                backgroundColor: 'primary.main',
+                height: 2.5,
+                borderRadius: '2px 2px 0 0',
               },
               '& .MuiTab-root': {
                 textTransform: 'none',
                 fontWeight: 600,
-                fontSize: '1rem',
-                minHeight: 48,
-                px: 3,
+                fontSize: '0.9rem',
+                minHeight: 40,
+                px: 2.5,
                 color: 'text.secondary',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  color: 'primary.main',
-                  backgroundColor: 'transparent',
-                },
                 '&.Mui-selected': {
                   color: 'primary.main',
                 },
@@ -163,7 +158,7 @@ const Explore = () => {
 
         {/* Courses Grid */}
         {loading ? (
-          <ResponsiveGrid minCardWidth={280}>
+          <ResponsiveGrid>
             {[...Array(8)].map((_, index) => (
               <CourseCardSkeleton key={index} />
             ))}
@@ -171,7 +166,7 @@ const Explore = () => {
         ) : filteredCourses.length > 0 ? (
           <Fade in timeout={500}>
             <Box>
-              <ResponsiveGrid minCardWidth={280}>
+              <ResponsiveGrid>
                 {filteredCourses.map((course) => (
                   <CourseCard key={course.id} course={course} />
                 ))}
@@ -184,6 +179,9 @@ const Explore = () => {
               textAlign: 'center',
               py: 8,
               px: 3,
+              bgcolor: 'background.paper',
+              borderRadius: 2,
+              boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
             }}
           >
             <SchoolIcon sx={{ fontSize: 80, color: 'text.disabled', mb: 2 }} />

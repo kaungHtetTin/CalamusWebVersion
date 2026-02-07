@@ -49,9 +49,16 @@ function HideOnScroll({ children }) {
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: 20,
-  backgroundColor: alpha(theme.palette.common.black, 0.05),
+  backgroundColor: alpha(theme.palette.common.black, 0.04),
+  boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+  transition: 'all 0.2s ease',
   '&:hover': {
-    backgroundColor: alpha(theme.palette.common.black, 0.08),
+    backgroundColor: alpha(theme.palette.common.black, 0.06),
+    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+  },
+  '&:focus-within': {
+    boxShadow: '0 2px 12px rgba(46, 125, 50, 0.15)',
+    backgroundColor: '#ffffff',
   },
   marginRight: theme.spacing(2),
   marginLeft: 0,
@@ -197,11 +204,13 @@ const Navbar = ({ onMenuClick, isAuthenticated = false, user = null }) => {
           onClose={handleMenuClose}
           onClick={handleMenuClose}
           PaperProps={{
-            elevation: 3,
+            elevation: 0,
             sx: {
               mt: 1.5,
-              minWidth: 200,
+              minWidth: 220,
               borderRadius: 2,
+              boxShadow: '0 4px 24px rgba(0,0,0,0.1)',
+              border: 'none',
             },
           }}
           transformOrigin={{ horizontal: 'right', vertical: 'top' }}
@@ -249,12 +258,14 @@ const Navbar = ({ onMenuClick, isAuthenticated = false, user = null }) => {
           open={Boolean(notificationAnchor)}
           onClose={handleNotificationClose}
           PaperProps={{
-            elevation: 3,
+            elevation: 0,
             sx: {
               mt: 1.5,
               width: 320,
               maxHeight: 400,
               borderRadius: 2,
+              boxShadow: '0 4px 24px rgba(0,0,0,0.1)',
+              border: 'none',
             },
           }}
           transformOrigin={{ horizontal: 'right', vertical: 'top' }}

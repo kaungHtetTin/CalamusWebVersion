@@ -4,7 +4,7 @@ import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme/theme';
 import { Layout } from './components/Layout';
 import { DrawerProvider } from './context/DrawerContext';
-import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList } from './pages';
+import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList, VipPlan } from './pages';
 
 function App() {
   return (
@@ -30,7 +30,7 @@ function App() {
             <Route path="/songs/:category" element={<SongWithLyrics />} />
             <Route path="/admin-team/:team" element={<PlaceholderPage title="Admin Team" />} />
             <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
-            <Route path="/vip-plan" element={<PlaceholderPage title="VIP Plan" />} />
+            <Route path="/vip-plan" element={<VipPlan />} />
             <Route path="/about" element={<PlaceholderPage title="About Us" />} />
             <Route path="/contact" element={<PlaceholderPage title="Contact Us" />} />
             <Route path="/terms" element={<PlaceholderPage title="Terms" />} />

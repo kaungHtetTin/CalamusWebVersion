@@ -268,8 +268,8 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
-            borderRight: '1px solid',
-            borderColor: 'divider',
+            border: 'none',
+            boxShadow: '4px 0 24px rgba(0,0,0,0.06)',
             position: 'fixed',
           },
         }}
@@ -290,6 +290,8 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
         '& .MuiDrawer-paper': {
           width: drawerWidth,
           boxSizing: 'border-box',
+          border: 'none',
+          boxShadow: '4px 0 32px rgba(0,0,0,0.1)',
         },
       }}
       ModalProps={{

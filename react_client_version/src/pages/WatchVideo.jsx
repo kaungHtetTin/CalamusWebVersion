@@ -318,7 +318,7 @@ const WatchVideo = () => {
   // Loading
   if (loading) {
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: '#f9f9f9', p: { xs: 0, lg: 3 } }}>
+      <Box sx={{ minHeight: '100vh', bgcolor: '#f9f9f9', p: { xs: 0, sm: 2, lg: 3 } }}>
         <Box sx={{ display: 'flex', gap: 3, maxWidth: 1800, mx: 'auto' }}>
           <Box sx={{ flex: 1 }}>
             <Skeleton variant="rectangular" sx={{ width: '100%', aspectRatio: '16/9', borderRadius: { xs: 0, lg: 2 } }} />
@@ -380,7 +380,7 @@ const WatchVideo = () => {
           gap: showSidebar ? 3 : 0,
           maxWidth: 1800,
           mx: 'auto',
-          p: { xs: 0, md: 3 },
+          p: { xs: 0, sm: 2, md: 3 },
         }}
       >
         {/* Left Column - Video Player & Info & Comments */}
@@ -459,8 +459,7 @@ const WatchVideo = () => {
                 alignItems: { xs: 'flex-start', sm: 'center' },
                 gap: 2,
                 pb: 2,
-                borderBottom: '1px solid',
-                borderColor: 'divider',
+                boxShadow: '0 1px 0 rgba(0,0,0,0.05)',
               }}
             >
               {/* Channel Info */}

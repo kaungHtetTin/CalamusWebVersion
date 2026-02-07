@@ -9,3 +9,4 @@ export { default as Discussion } from './Discussion';
 export { default as PostDetail } from './PostDetail';
 export { default as AdditionalLessons } from './AdditionalLessons';
 export { default as LessonList } from './LessonList';
+export { default as VipPlan } from './VipPlan';

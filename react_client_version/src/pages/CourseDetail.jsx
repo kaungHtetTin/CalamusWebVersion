@@ -107,7 +107,7 @@ const CourseDetail = () => {
     return (
       <Box sx={{ minHeight: '100vh', bgcolor: '#fafafa' }}>
         <Box sx={{ bgcolor: '#1a1a2e', py: 4 }}>
-          <Container maxWidth="lg">
+          <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
               <Skeleton variant="rectangular" width={400} height={225} sx={{ borderRadius: 2, bgcolor: 'rgba(255,255,255,0.1)' }} />
               <Box sx={{ flex: 1 }}>
@@ -156,7 +156,7 @@ const CourseDetail = () => {
           overflow: 'hidden',
         }}
       >
-        <Container maxWidth="lg">
+        <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
           {/* Breadcrumb */}
           <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3, opacity: 0.7 }}>
             <Typography
@@ -333,12 +333,11 @@ const CourseDetail = () => {
       <Box
         sx={{
           bgcolor: '#f0f0f0',
-          borderBottom: '1px solid',
-          borderColor: 'divider',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
           py: 2,
         }}
       >
-        <Container maxWidth="lg">
+        <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
           <Stack
             direction="row"
             justifyContent="space-between"
@@ -406,14 +405,13 @@ const CourseDetail = () => {
       <Box
         sx={{
           bgcolor: 'white',
-          borderBottom: '1px solid',
-          borderColor: 'divider',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
           position: 'sticky',
           top: 64, // below navbar
           zIndex: 10,
         }}
       >
-        <Container maxWidth="lg">
+        <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
             <Tabs
             value={activeTab}
             onChange={handleTabChange}
@@ -443,7 +441,7 @@ const CourseDetail = () => {
       </Box>
 
       {/* Tab Content */}
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth="lg" sx={{ py: 4, px: { xs: 2, sm: 3, md: 4 } }}>
         {/* Course Content Tab */}
         {activeTab === 0 && (
           <Box>
@@ -463,9 +461,9 @@ const CourseDetail = () => {
                 onChange={handleDayExpand(dayIndex)}
                 elevation={0}
                 sx={{
-                  mb: 1,
-                  border: '1px solid',
-                  borderColor: 'divider',
+                  mb: 1.5,
+                  border: 'none',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                   borderRadius: '8px !important',
                   '&:before': { display: 'none' },
                   overflow: 'hidden',
@@ -555,8 +553,8 @@ const CourseDetail = () => {
                 sx={{
                   p: 4,
                   borderRadius: 2,
-                  border: '1px solid',
-                  borderColor: 'divider',
+                  border: 'none',
+                  boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
                   textAlign: 'center',
                   minWidth: { md: 280 },
                 }}
@@ -627,8 +625,8 @@ const CourseDetail = () => {
                         sx={{
                           p: 3,
                           borderRadius: 2,
-                          border: '1px solid',
-                          borderColor: 'divider',
+                          border: 'none',
+                          boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
                         }}
                       >
                         <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
@@ -657,8 +655,8 @@ const CourseDetail = () => {
                     sx={{
                       p: 4,
                       borderRadius: 2,
-                      border: '1px solid',
-                      borderColor: 'divider',
+                      border: 'none',
+                      boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
                       textAlign: 'center',
                     }}
                   >

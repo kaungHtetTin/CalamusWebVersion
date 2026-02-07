@@ -79,9 +79,9 @@ const CommentItem = ({ comment, isReply = false, onLikeComment }) => {
         <Box sx={{ flex: 1 }}>
           <Box
             sx={{
-              bgcolor: '#f0f2f5',
+              bgcolor: 'grey.100',
               borderRadius: '18px',
-              px: 1.5,
+              px: 2,
               py: 1,
               display: 'inline-block',
               maxWidth: '100%',
@@ -150,7 +150,7 @@ const CommentItem = ({ comment, isReply = false, onLikeComment }) => {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '20px',
                     fontSize: 13,
-                    bgcolor: '#f0f2f5',
+                    bgcolor: 'grey.100',
                     '& fieldset': { border: 'none' },
                   },
                 }}
@@ -191,8 +191,8 @@ const PostDetailSkeleton = () => (
         elevation={0}
         sx={{ 
           borderRadius: 2, 
-          border: '1px solid',
-          borderColor: 'divider',
+          border: 'none',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
           overflow: 'hidden',
         }}
       >
@@ -233,8 +233,8 @@ const PostDetailSkeleton = () => (
         sx={{ 
           mt: 2, 
           borderRadius: 2, 
-          border: '1px solid',
-          borderColor: 'divider',
+          border: 'none',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
           p: 2,
         }}
       >
@@ -366,10 +366,10 @@ const PostDetail = () => {
           <Paper 
             elevation={0} 
             sx={{ 
-              borderRadius: { xs: 0, sm: 2 }, 
+              borderRadius: { xs: 0, sm: 4 }, 
               overflow: 'hidden',
-              border: '1px solid',
-              borderColor: 'divider',
+              border: 'none',
+              boxShadow: { xs: 'none', sm: '0 2px 12px rgba(0,0,0,0.06)' },
               bgcolor: 'background.paper',
             }}
           >
@@ -511,9 +511,9 @@ const PostDetail = () => {
           elevation={0}
           sx={{ 
             mt: 2, 
-            borderRadius: 2,
-            border: '1px solid',
-            borderColor: 'divider',
+            borderRadius: 4,
+            border: 'none',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
             p: 2,
           }}
         >
@@ -538,7 +538,7 @@ const PostDetail = () => {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '20px',
-                  bgcolor: '#f0f2f5',
+                  bgcolor: 'grey.100',
                   '& fieldset': { border: 'none' },
                 },
               }}

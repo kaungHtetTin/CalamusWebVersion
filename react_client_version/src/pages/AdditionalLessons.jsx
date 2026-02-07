@@ -33,13 +33,13 @@ const CategoryCard = ({ category, onClick }) => {
         borderRadius: 2,
         overflow: 'hidden',
         bgcolor: 'background.paper',
-        border: '1px solid',
-        borderColor: 'divider',
-        transition: 'all 0.2s ease',
+        border: 'none',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+        transition: 'all 0.25s ease',
         cursor: 'pointer',
         '&:hover': {
-          borderColor: 'text.secondary',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+          transform: 'translateY(-4px)',
+          boxShadow: '0 8px 28px rgba(0,0,0,0.1)',
           '& .card-arrow': {
             transform: 'translateX(4px)',
           },

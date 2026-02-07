@@ -111,9 +111,9 @@ const CommentItem = ({ comment, isReply = false, onLikeComment }) => {
           {/* Facebook-style comment bubble */}
           <Box
             sx={{
-              bgcolor: '#f0f2f5',
+              bgcolor: 'grey.100',
               borderRadius: '18px',
-              px: 1.5,
+              px: 2,
               py: 1,
               display: 'inline-block',
               maxWidth: '100%',
@@ -184,7 +184,7 @@ const CommentItem = ({ comment, isReply = false, onLikeComment }) => {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '20px',
                     fontSize: 13,
-                    bgcolor: '#f0f2f5',
+                    bgcolor: 'grey.100',
                     '& fieldset': { border: 'none' },
                   },
                 }}
@@ -264,6 +264,7 @@ const CommentsModal = ({ open, onClose, post }) => {
         sx: {
           borderRadius: isMobile ? 0 : 2,
           maxHeight: isMobile ? '100%' : '85vh',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
         },
       }}
     >
@@ -271,8 +272,8 @@ const CommentsModal = ({ open, onClose, post }) => {
       <DialogTitle
         sx={{
           p: 2,
-          borderBottom: '1px solid',
-          borderColor: 'divider',
+          borderBottom: 'none',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -289,7 +290,7 @@ const CommentsModal = ({ open, onClose, post }) => {
       {/* Content */}
       <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column' }}>
         {/* Post Preview */}
-        <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Box sx={{ p: 2, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
           <Stack direction="row" spacing={1.5} alignItems="flex-start">
             <Avatar
               src={post?.userImage}
@@ -373,8 +374,7 @@ const CommentsModal = ({ open, onClose, post }) => {
         <Box
           sx={{
             p: 2,
-            borderTop: '1px solid',
-            borderColor: 'divider',
+            boxShadow: '0 -2px 8px rgba(0,0,0,0.04)',
             bgcolor: 'background.paper',
           }}
         >
@@ -397,7 +397,7 @@ const CommentsModal = ({ open, onClose, post }) => {
               }}
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  borderRadius: 3,
+                  borderRadius: 2,
                 },
               }}
             />
@@ -445,8 +445,8 @@ const PostCard = ({ post, onLike, onOpenComments }) => {
       sx={{
         bgcolor: 'background.paper',
         borderRadius: { xs: 0, sm: 2 },
-        border: '1px solid',
-        borderColor: 'divider',
+        border: 'none',
+        boxShadow: { xs: 'none', sm: '0 2px 12px rgba(0,0,0,0.06)' },
         overflow: 'hidden',
         mb: { xs: 1, sm: 2 },
       }}
@@ -688,9 +688,9 @@ const CreatePostBox = ({ userImage }) => {
       elevation={0}
       sx={{
         bgcolor: 'background.paper',
-        borderRadius: 2,
-        border: '1px solid',
-        borderColor: 'divider',
+        borderRadius: { xs: 0, sm: 2 },
+        border: 'none',
+        boxShadow: { xs: 'none', sm: '0 2px 12px rgba(0,0,0,0.06)' },
         p: 2,
         mb: 2,
       }}
@@ -755,8 +755,8 @@ const PostSkeleton = () => (
     sx={{
       bgcolor: 'background.paper',
       borderRadius: 2,
-      border: '1px solid',
-      borderColor: 'divider',
+      border: 'none',
+      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
       overflow: 'hidden',
       mb: 2,
     }}
@@ -987,8 +987,7 @@ const Discussion = () => {
           sx={{ 
             px: 2, 
             pb: 2,
-            borderBottom: '1px solid',
-            borderColor: 'divider',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
           }}
         >
           <Stack 
@@ -1009,13 +1008,17 @@ const Discussion = () => {
                   height: 60,
                   borderRadius: '50%',
                   bgcolor: 'background.paper',
-                  border: '1px solid',
-                  borderColor: 'divider',
+                  border: 'none',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  '&:hover': { bgcolor: 'action.hover' },
+                  transition: 'all 0.2s ease',
+                  '&:hover': { 
+                    bgcolor: 'grey.50',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+                  },
                 }}
               >
                 <AddIcon color="primary" />
@@ -1105,9 +1108,10 @@ const Discussion = () => {
             color: 'white',
             width: 56,
             height: 56,
-            boxShadow: 3,
+            boxShadow: '0 4px 16px rgba(46, 125, 50, 0.3)',
             '&:hover': {
               bgcolor: 'primary.dark',
+              boxShadow: '0 6px 20px rgba(46, 125, 50, 0.4)',
             },
           }}
         >

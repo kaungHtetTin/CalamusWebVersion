@@ -192,7 +192,7 @@ const SongListItem = ({ song, isActive, onClick, index }) => {
         '&:hover': {
           bgcolor: isActive 
             ? alpha(theme.palette.primary.main, 0.12) 
-            : 'action.hover',
+            : 'grey.50',
         },
       }}
     >
@@ -305,7 +305,8 @@ const NowPlayingSection = ({
         bgcolor: alpha(theme.palette.primary.main, 0.03),
         borderRadius: 3,
         overflow: 'hidden',
-        border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+        border: 'none',
+        boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.1)}`,
       }}
     >
       {/* Main Player Area */}
@@ -798,7 +799,7 @@ const SongWithLyrics = () => {
   // Loading state
   if (loading) {
     return (
-      <Box sx={{ p: 3, width: '100%', boxSizing: 'border-box' }}>
+      <Box sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 }, width: '100%', boxSizing: 'border-box' }}>
         <Skeleton variant="rounded" height={300} sx={{ mb: 3 }} />
         <Stack direction="row" spacing={2} sx={{ mb: 3, overflowX: 'hidden' }}>
           {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -847,7 +848,7 @@ const SongWithLyrics = () => {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#fafafa', pb: showMiniPlayer ? 10 : 4, width: '100%', overflowX: 'hidden' }}>
       {/* Page Header */}
-      <Box sx={{ py: 3, px: 3 }}>
+      <Box sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
         <Stack 
           direction="row" 
           alignItems="center" 
@@ -867,7 +868,7 @@ const SongWithLyrics = () => {
         </Stack>
       </Box>
 
-      <Box sx={{ width: '100%', p: { xs: 2, md: 3 }, boxSizing: 'border-box' }}>
+      <Box sx={{ width: '100%', py: { xs: 2, md: 3 }, px: { xs: 2, sm: 3, md: 4 }, boxSizing: 'border-box' }}>
         {/* Now Playing Section */}
         <Box ref={nowPlayingRef} sx={{ mb: 4 }}>
           <NowPlayingSection
@@ -888,15 +889,14 @@ const SongWithLyrics = () => {
         </Box>
 
         {/* Content Tabs */}
-        <Paper sx={{ borderRadius: 2, overflow: 'hidden' }}>
+        <Paper sx={{ borderRadius: 2, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,0.06)' }}>
           <Tabs
             value={activeTab}
             onChange={(_, v) => setActiveTab(v)}
             variant={isDesktop ? 'standard' : 'fullWidth'}
             sx={{
               bgcolor: 'background.paper',
-              borderBottom: 1,
-              borderColor: 'divider',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
               '& .MuiTab-root': {
                 minHeight: 56,
                 textTransform: 'none',

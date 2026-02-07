@@ -29,11 +29,17 @@ import {
 import { instructorAPI } from '../services/api';
 
 // Responsive grid for courses
-const ResponsiveGrid = ({ children, minCardWidth = 280 }) => (
+const ResponsiveGrid = ({ children }) => (
   <Box
     sx={{
       display: 'grid',
-      gridTemplateColumns: `repeat(auto-fill, minmax(${minCardWidth}px, 1fr))`,
+      gridTemplateColumns: {
+        xs: '1fr',
+        sm: 'repeat(2, 1fr)',
+        md: 'repeat(3, 1fr)',
+        lg: 'repeat(3, 1fr)',
+        xl: 'repeat(4, 1fr)',
+      },
       gap: 3,
     }}
   >
@@ -72,11 +78,11 @@ const CourseCard = ({ course }) => {
         transition: 'all 0.3s ease',
         borderRadius: 3,
         overflow: 'hidden',
-        border: '1px solid',
-        borderColor: 'divider',
+        border: 'none',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
         '&:hover': { 
-          transform: 'translateY(-4px)', 
-          boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+          transform: 'translateY(-5px)', 
+          boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
         } 
       }}
     >
@@ -110,6 +116,7 @@ const CourseCard = ({ course }) => {
             color: categoryInfo.color,
             fontWeight: 600,
             fontSize: '0.7rem',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
           }}
         />
         
@@ -124,6 +131,7 @@ const CourseCard = ({ course }) => {
             color: 'white',
             fontWeight: 600,
             fontSize: '0.7rem',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
           }}
         />
       </Box>
@@ -166,8 +174,8 @@ const StatCard = ({ icon, value, label, color }) => (
     sx={{
       p: 3,
       borderRadius: 3,
-      border: '1px solid',
-      borderColor: 'divider',
+      border: 'none',
+      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
       textAlign: 'center',
       flex: 1,
       minWidth: 120,
@@ -224,7 +232,7 @@ const InstructorProfile = () => {
 
   if (loading) {
     return (
-      <Box>
+      <Box sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
         <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 3, mb: 3 }} />
         <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
           <Skeleton variant="rectangular" height={120} sx={{ flex: 1, borderRadius: 3 }} />
@@ -243,7 +251,7 @@ const InstructorProfile = () => {
 
   if (error || !instructor) {
     return (
-      <Box sx={{ textAlign: 'center', py: 8 }}>
+      <Box sx={{ textAlign: 'center', py: 8, px: { xs: 2, sm: 3, md: 4 } }}>
         <Typography variant="h6" color="error" gutterBottom>
           {error || 'Instructor not found'}
         </Typography>
@@ -255,7 +263,7 @@ const InstructorProfile = () => {
   }
 
   return (
-    <Box>
+    <Box sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
       {/* Back Button */}
       <Button
         startIcon={<BackIcon />}
@@ -276,6 +284,7 @@ const InstructorProfile = () => {
           color: 'white',
           position: 'relative',
           overflow: 'hidden',
+          boxShadow: '0 8px 32px rgba(46, 125, 50, 0.2)',
         }}
       >
         <Box
@@ -393,8 +402,8 @@ const InstructorProfile = () => {
               p: 4,
               textAlign: 'center',
               borderRadius: 3,
-              border: '1px solid',
-              borderColor: 'divider',
+              border: 'none',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
             }}
           >
             <Typography color="text.secondary">

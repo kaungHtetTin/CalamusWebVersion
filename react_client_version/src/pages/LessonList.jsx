@@ -50,11 +50,11 @@ const LessonItem = ({ lesson, index, onClick }) => {
       sx={{
         mb: 1,
         borderRadius: 1.5,
-        border: '1px solid',
-        borderColor: 'divider',
-        transition: 'all 0.15s ease',
+        border: 'none',
+        boxShadow: '0 1px 6px rgba(0,0,0,0.04)',
+        transition: 'all 0.2s ease',
         '&:hover': {
-          borderColor: 'grey.300',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
           bgcolor: 'grey.50',
         },
       }}
@@ -80,7 +80,7 @@ const LessonItem = ({ lesson, index, onClick }) => {
               width: 36,
               height: 36,
               borderRadius: 1,
-              bgcolor: 'action.hover',
+              bgcolor: 'grey.100',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -130,7 +130,7 @@ const LessonItem = ({ lesson, index, onClick }) => {
               sx={{
                 height: 24,
                 fontSize: 11,
-                bgcolor: 'action.hover',
+                bgcolor: 'grey.100',
                 color: 'text.secondary',
               }}
             />
@@ -151,9 +151,10 @@ const SidebarItem = ({ category, isActive, onClick }) => {
           borderRadius: 1.5,
           py: 1,
           px: 1.5,
-          bgcolor: isActive ? 'action.selected' : 'transparent',
+          bgcolor: isActive ? 'grey.100' : 'transparent',
+          transition: 'all 0.15s ease',
           '&:hover': {
-            bgcolor: isActive ? 'action.selected' : 'action.hover',
+            bgcolor: isActive ? 'grey.100' : 'grey.50',
           },
         }}
       >
@@ -354,8 +355,8 @@ const LessonList = () => {
                 sx={{
                   p: 2,
                   borderRadius: 2,
-                  border: '1px solid',
-                  borderColor: 'divider',
+                  border: 'none',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
                   position: 'sticky',
                   top: 80,
                 }}

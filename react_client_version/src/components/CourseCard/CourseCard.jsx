@@ -73,15 +73,14 @@ export const CourseCard = ({ course, onBookmark }) => {
         display: 'flex',
         flexDirection: 'column',
         cursor: 'pointer',
-        transition: 'all 0.3s ease',
+        transition: 'all 0.25s ease',
         borderRadius: 3,
         overflow: 'hidden',
-        border: '1px solid',
-        borderColor: 'divider',
+        border: 'none',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
         '&:hover': {
-          transform: 'translateY(-8px)',
-          boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
-          borderColor: 'primary.light',
+          transform: 'translateY(-6px)',
+          boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
         },
       }}
     >
@@ -118,6 +117,7 @@ export const CourseCard = ({ course, onBookmark }) => {
             fontWeight: 600,
             fontSize: '0.7rem',
             height: 24,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
           }}
         />
 
@@ -128,9 +128,11 @@ export const CourseCard = ({ course, onBookmark }) => {
             position: 'absolute',
             top: 8,
             right: 8,
-            backgroundColor: 'rgba(255,255,255,0.9)',
+            backgroundColor: 'rgba(255,255,255,0.95)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
             '&:hover': {
               backgroundColor: 'rgba(255,255,255,1)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
             },
           }}
           size="small"
@@ -155,6 +157,7 @@ export const CourseCard = ({ course, onBookmark }) => {
               color: 'white',
               fontWeight: 600,
               fontSize: '0.7rem',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
             }}
           />
         )}
@@ -170,6 +173,7 @@ export const CourseCard = ({ course, onBookmark }) => {
               color: 'white',
               fontWeight: 600,
               fontSize: '0.7rem',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
             }}
           />
         )}
@@ -203,7 +207,7 @@ export const CourseCard = ({ course, onBookmark }) => {
             mb: 1,
             transition: 'all 0.2s ease',
             '&:hover': {
-              backgroundColor: 'action.hover',
+              backgroundColor: 'grey.50',
               '& .instructor-name': {
                 color: 'primary.main',
               },
@@ -292,6 +296,8 @@ export const CourseCardSkeleton = () => (
       flexDirection: 'column',
       borderRadius: 3,
       overflow: 'hidden',
+      border: 'none',
+      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
     }}
   >
     <Skeleton
@@ -311,11 +317,17 @@ export const CourseCardSkeleton = () => (
 );
 
 // Responsive Grid Component
-export const ResponsiveGrid = ({ children, minCardWidth = 280 }) => (
+export const ResponsiveGrid = ({ children }) => (
   <Box
     sx={{
       display: 'grid',
-      gridTemplateColumns: `repeat(auto-fill, minmax(${minCardWidth}px, 1fr))`,
+      gridTemplateColumns: {
+        xs: '1fr',
+        sm: 'repeat(2, 1fr)',
+        md: 'repeat(3, 1fr)',
+        lg: 'repeat(3, 1fr)',
+        xl: 'repeat(4, 1fr)',
+      },
       gap: 3,
     }}
   >

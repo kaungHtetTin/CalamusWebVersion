@@ -1,6 +1,7 @@
 import { createTheme } from '@mui/material/styles';
 
-// Educational Green Theme
+// Soft Shadow Design Theme
+// Features: Subtle shadows instead of hard borders
 const theme = createTheme({
   palette: {
     primary: {
@@ -88,7 +89,7 @@ const theme = createTheme({
         root: {
           backgroundColor: '#ffffff',
           color: '#333333',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          boxShadow: '0 1px 8px rgba(0,0,0,0.06)',
         },
       },
     },
@@ -96,7 +97,8 @@ const theme = createTheme({
       styleOverrides: {
         paper: {
           backgroundColor: '#ffffff',
-          borderRight: '1px solid #e0e0e0',
+          border: 'none',
+          boxShadow: '4px 0 24px rgba(0,0,0,0.08)',
           // Custom scrollbar for drawer
           '&::-webkit-scrollbar': {
             width: '6px',
@@ -118,11 +120,23 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           textTransform: 'none',
-          borderRadius: 8,
+          fontWeight: 500,
+        },
+        contained: {
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          '&:hover': {
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          },
         },
         containedPrimary: {
           '&:hover': {
             backgroundColor: '#1b5e20',
+          },
+        },
+        outlined: {
+          borderWidth: '1.5px',
+          '&:hover': {
+            borderWidth: '1.5px',
           },
         },
       },
@@ -130,16 +144,36 @@ const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+          border: 'none',
+          transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+          '&:hover': {
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+          },
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        elevation0: {
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+        },
+        elevation1: {
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+        },
+        elevation2: {
+          boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+        },
+        elevation3: {
+          boxShadow: '0 6px 20px rgba(0,0,0,0.1)',
         },
       },
     },
     MuiListItemButton: {
       styleOverrides: {
         root: {
-          borderRadius: 8,
           margin: '2px 8px',
+          transition: 'background-color 0.15s ease',
           '&.Mui-selected': {
             backgroundColor: 'rgba(46, 125, 50, 0.1)',
             '&:hover': {
@@ -149,6 +183,59 @@ const theme = createTheme({
           '&:hover': {
             backgroundColor: 'rgba(46, 125, 50, 0.08)',
           },
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'rgba(0,0,0,0.1)',
+            transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'rgba(0,0,0,0.2)',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderWidth: '1.5px',
+          },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          fontWeight: 500,
+        },
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+        },
+      },
+    },
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+          border: 'none',
+        },
+      },
+    },
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          fontSize: '0.75rem',
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          fontWeight: 500,
         },
       },
     },

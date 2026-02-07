@@ -44,10 +44,11 @@ const VideoCard = ({ video, channelId, channelName, onClick }) => {
         borderRadius: 2,
         overflow: 'hidden',
         bgcolor: 'white',
-        transition: 'all 0.2s ease',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+        transition: 'all 0.25s ease',
         '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
+          transform: 'translateY(-5px)',
+          boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
         },
         '&:hover .play-overlay': {
           opacity: 1,
@@ -175,7 +176,7 @@ const VideoCard = ({ video, channelId, channelName, onClick }) => {
 
 // Video Card Skeleton
 const VideoCardSkeleton = () => (
-  <Box sx={{ borderRadius: 2, overflow: 'hidden', bgcolor: 'white' }}>
+  <Box sx={{ borderRadius: 2, overflow: 'hidden', bgcolor: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
     <Skeleton variant="rectangular" sx={{ aspectRatio: '16/9' }} />
     <Box sx={{ p: 2 }}>
       <Skeleton variant="text" width="40%" height={20} />
@@ -260,7 +261,7 @@ const VideoChannel = () => {
     return (
       <Box sx={{ minHeight: '100vh', bgcolor: '#fafafa' }}>
         {/* Header Skeleton */}
-        <Box sx={{ py: 3, px: { xs: 2, sm: 3 } }}>
+        <Box sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
           <Stack direction="row" spacing={2} alignItems="center">
             <Skeleton 
               variant="circular" 
@@ -275,7 +276,7 @@ const VideoChannel = () => {
 
         {/* Tabs Skeleton */}
         <Box sx={{ bgcolor: 'white', borderBottom: '1px solid', borderColor: 'divider' }}>
-          <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 2, md: 3 } }}>
+          <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
             {/* Mobile: Multiline chips skeleton */}
             <Box sx={{ display: { xs: 'flex', sm: 'none' }, flexWrap: 'wrap', gap: 1, py: 2 }}>
               {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -312,7 +313,7 @@ const VideoChannel = () => {
         </Box>
 
         {/* Content Skeleton */}
-        <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3, md: 4 }, px: { xs: 2, sm: 2, md: 3 } }}>
+        <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3, md: 4 }, px: { xs: 2, sm: 3, md: 4 } }}>
           <VideoGrid>
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <VideoCardSkeleton key={i} />
@@ -354,7 +355,7 @@ const VideoChannel = () => {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#fafafa' }}>
       {/* Page Header */}
-      <Box sx={{ py: 3, px: { xs: 2, sm: 3 } }}>
+      <Box sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
         <Stack direction="row" spacing={2} alignItems="center">
           <Avatar
             src={app.icon}
@@ -384,14 +385,13 @@ const VideoChannel = () => {
         <Box
           sx={{
             bgcolor: 'white',
-            borderBottom: '1px solid',
-            borderColor: 'divider',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
             position: 'sticky',
             top: { xs: 56, sm: 64 },
             zIndex: 10,
           }}
         >
-          <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 2, md: 3 } }}>
+          <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
             {/* Mobile: Multiline Wrapped Tabs with Underline */}
             {isMobile ? (
               <Box
@@ -472,7 +472,7 @@ const VideoChannel = () => {
       </Slide>
 
       {/* Video Grid Content */}
-      <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3, md: 4 }, px: { xs: 2, sm: 2, md: 3 } }}>
+      <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3, md: 4 }, px: { xs: 2, sm: 3, md: 4 } }}>
         {activeCategory && activeCategory.lessons?.length > 0 ? (
           <VideoGrid>
             {activeCategory.lessons.map((video) => (

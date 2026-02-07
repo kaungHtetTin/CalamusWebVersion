@@ -64,6 +64,11 @@ export const courseAPI = {
  */
 export const instructorAPI = {
   /**
+   * Get all instructors with stats
+   */
+  getAll: () => fetchAPI('/instructors/all.php'),
+  
+  /**
    * Get instructor detail by ID
    * @param {number} id - Instructor ID
    */
@@ -169,6 +174,47 @@ export const additionalLessonsAPI = {
   getLessons: (categoryId) => fetchAPI(`/additional-lessons/lessons.php?categoryId=${categoryId}`),
 };
 
+/**
+ * Stats API endpoints
+ */
+export const statsAPI = {
+  /**
+   * Get home page stats for hero section
+   * Returns: totalCourses, totalLessons, totalInstructors, totalStudents, avgRating, topInstructors
+   */
+  getHome: () => fetchAPI('/stats/home.php'),
+};
+
+/**
+ * Pinned Posts API endpoints
+ */
+export const pinnedPostsAPI = {
+  /**
+   * Get pinned posts for home page (all categories)
+   */
+  get: () => fetchAPI('/posts/pinned.php'),
+};
+
+/**
+ * VIP Plan API endpoints
+ */
+export const vipPlanAPI = {
+  /**
+   * Get VIP plan data (pricing, payment methods, etc.)
+   */
+  get: () => fetchAPI('/vip-plan/get.php'),
+};
+
+/**
+ * Apps API endpoints
+ */
+export const appsAPI = {
+  /**
+   * Get active apps (with active_course > 0)
+   */
+  get: () => fetchAPI('/apps/get.php'),
+};
+
 export default {
   course: courseAPI,
   instructor: instructorAPI,
@@ -176,4 +222,8 @@ export default {
   song: songAPI,
   discussion: discussionAPI,
   additionalLessons: additionalLessonsAPI,
+  stats: statsAPI,
+  pinnedPosts: pinnedPostsAPI,
+  vipPlan: vipPlanAPI,
+  apps: appsAPI,
 };

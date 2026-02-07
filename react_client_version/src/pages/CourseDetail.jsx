@@ -505,16 +505,19 @@ const CourseDetail = () => {
                 <AccordionDetails sx={{ p: 0 }}>
                   <List disablePadding>
                     {day.lessons?.map((lesson) => (
-                      <ListItem
-                        key={lesson.id}
-                        sx={{
-                          py: 1.5,
-                          px: 3,
-                          borderTop: '1px solid',
-                          borderColor: 'divider',
-                          '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.02) },
-                        }}
-                      >
+                                <ListItem
+                                  key={lesson.id}
+                                  onClick={() => navigate(`/course/${id}/lesson/${lesson.id}`)}
+                                  sx={{
+                                    py: 1.5,
+                                    px: 3,
+                                    borderTop: '1px solid',
+                                    borderColor: 'divider',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease',
+                                    '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05), pl: 4 },
+                                  }}
+                                >
                         <ListItemIcon sx={{ minWidth: 40 }}>
                           {lesson.isVideo ? (
                             <VideoIcon sx={{ fontSize: 20, color: 'primary.main' }} />

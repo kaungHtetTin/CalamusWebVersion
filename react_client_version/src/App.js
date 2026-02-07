@@ -5,7 +5,7 @@ import theme from './theme/theme';
 import { Layout } from './components/Layout';
 import { DrawerProvider } from './context/DrawerContext';
 import { AuthProvider } from './context/AuthContext';
-import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList, VipPlan, Login, Profile, MyLearning } from './pages';
+import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList, VipPlan, Login, Profile, MyLearning, LessonPlay } from './pages';
 
 function App() {
   return (
@@ -25,6 +25,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/instructor/:id" element={<InstructorProfile />} />
                 <Route path="/course/:id" element={<CourseDetail />} />
+                <Route path="/course/:courseId/lesson/:lessonId" element={<LessonPlay />} />
                 <Route path="/explore" element={<Explore />} />
                 <Route path="/vocab-learning" element={<PlaceholderPage title="Vocab Learning" />} />
                 <Route path="/my-learning" element={<MyLearning />} />

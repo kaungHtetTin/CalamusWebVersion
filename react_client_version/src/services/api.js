@@ -134,6 +134,18 @@ export const courseAPI = {
 };
 
 /**
+ * Lesson API endpoints
+ */
+export const lessonAPI = {
+  /**
+   * Get lesson detail with course context
+   * @param {number} lessonId
+   * @param {number} courseId
+   */
+  getDetail: (lessonId, courseId) => fetchAPI(`/lessons/detail.php?id=${lessonId}&course_id=${courseId}`).then((r) => r.data),
+};
+
+/**
  * Instructor API endpoints
  */
 export const instructorAPI = {

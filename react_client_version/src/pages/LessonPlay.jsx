@@ -1,31 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useDrawer } from '../context/DrawerContext';
+import { lessonAPI, courseAPI } from '../services/api';
 import {
   Box,
   Typography,
-  Skeleton,
-  Stack,
+  Button,
   IconButton,
+  Stack,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Skeleton,
+  Avatar,
+  Tooltip,
   useTheme,
   alpha,
-  Button,
-  Tooltip,
-  Avatar,
   useMediaQuery,
   Drawer,
+  Divider,
   Paper,
 } from '@mui/material';
 import {
-  PlayArrow as PlayIcon,
+  Videocam as VideoIcon,
+  Description as DocumentIcon,
+  Menu as MenuIcon,
+  Close as CloseIcon,
+  School as SchoolIcon,
   ThumbUpOutlined as LikeIcon,
   ThumbUp as LikedIcon,
   Share as ShareIcon,
-  VideoLibrary as VideoIcon,
   MoreHoriz as MoreIcon,
-  Close as CloseIcon,
 } from '@mui/icons-material';
-import { videoChannelAPI } from '../services/api';
-import { useDrawer } from '../context/DrawerContext';
+
 import VimeoPlayer from '../components/VideoPlayer/VimeoPlayer';
 import Comments from '../components/Comments/Comments';
 
@@ -37,128 +46,60 @@ const formatCount = (count) => {
   return (count / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
 };
 
-// Sidebar Video Item (YouTube style - compact horizontal card)
-const SidebarVideoItem = ({ video, isActive, onClick }) => {
+// Curriculum Sidebar Item
+const CurriculumItem = ({ lesson, isActive, onClick }) => {
   const theme = useTheme();
-
   return (
-    <Box
+    <ListItem
       onClick={onClick}
       sx={{
-        display: 'flex',
-        gap: 0.75,
+        py: 1,
+        px: 2,
         cursor: 'pointer',
-        p: 0.25,
-        borderRadius: 0.75,
-        bgcolor: isActive ? alpha(theme.palette.primary.main, 0.08) : 'transparent',
-        transition: 'all 0.15s ease',
+        bgcolor: isActive ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
+        borderLeft: isActive ? `3px solid ${theme.palette.primary.main}` : '3px solid transparent',
+        transition: 'all 0.2s ease',
         '&:hover': {
-          bgcolor: isActive ? alpha(theme.palette.primary.main, 0.12) : alpha('#000', 0.04),
+          bgcolor: alpha(theme.palette.primary.main, 0.05),
         },
       }}
     >
-      {/* Thumbnail - compact size */}
-      <Box
-        sx={{
-          position: 'relative',
-          width: 120,
-          minWidth: 120,
-          aspectRatio: '16/9',
-          borderRadius: 0.75,
-          overflow: 'hidden',
-          bgcolor: 'grey.200',
-        }}
-      >
-        {video.thumbnail ? (
-          <Box
-            component="img"
-            src={video.thumbnail}
-            alt={video.title}
-            sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
+      <ListItemIcon sx={{ minWidth: 32 }}>
+        {(lesson.isVideo || lesson.type === 'video') ? (
+          <VideoIcon sx={{ fontSize: 18, color: isActive ? 'primary.main' : 'text.secondary' }} />
         ) : (
-          <Box
-            sx={{
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
-            }}
-          >
-            <VideoIcon sx={{ fontSize: 18, color: 'primary.main', opacity: 0.5 }} />
-          </Box>
+          <DocumentIcon sx={{ fontSize: 18, color: isActive ? 'primary.main' : 'text.secondary' }} />
         )}
-
-        {/* Duration badge */}
-        {video.formattedDuration && (
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: 2,
-              right: 2,
-              bgcolor: 'rgba(0,0,0,0.8)',
-              color: 'white',
-              px: 0.4,
-              py: 0.1,
-              borderRadius: 0.5,
-              fontSize: '0.6rem',
-              fontWeight: 500,
-            }}
-          >
-            {video.formattedDuration}
-          </Box>
-        )}
-
-        {/* Now playing indicator */}
-        {isActive && (
-          <Box
-            sx={{
-              position: 'absolute',
-              inset: 0,
-              bgcolor: 'rgba(0,0,0,0.6)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <PlayIcon sx={{ color: 'white', fontSize: 20 }} />
-          </Box>
-        )}
-      </Box>
-
-      {/* Info - compact */}
-      <Box sx={{ flex: 1, minWidth: 0, py: 0 }}>
-        <Typography
-          sx={{
-            fontSize: '0.75rem',
-            fontWeight: 500,
-            lineHeight: 1.3,
+      </ListItemIcon>
+      <ListItemText
+        primary={lesson.title}
+        primaryTypographyProps={{
+          fontSize: '0.85rem',
+          fontWeight: isActive ? 600 : 500,
+          color: isActive ? 'primary.main' : 'text.primary',
+          sx: {
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
-            color: isActive ? 'primary.main' : 'text.primary',
-            mb: 0.25,
-          }}
-        >
-          {video.title}
+          },
+        }}
+      />
+      {lesson.duration && (
+        <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+          {lesson.duration}m
         </Typography>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: '0.65rem' }}>
-          {video.formattedViewCount}
-        </Typography>
-      </Box>
-    </Box>
+      )}
+    </ListItem>
   );
 };
 
-// Main Component
-const WatchVideo = () => {
-  const { id } = useParams();
+export default function LessonPlay() {
+  const { lessonId, courseId } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+  const { isAuthenticated } = useAuth();
   const { drawerOpen, setDrawerOpen } = useDrawer();
 
   // Close the nav drawer by default on this page
@@ -166,57 +107,63 @@ const WatchVideo = () => {
     setDrawerOpen(false);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Show sidebar only on desktop when drawer is closed
+  // Show curriculum sidebar only on desktop when nav drawer is closed
   const showSidebar = isDesktop && !drawerOpen;
 
-  const [data, setData] = useState(null);
+  const [lessonDetail, setLessonDetail] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [currentLessonId, setCurrentLessonId] = useState(parseInt(lessonId));
   const [liked, setLiked] = useState(false);
   const [comment, setComment] = useState('');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!id) {
-        setError('Video ID is required');
-        setLoading(false);
-        return;
-      }
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
 
+    const loadLesson = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        setLiked(false);
-        const response = await videoChannelAPI.getVideo(id);
-        setData(response.data);
+        const [courseRes, lessonData] = await Promise.all([
+          courseAPI.getDetail(parseInt(courseId)),
+          lessonAPI.getDetail(currentLessonId, parseInt(courseId)),
+        ]);
+
+        const course = courseRes.data || courseRes;
+
+        setLessonDetail({
+          lesson: lessonData.lesson || lessonData,
+          course: course,
+          curriculum: course.curriculum || [],
+        });
       } catch (err) {
-        console.error('Failed to fetch video data:', err);
-        setError('Failed to load video');
+        console.error('Failed to load lesson detail or course curriculum:', err);
+        setLessonDetail(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    loadLesson();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [id]);
+  }, [currentLessonId, courseId, isAuthenticated, navigate]);
 
-  const handleVideoSelect = (videoId) => {
-    navigate(`/watch/${videoId}`);
+  const handleLessonClick = (newLessonId) => {
+    setCurrentLessonId(newLessonId);
+    if (!isDesktop) setMobileSidebarOpen(false);
   };
 
-  const handleBack = () => navigate(-1);
   const handleLike = () => setLiked(!liked);
   const handleShare = () => {
     if (navigator.share) {
-      navigator.share({
-        title: data?.video?.title,
-        url: window.location.href,
-      });
+      navigator.share({ title: lessonDetail?.lesson?.title, url: window.location.href });
     }
   };
+  const handleBack = () => navigate(`/course/${courseId}`);
 
-  // Loading
+  // Loading skeleton — matches WatchVideo layout
   if (loading) {
     return (
       <Box sx={{ minHeight: '100vh', bgcolor: '#f9f9f9', p: { xs: 0, sm: 2, lg: 3 } }}>
@@ -229,14 +176,11 @@ const WatchVideo = () => {
             </Box>
           </Box>
           {isDesktop && (
-            <Box sx={{ width: 400 }}>
-              {[1, 2, 3, 4].map((i) => (
-                <Box key={i} sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                  <Skeleton variant="rectangular" sx={{ width: 168, height: 94, borderRadius: 1 }} />
-                  <Box sx={{ flex: 1 }}>
-                    <Skeleton variant="text" width="100%" />
-                    <Skeleton variant="text" width="60%" />
-                  </Box>
+            <Box sx={{ width: 350 }}>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Box key={i} sx={{ display: 'flex', gap: 1, mb: 1, alignItems: 'center' }}>
+                  <Skeleton variant="circular" width={18} height={18} />
+                  <Skeleton variant="text" width="80%" />
                 </Box>
               ))}
             </Box>
@@ -246,8 +190,8 @@ const WatchVideo = () => {
     );
   }
 
-  // Error
-  if (error || !data?.video) {
+  // Error state
+  if (!lessonDetail) {
     return (
       <Box
         sx={{
@@ -260,20 +204,62 @@ const WatchVideo = () => {
           gap: 2,
         }}
       >
-        <VideoIcon sx={{ fontSize: 80, color: 'grey.300' }} />
+        <SchoolIcon sx={{ fontSize: 80, color: 'grey.300' }} />
         <Typography variant="h5" fontWeight={600}>
-          Video not found
+          Lesson not found
         </Typography>
-        <Typography color="text.secondary">{error}</Typography>
+        <Button variant="contained" onClick={handleBack}>
+          Back to Course
+        </Button>
       </Box>
     );
   }
 
-  const { video, category, currentIndex, totalVideos, relatedVideos } = data;
+  const { lesson, course, curriculum } = lessonDetail;
+
+  // Curriculum sidebar content
+  const sidebarContent = (
+    <Paper
+      sx={{
+        height: 'auto',
+        borderRadius: 2,
+        overflow: 'hidden',
+        bgcolor: 'background.paper',
+      }}
+    >
+      <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'action.hover' }}>
+        <Typography variant="h6" fontWeight={700}>
+          Course Curriculum
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {course.title}
+        </Typography>
+      </Box>
+      <List disablePadding sx={{ maxHeight: '70vh', overflowY: 'auto' }}>
+        {curriculum?.map((day) => (
+          <Box key={day.day}>
+            <Box sx={{ px: 2, py: 1.5, bgcolor: 'action.hover', borderBottom: '1px solid', borderColor: 'divider' }}>
+              <Typography variant="subtitle2" fontWeight={600} fontSize="0.8rem">
+                {`Day ${day.day} • ${day.lessonsCount} lectures • ${day.totalDuration}`}
+              </Typography>
+            </Box>
+            {day.lessons?.map((lsn) => (
+              <CurriculumItem
+                key={lsn.id}
+                lesson={lsn}
+                isActive={lsn.id === currentLessonId}
+                onClick={() => handleLessonClick(lsn.id)}
+              />
+            ))}
+          </Box>
+        ))}
+      </List>
+    </Paper>
+  );
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: isDesktop ? '#f1f1f1' : '#fff' }}>
-      {/* Main Layout Container */}
+      {/* Main Layout Container — same as WatchVideo */}
       <Box
         sx={{
           display: 'flex',
@@ -284,16 +270,16 @@ const WatchVideo = () => {
           p: { xs: 0, sm: 2, md: 3 },
         }}
       >
-        {/* Left Column - Video Player & Info & Comments */}
-        <Box sx={{ flex: 1, minWidth: 0, maxWidth: showSidebar ? 'calc(100% - 324px)' : '100%' }}>
+        {/* Left Column — Video Player & Info & Comments */}
+        <Box sx={{ flex: 1, minWidth: 0, maxWidth: showSidebar ? 'calc(100% - 374px)' : '100%' }}>
           {/* Video Player */}
           <VimeoPlayer
-            src={video.vimeoId || ''}
-            title={video.title}
+            src={lesson.vimeo || ''}
+            title={lesson.title}
             onBack={handleBack}
           />
 
-          {/* Video Info Section */}
+          {/* Video Info Section — matches WatchVideo */}
           <Box sx={{ p: { xs: 2, lg: 0 }, pt: { lg: 2 } }}>
             {/* Title */}
             <Typography
@@ -305,10 +291,10 @@ const WatchVideo = () => {
                 mb: 1.5,
               }}
             >
-              {video.title}
+              {lesson.title}
             </Typography>
 
-            {/* Channel Info & Actions Row */}
+            {/* Channel Info & Actions Row — same as WatchVideo */}
             <Box
               sx={{
                 display: 'flex',
@@ -320,9 +306,10 @@ const WatchVideo = () => {
                 boxShadow: '0 1px 0 rgba(0,0,0,0.05)',
               }}
             >
-              {/* Channel Info */}
+              {/* Instructor Info */}
               <Stack direction="row" spacing={1.5} alignItems="center">
                 <Avatar
+                  src={course.instructorImage || undefined}
                   sx={{
                     width: 40,
                     height: 40,
@@ -330,14 +317,14 @@ const WatchVideo = () => {
                     fontSize: '1rem',
                   }}
                 >
-                  {category?.title?.charAt(0) || 'C'}
+                  {course.instructorName?.charAt(0) || 'C'}
                 </Avatar>
                 <Box>
                   <Typography fontWeight={600} sx={{ fontSize: '0.9rem' }}>
-                    {category?.title}
+                    {course.instructorName || course.title}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {video.formattedViewCount} • Video {currentIndex + 1} of {totalVideos}
+                    {lesson.viewCount ? `${formatCount(lesson.viewCount)} views` : ''}{lesson.viewCount && lesson.duration ? ' • ' : ''}{lesson.duration ? `${Math.round(lesson.duration / 60)} min` : ''}
                   </Typography>
                 </Box>
               </Stack>
@@ -360,7 +347,7 @@ const WatchVideo = () => {
                     }}
                     startIcon={liked ? <LikedIcon /> : <LikeIcon />}
                   >
-                    {formatCount(video.likeCount)}
+                    {formatCount(lesson.likeCount)}
                   </Button>
                 </Tooltip>
 
@@ -384,9 +371,9 @@ const WatchVideo = () => {
                   </Button>
                 </Tooltip>
 
-                {/* Related Videos toggle (mobile) */}
-                {!isDesktop && relatedVideos && relatedVideos.length > 0 && (
-                  <Tooltip title="Related Videos" arrow>
+                {/* Curriculum toggle (mobile) */}
+                {!isDesktop && (
+                  <Tooltip title="Curriculum" arrow>
                     <IconButton
                       onClick={() => setMobileSidebarOpen(true)}
                       sx={{
@@ -394,7 +381,7 @@ const WatchVideo = () => {
                         '&:hover': { bgcolor: alpha('#000', 0.1) },
                       }}
                     >
-                      <VideoIcon />
+                      <MenuIcon />
                     </IconButton>
                   </Tooltip>
                 )}
@@ -411,9 +398,25 @@ const WatchVideo = () => {
               </Stack>
             </Box>
 
-            {/* Comments Section */}
+            {/* Lesson description (collapsible, if exists) */}
+            {lesson.description && (
+              <Box
+                sx={{
+                  mt: 2,
+                  p: 2,
+                  bgcolor: alpha('#000', 0.03),
+                  borderRadius: 2,
+                }}
+              >
+                <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-wrap' }}>
+                  {lesson.description}
+                </Typography>
+              </Box>
+            )}
+
+            {/* Comments Section — same as WatchVideo */}
             <Comments
-              commentCount={video.commentCount || 0}
+              commentCount={lesson.comments || 0}
               comment={comment}
               setComment={setComment}
               onSubmit={() => {
@@ -425,43 +428,24 @@ const WatchVideo = () => {
             />
           </Box>
 
-          {/* Mobile related videos accessible via the Related Videos drawer button */}
+          {/* Mobile curriculum is accessible via the Curriculum drawer button */}
         </Box>
 
-        {/* Right Sidebar - Related Videos (Desktop only, hidden when drawer is open) */}
-        {showSidebar && relatedVideos && relatedVideos.length > 0 && (
+        {/* Right Sidebar — Curriculum (Desktop only, hidden when drawer is open) */}
+        {showSidebar && (
           <Box
             sx={{
-              width: 300,
-              minWidth: 300,
-              maxWidth: 300,
+              width: 350,
+              minWidth: 350,
+              maxWidth: 350,
             }}
           >
-            <Paper sx={{ borderRadius: 2, overflow: 'hidden', bgcolor: 'background.paper' }}>
-              <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'action.hover' }}>
-                <Typography variant="h6" fontWeight={700}>
-                  Related Videos
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {totalVideos} videos in {category?.title}
-                </Typography>
-              </Box>
-              <Stack spacing={0.5} sx={{ p: 0.5, maxHeight: '70vh', overflowY: 'auto' }}>
-                {relatedVideos.map((relatedVideo) => (
-                  <SidebarVideoItem
-                    key={relatedVideo.id}
-                    video={relatedVideo}
-                    isActive={relatedVideo.id === video.id}
-                    onClick={() => handleVideoSelect(relatedVideo.id)}
-                  />
-                ))}
-              </Stack>
-            </Paper>
+            {sidebarContent}
           </Box>
         )}
       </Box>
 
-      {/* Mobile Related Videos Drawer */}
+      {/* Mobile Curriculum Drawer */}
       {!isDesktop && (
         <Drawer
           anchor="right"
@@ -469,29 +453,14 @@ const WatchVideo = () => {
           onClose={() => setMobileSidebarOpen(false)}
           PaperProps={{ sx: { width: 300 } }}
         >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-            <Typography fontWeight={700}>Related Videos</Typography>
-            <IconButton onClick={() => setMobileSidebarOpen(false)} size="small">
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1 }}>
+            <IconButton onClick={() => setMobileSidebarOpen(false)}>
               <CloseIcon />
             </IconButton>
           </Box>
-          <Stack spacing={0.5} sx={{ p: 0.5, overflowY: 'auto' }}>
-            {relatedVideos?.map((relatedVideo) => (
-              <SidebarVideoItem
-                key={relatedVideo.id}
-                video={relatedVideo}
-                isActive={relatedVideo.id === video.id}
-                onClick={() => {
-                  handleVideoSelect(relatedVideo.id);
-                  setMobileSidebarOpen(false);
-                }}
-              />
-            ))}
-          </Stack>
+          {sidebarContent}
         </Drawer>
       )}
     </Box>
   );
-};
-
-export default WatchVideo;
+}

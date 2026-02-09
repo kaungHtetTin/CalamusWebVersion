@@ -9,14 +9,20 @@ import {
   Button,
   Breadcrumbs,
   Link,
+  Tabs,
+  Tab,
+  Chip,
 } from '@mui/material';
-import { Home as HomeIcon, School as SchoolIcon } from '@mui/icons-material';
+import { Home as HomeIcon, School as SchoolIcon, Lock as LockIcon, LockOpen as LockOpenIcon } from '@mui/icons-material';
 import { CourseCard, CourseCardSkeleton, ResponsiveGrid } from '../components/CourseCard';
 
 export default function MyLearning() {
   const { user, loading, isAuthenticated } = useAuth();
   const [courses, setCourses] = useState([]);
+  const [purchasedCourses, setPurchasedCourses] = useState([]);
+  const [freeCourses, setFreeCourses] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [activeTab, setActiveTab] = useState(0); // 0 = All, 1 = Purchased, 2 = Free
 
   useEffect(() => {
     const load = async () => {
@@ -25,10 +31,17 @@ export default function MyLearning() {
         // fetch enrolled courses (requires auth)
         const resp = await userAPI.getMyLearning();
         const data = resp.data || [];
+        const purchased = resp.purchased || [];
+        const free = resp.free || [];
+        
         setCourses(data);
+        setPurchasedCourses(purchased);
+        setFreeCourses(free);
       } catch (err) {
         console.error('Failed to load my learning', err);
         setCourses([]);
+        setPurchasedCourses([]);
+        setFreeCourses([]);
       } finally {
         setLoadingData(false);
       }
@@ -38,6 +51,18 @@ export default function MyLearning() {
       load();
     }
   }, [loading, isAuthenticated]);
+
+  // Get courses to display based on active tab
+  const getDisplayCourses = () => {
+    switch (activeTab) {
+      case 1:
+        return purchasedCourses;
+      case 2:
+        return freeCourses;
+      default:
+        return courses;
+    }
+  };
 
   if (loading) return <div style={{ padding: 20 }}>Checking authentication...</div>;
   if (!isAuthenticated) return (
@@ -75,6 +100,44 @@ export default function MyLearning() {
           <Typography variant="body1" color="text.secondary">Your enrolled courses and progress. <Link href="/explore">Explore more courses</Link></Typography>
         </Box>
 
+        {/* Tabs for filtering courses */}
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+          <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
+            <Tab 
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  All Courses
+                  {courses.length > 0 && (
+                    <Chip label={courses.length} size="small" sx={{ height: 20, fontSize: '0.7rem' }} />
+                  )}
+                </Box>
+              } 
+            />
+            <Tab 
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <LockIcon sx={{ fontSize: 16 }} />
+                  Purchased
+                  {purchasedCourses.length > 0 && (
+                    <Chip label={purchasedCourses.length} size="small" sx={{ height: 20, fontSize: '0.7rem' }} />
+                  )}
+                </Box>
+              } 
+            />
+            <Tab 
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <LockOpenIcon sx={{ fontSize: 16 }} />
+                  Free
+                  {freeCourses.length > 0 && (
+                    <Chip label={freeCourses.length} size="small" sx={{ height: 20, fontSize: '0.7rem' }} />
+                  )}
+                </Box>
+              } 
+            />
+          </Tabs>
+        </Box>
+
         {loadingData ? (
           <ResponsiveGrid>
             {[...Array(8)].map((_, i) => (
@@ -83,7 +146,7 @@ export default function MyLearning() {
           </ResponsiveGrid>
         ) : (
           <>
-            {courses.length === 0 ? (
+            {getDisplayCourses().length === 0 ? (
               <Box
                 sx={{
                   textAlign: 'center',
@@ -93,15 +156,23 @@ export default function MyLearning() {
               >
                 <SchoolIcon sx={{ fontSize: 80, color: 'text.disabled', mb: 2 }} />
                 <Typography variant="h5" color="text.secondary" gutterBottom>
-                  No enrolled courses yet
+                  {activeTab === 1 
+                    ? 'No purchased courses yet' 
+                    : activeTab === 2 
+                    ? 'No free courses available' 
+                    : 'No enrolled courses yet'}
                 </Typography>
                 <Typography variant="body1" color="text.disabled">
-                  Explore available courses on the <Link href="/explore">Explore</Link> page.
+                  {activeTab === 1 ? (
+                    <>Browse <Link href="/vip-plan">VIP plans</Link> to purchase courses.</>
+                  ) : (
+                    <>Explore available courses on the <Link href="/explore">Explore</Link> page.</>
+                  )}
                 </Typography>
               </Box>
             ) : (
               <ResponsiveGrid>
-                {courses.map((c) => (
+                {getDisplayCourses().map((c) => (
                   <Box
                     key={c.id}
                     sx={{

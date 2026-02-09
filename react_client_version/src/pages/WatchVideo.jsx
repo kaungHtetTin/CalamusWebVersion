@@ -14,6 +14,8 @@ import {
   useMediaQuery,
   Drawer,
   Paper,
+  TextField,
+  Divider,
 } from '@mui/material';
 import {
   PlayArrow as PlayIcon,
@@ -21,13 +23,16 @@ import {
   ThumbUp as LikedIcon,
   Share as ShareIcon,
   VideoLibrary as VideoIcon,
-  MoreHoriz as MoreIcon,
   Close as CloseIcon,
+  ChatBubbleOutline as CommentIcon,
+  Send as SendIcon,
+  Menu as MenuIcon,
 } from '@mui/icons-material';
-import { videoChannelAPI } from '../services/api';
+import { videoChannelAPI, discussionAPI } from '../services/api';
 import { useDrawer } from '../context/DrawerContext';
+import { useAuth } from '../context/AuthContext';
 import VimeoPlayer from '../components/VideoPlayer/VimeoPlayer';
-import Comments from '../components/Comments/Comments';
+import CommentItem from '../components/CommentItem/CommentItem';
 
 // Format number to K, M format
 const formatCount = (count) => {
@@ -160,6 +165,7 @@ const WatchVideo = () => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   const { drawerOpen, setDrawerOpen } = useDrawer();
+  const { isAuthenticated, user } = useAuth();
 
   // Close the nav drawer by default on this page
   useEffect(() => {
@@ -173,7 +179,12 @@ const WatchVideo = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [liked, setLiked] = useState(false);
-  const [comment, setComment] = useState('');
+  const [likeCount, setLikeCount] = useState(0);
+  const [shareCount, setShareCount] = useState(0);
+  const [sharing, setSharing] = useState(false);
+  const [commentText, setCommentText] = useState('');
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
+  const [comments, setComments] = useState([]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -189,6 +200,47 @@ const WatchVideo = () => {
         setLiked(false);
         const response = await videoChannelAPI.getVideo(id);
         setData(response.data);
+
+        // Fetch post detail if video has postId to get like status and share count
+        if (response.data?.video?.postId) {
+          try {
+            // Fetch comments and post detail in parallel, but handle 404 gracefully
+            const promises = [
+              discussionAPI.getComments(response.data.video.postId, user?.phone || null).catch(() => ({ data: { comments: [] } })),
+              discussionAPI.getPostDetail(response.data.video.postId, user?.phone || null).catch(() => null)
+            ];
+            
+            const [commentsResponse, postDetailResponse] = await Promise.all(promises);
+            setComments(commentsResponse.data?.comments || []);
+            
+            // Update like status and counts from post detail (only if post exists)
+            if (postDetailResponse && postDetailResponse.data?.post) {
+              const post = postDetailResponse.data.post;
+              setLiked(post.isLiked === 1);
+              setLikeCount(post.postLikes || 0);
+              setShareCount(post.shareCount || 0);
+            } else {
+              // Post doesn't exist, reset like/share state
+              setLiked(false);
+              setLikeCount(0);
+              setShareCount(0);
+            }
+          } catch (err) {
+            // Only log if it's not a 404 (expected for videos without posts)
+            if (err.status !== 404 && !err.message?.includes('404')) {
+              console.error('Failed to fetch comments or post detail:', err);
+            }
+            setComments([]);
+            setLiked(false);
+            setLikeCount(0);
+            setShareCount(0);
+          }
+        } else {
+          setComments([]);
+          setLiked(false);
+          setLikeCount(0);
+          setShareCount(0);
+        }
       } catch (err) {
         console.error('Failed to fetch video data:', err);
         setError('Failed to load video');
@@ -199,27 +251,303 @@ const WatchVideo = () => {
 
     fetchData();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [id]);
+  }, [id, user?.phone]);
+
+  // Comment tree manipulation helpers
+  const updateCommentInTree = (list, commentId, updater) => {
+    return list.map((c) => {
+      if (c.time === commentId) return updater(c);
+      if (c.replies?.length) return { ...c, replies: updateCommentInTree(c.replies, commentId, updater) };
+      return c;
+    });
+  };
+
+  const removeCommentFromTree = (list, commentId) => {
+    return list.filter((c) => c.time !== commentId).map((c) => {
+      if (c.replies?.length) return { ...c, replies: removeCommentFromTree(c.replies, commentId) };
+      return c;
+    });
+  };
+
+  const addReplyToTree = (list, parentId, newComment) => {
+    return list.map((c) => {
+      if (c.time === parentId) return { ...c, replies: [...(c.replies || []), newComment] };
+      if (c.replies?.length) return { ...c, replies: addReplyToTree(c.replies, parentId, newComment) };
+      return c;
+    });
+  };
+
+  // Comment handlers
+  const handleLikeComment = async (commentTime, isLiked) => {
+    if (!isAuthenticated) { navigate('/login'); return; }
+    if (!data?.video?.postId) return;
+    try {
+      const result = await discussionAPI.likeComment(data.video.postId, commentTime);
+      if (result.data) {
+        setComments((prev) => updateCommentInTree(prev, commentTime, (c) => ({
+          ...c, likes: result.data.count, isLiked: result.data.isLiked ? 1 : 0,
+        })));
+      }
+    } catch (err) { console.error('Like comment error:', err); }
+  };
+
+  const handleDeleteComment = async (pId, commentId) => {
+    try {
+      const result = await discussionAPI.deleteComment(pId, commentId);
+      setComments((prev) => removeCommentFromTree(prev, commentId));
+      if (result.data?.commentsCount !== undefined && data) {
+        setData(prev => ({
+          ...prev,
+          video: { ...prev.video, commentCount: result.data.commentsCount }
+        }));
+      }
+    } catch (err) {
+      console.error('Delete comment error:', err);
+    }
+  };
+
+  const handleUpdateComment = async (pId, commentId, body) => {
+    if (!isAuthenticated) { navigate('/login'); return; }
+    try {
+      const result = await discussionAPI.updateComment(pId, commentId, body);
+      if (result.success) {
+        setComments((prev) => updateCommentInTree(prev, commentId, (c) => ({
+          ...c,
+          body: body,
+        })));
+      }
+    } catch (err) {
+      console.error('Update comment error:', err);
+    }
+  };
+
+  const handleReplySubmit = async (parentId, body) => {
+    if (!isAuthenticated) { navigate('/login'); return; }
+    if (!data?.video?.postId) return;
+    
+    // Create optimistic reply immediately
+    const optimisticReply = {
+      id: 0,
+      postId: data.video.postId,
+      writerId: user?.phone || '',
+      body: body,
+      image: '',
+      time: Date.now(), // Temporary timestamp
+      parent: parentId,
+      likes: 0,
+      userName: user?.name || user?.learner_name || 'You',
+      userImage: user?.image || user?.learner_image || 'https://www.calamuseducation.com/uploads/placeholder.png',
+      isLiked: 0,
+      replies: [],
+    };
+    
+    // Add optimistic reply to tree immediately
+    setComments((prev) => addReplyToTree(prev, parentId, optimisticReply));
+    if (data) {
+      setData(prev => ({
+        ...prev,
+        video: { ...prev.video, commentCount: (prev.video.commentCount || 0) + 1 }
+      }));
+    }
+    
+    try {
+      const result = await discussionAPI.createComment({ 
+        postId: data.video.postId, 
+        body, 
+        parent: parentId 
+      });
+      if (result.data?.comment) {
+        // Replace optimistic reply with real one from server
+        setComments((prev) => {
+          // First remove optimistic reply
+          const withoutOptimistic = prev.map((c) => {
+            if (c.time === parentId) {
+              return {
+                ...c,
+                replies: c.replies?.filter((r) => r.time !== optimisticReply.time) || []
+              };
+            }
+            if (c.replies?.length) {
+              return {
+                ...c,
+                replies: removeCommentFromTree(c.replies, optimisticReply.time)
+              };
+            }
+            return c;
+          });
+          // Then add real reply
+          return addReplyToTree(withoutOptimistic, parentId, result.data.comment);
+        });
+      }
+    } catch (err) {
+      console.error('Reply submit error:', err);
+      // Revert optimistic update on error
+      setComments((prev) => {
+        return prev.map((c) => {
+          if (c.time === parentId) {
+            return {
+              ...c,
+              replies: c.replies?.filter((r) => r.time !== optimisticReply.time) || []
+            };
+          }
+          if (c.replies?.length) {
+            return {
+              ...c,
+              replies: removeCommentFromTree(c.replies, optimisticReply.time)
+            };
+          }
+          return c;
+        });
+      });
+      if (data) {
+        setData(prev => ({
+          ...prev,
+          video: { ...prev.video, commentCount: Math.max(0, (prev.video.commentCount || 0) - 1) }
+        }));
+      }
+    }
+  };
+
+  const handleSubmitComment = async () => {
+    const body = commentText.trim();
+    if (!body) return;
+    if (!isAuthenticated) { navigate('/login'); return; }
+    if (!data?.video?.postId) return;
+    
+    // Clear input immediately
+    const commentTextToSubmit = body;
+    setCommentText('');
+    setCommentSubmitting(true);
+    
+    // Optimistic update - add comment immediately
+    const optimisticComment = {
+      id: 0,
+      postId: data.video.postId,
+      writerId: user?.phone || '',
+      body: commentTextToSubmit,
+      image: '',
+      time: Date.now(), // Temporary timestamp
+      parent: 0,
+      likes: 0,
+      userName: user?.name || user?.learner_name || 'You',
+      userImage: user?.image || user?.learner_image || 'https://www.calamuseducation.com/uploads/placeholder.png',
+      isLiked: 0,
+      replies: [],
+    };
+    
+    setComments((prev) => [optimisticComment, ...prev]);
+    if (data) {
+      setData(prev => ({
+        ...prev,
+        video: { ...prev.video, commentCount: (prev.video.commentCount || 0) + 1 }
+      }));
+    }
+    
+    try {
+      const result = await discussionAPI.createComment({ 
+        postId: data.video.postId, 
+        body: commentTextToSubmit 
+      });
+      if (result.data?.comment) {
+        // Replace optimistic comment with real one from server
+        setComments((prev) => {
+          const filtered = prev.filter((c) => c.time !== optimisticComment.time);
+          return [result.data.comment, ...filtered];
+        });
+      }
+    } catch (err) {
+      console.error('Submit comment error:', err);
+      // Revert optimistic update on error
+      setComments((prev) => prev.filter((c) => c.time !== optimisticComment.time));
+      if (data) {
+        setData(prev => ({
+          ...prev,
+          video: { ...prev.video, commentCount: Math.max(0, (prev.video.commentCount || 0) - 1) }
+        }));
+      }
+      setCommentText(commentTextToSubmit); // Restore text
+    } finally {
+      setCommentSubmitting(false);
+    }
+  };
 
   const handleVideoSelect = (videoId) => {
     navigate(`/watch/${videoId}`);
   };
 
   const handleBack = () => navigate(-1);
-  const handleLike = () => setLiked(!liked);
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: data?.video?.title,
-        url: window.location.href,
-      });
+  
+  const handleLike = async () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    if (!data?.video?.postId) return;
+    
+    // Optimistic update
+    const newLikedState = !liked;
+    setLiked(newLikedState);
+    setLikeCount(newLikedState ? likeCount + 1 : likeCount - 1);
+    
+    try {
+      const result = await discussionAPI.likePost(data.video.postId);
+      if (result.success && result.count !== undefined) {
+        setLikeCount(result.count);
+        setLiked(result.isLiked);
+      }
+    } catch (err) {
+      // Revert on error
+      setLiked(!newLikedState);
+      setLikeCount(newLikedState ? likeCount - 1 : likeCount + 1);
+      console.error('Like error:', err);
+    }
+  };
+  
+  const handleShare = async () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    if (!data?.video?.postId) return;
+    
+    setSharing(true);
+    try {
+      const result = await discussionAPI.sharePost(data.video.postId);
+      if (result.success) {
+        if (result.data?.alreadyShared) {
+          // Already shared - show message or handle as needed
+          console.log('Already shared');
+        } else {
+          // Update share count
+          setShareCount(prev => prev + 1);
+        }
+        
+        // Also try native share if available
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: data?.video?.title,
+              url: window.location.href,
+            });
+          } catch (shareErr) {
+            // User cancelled or error - that's okay
+            if (shareErr.name !== 'AbortError') {
+              console.error('Share error:', shareErr);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Share error:', err);
+    } finally {
+      setSharing(false);
     }
   };
 
   // Loading
   if (loading) {
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: '#f9f9f9', p: { xs: 0, sm: 2, lg: 3 } }}>
+      <Box sx={{ minHeight: '100vh', bgcolor: '#fff', p: { xs: 0, sm: 2, lg: 3 } }}>
         <Box sx={{ display: 'flex', gap: 3, maxWidth: 1800, mx: 'auto' }}>
           <Box sx={{ flex: 1 }}>
             <Skeleton variant="rectangular" sx={{ width: '100%', aspectRatio: '16/9', borderRadius: { xs: 0, lg: 2 } }} />
@@ -252,7 +580,7 @@ const WatchVideo = () => {
       <Box
         sx={{
           minHeight: '100vh',
-          bgcolor: '#f9f9f9',
+          bgcolor: '#fff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -272,7 +600,7 @@ const WatchVideo = () => {
   const { video, category, currentIndex, totalVideos, relatedVideos } = data;
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: isDesktop ? '#f1f1f1' : '#fff' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#fff' }}>
       {/* Main Layout Container */}
       <Box
         sx={{
@@ -360,7 +688,7 @@ const WatchVideo = () => {
                     }}
                     startIcon={liked ? <LikedIcon /> : <LikeIcon />}
                   >
-                    {formatCount(video.likeCount)}
+                    {formatCount(likeCount)}
                   </Button>
                 </Tooltip>
 
@@ -368,6 +696,7 @@ const WatchVideo = () => {
                 <Tooltip title="Share" arrow>
                   <Button
                     onClick={handleShare}
+                    disabled={sharing}
                     sx={{
                       minWidth: 'auto',
                       px: 2,
@@ -380,7 +709,7 @@ const WatchVideo = () => {
                     }}
                     startIcon={<ShareIcon sx={{ fontSize: 20 }} />}
                   >
-                    Share
+                    Share{shareCount > 0 && ` (${formatCount(shareCount)})`}
                   </Button>
                 </Tooltip>
 
@@ -394,35 +723,91 @@ const WatchVideo = () => {
                         '&:hover': { bgcolor: alpha('#000', 0.1) },
                       }}
                     >
-                      <VideoIcon />
+                      <MenuIcon />
                     </IconButton>
                   </Tooltip>
                 )}
 
-                {/* More Button */}
-                <IconButton
-                  sx={{
-                    bgcolor: alpha('#000', 0.05),
-                    '&:hover': { bgcolor: alpha('#000', 0.1) },
-                  }}
-                >
-                  <MoreIcon />
-                </IconButton>
               </Stack>
             </Box>
 
-            {/* Comments Section */}
-            <Comments
-              commentCount={video.commentCount || 0}
-              comment={comment}
-              setComment={setComment}
-              onSubmit={() => {
-                if (comment.trim()) {
-                  console.log('Submit comment:', comment);
-                  setComment('');
-                }
-              }}
-            />
+            {/* Comments Section — Full CRUD functionality */}
+            {video.postId && (
+              <Paper 
+                elevation={0}
+                sx={{ 
+                  mt: 2, 
+                  borderRadius: 4,
+                  border: 'none',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                  p: 2,
+                }}
+              >
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  Comments ({comments.length})
+                </Typography>
+                
+                {/* Comment Input */}
+                <Stack direction="row" spacing={1.5} sx={{ mb: 3 }}>
+                  <Avatar
+                    src={user?.image || user?.learner_image || 'https://www.calamuseducation.com/uploads/placeholder.png'}
+                    sx={{ width: 36, height: 36 }}
+                  />
+                  <TextField
+                    size="small"
+                    placeholder="Write a comment..."
+                    fullWidth
+                    multiline
+                    maxRows={4}
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '20px',
+                        bgcolor: 'grey.100',
+                        '& fieldset': { border: 'none' },
+                      },
+                    }}
+                  />
+                  <IconButton 
+                    color="primary" 
+                    onClick={handleSubmitComment}
+                    disabled={!commentText.trim() || commentSubmitting}
+                  >
+                    <SendIcon />
+                  </IconButton>
+                </Stack>
+                
+                <Divider sx={{ mb: 2 }} />
+                
+                {/* Comments List */}
+                {comments.length === 0 ? (
+                  <Box sx={{ textAlign: 'center', py: 4 }}>
+                    <CommentIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
+                    <Typography variant="body1" color="text.secondary">
+                      No comments yet
+                    </Typography>
+                    <Typography variant="body2" color="text.disabled">
+                      Be the first to comment!
+                    </Typography>
+                  </Box>
+                ) : (
+                  comments.map((comment) => (
+                    <CommentItem
+                      key={comment.id || comment.time}
+                      postId={video.postId}
+                      comment={comment}
+                      currentUserId={user?.phone}
+                      onLikeComment={handleLikeComment}
+                      onDeleteComment={isAuthenticated ? handleDeleteComment : null}
+                      onUpdateComment={isAuthenticated ? handleUpdateComment : null}
+                      onReplySubmit={isAuthenticated ? handleReplySubmit : null}
+                      isAuthenticated={!!isAuthenticated}
+                    />
+                  ))
+                )}
+              </Paper>
+            )}
           </Box>
 
           {/* Mobile related videos accessible via the Related Videos drawer button */}

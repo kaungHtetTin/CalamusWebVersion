@@ -196,9 +196,9 @@ const PostDetail = () => {
     setLikeCount(liked ? likeCount - 1 : likeCount + 1);
     try {
       const result = await discussionAPI.likePost(postId);
-      if (result.data) {
-        setLikeCount(result.data.count);
-        setLiked(result.data.isLiked);
+      if (result.success && result.count !== undefined) {
+        setLikeCount(result.count);
+        setLiked(result.isLiked);
       }
     } catch (err) {
       // Revert on error
@@ -264,10 +264,73 @@ const PostDetail = () => {
 
   const handleReplySubmit = async (parentId, body) => {
     if (!isAuthenticated) { navigate('/login'); return; }
-    const result = await discussionAPI.createComment({ postId, body, parent: parentId });
-    if (result.data?.comment) {
-      setComments((prev) => addReplyToTree(prev, parentId, result.data.comment));
-      setPost((prev) => prev ? { ...prev, comments: (prev.comments || 0) + 1 } : null);
+    
+    // Create optimistic reply immediately
+    const optimisticReply = {
+      id: 0,
+      postId: postId,
+      writerId: user?.phone || '',
+      body: body,
+      image: '',
+      time: Date.now(), // Temporary timestamp
+      parent: parentId,
+      likes: 0,
+      userName: user?.name || user?.learner_name || 'You',
+      userImage: user?.image || user?.learner_image || 'https://www.calamuseducation.com/uploads/placeholder.png',
+      isLiked: 0,
+      replies: [],
+    };
+    
+    // Add optimistic reply to tree immediately
+    setComments((prev) => addReplyToTree(prev, parentId, optimisticReply));
+    setPost((prev) => prev ? { ...prev, comments: (prev.comments || 0) + 1 } : null);
+    
+    try {
+      const result = await discussionAPI.createComment({ postId, body, parent: parentId });
+      if (result.data?.comment) {
+        // Replace optimistic reply with real one from server
+        setComments((prev) => {
+          // First remove optimistic reply
+          const withoutOptimistic = prev.map((c) => {
+            if (c.time === parentId) {
+              return {
+                ...c,
+                replies: c.replies?.filter((r) => r.time !== optimisticReply.time) || []
+              };
+            }
+            if (c.replies?.length) {
+              return {
+                ...c,
+                replies: removeCommentFromTree(c.replies, optimisticReply.time)
+              };
+            }
+            return c;
+          });
+          // Then add real reply
+          return addReplyToTree(withoutOptimistic, parentId, result.data.comment);
+        });
+      }
+    } catch (err) {
+      console.error('Reply submit error:', err);
+      // Revert optimistic update on error
+      setComments((prev) => {
+        return prev.map((c) => {
+          if (c.time === parentId) {
+            return {
+              ...c,
+              replies: c.replies?.filter((r) => r.time !== optimisticReply.time) || []
+            };
+          }
+          if (c.replies?.length) {
+            return {
+              ...c,
+              replies: removeCommentFromTree(c.replies, optimisticReply.time)
+            };
+          }
+          return c;
+        });
+      });
+      setPost((prev) => prev ? { ...prev, comments: Math.max(0, (prev.comments || 0) - 1) } : null);
     }
   };
 

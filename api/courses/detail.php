@@ -24,10 +24,13 @@ require_once '../../classes/course.php';
 require_once '../../classes/teacher.php';
 require_once '../../classes/lesson.php';
 require_once '../../classes/rating.php';
+require_once '../../classes/study.php';
+require_once '../../classes/auth.php';
 
 try {
     // Get course ID from query parameter
     $courseId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    $userId = isset($_GET['userId']) ? trim($_GET['userId']) : '';
     
     if ($courseId <= 0) {
         http_response_code(400);
@@ -42,9 +45,33 @@ try {
     $Teacher = new Teacher();
     $Lesson = new Lesson();
     $Rating = new Rating();
+    $Study = new Study();
+    $Auth = new Auth();
+    $DB = new Database();
+    $conn = $DB->connect();
     
     // Get course details
     $course = $Course->detail($courseId);
+    
+    // Get course VIP status
+    $courseIsVip = isset($course['is_vip']) ? (int)$course['is_vip'] : 0;
+    
+    // Check if user has VIP access to this course (only matters if course is VIP)
+    $hasVipAccess = false;
+    if (!empty($userId) && $courseIsVip === 1) {
+        $hasVipAccess = $Auth->checkVIP($courseId, $userId);
+    }
+    
+    // Calculate progress for user if userId is provided
+    $progress = 0;
+    $learnedCount = 0;
+    if (!empty($userId)) {
+        $learnedCount = $Study->getCount($userId, $courseId);
+        $totalLessons = (int)$course['lessons_count'];
+        if ($totalLessons > 0) {
+            $progress = round(($learnedCount / $totalLessons) * 100);
+        }
+    }
     
     if (!$course) {
         http_response_code(404);
@@ -80,14 +107,29 @@ try {
         $totalDuration = 0;
     }
     
-    // Get lessons organized by day
-    $lessonsByDay = $Lesson->getLessonsByDayPlan($courseId, 0);
+    // Get lessons organized by day - pass userId to get learned status
+    $userIdForLessons = !empty($userId) ? $userId : 0;
+    $lessonsByDay = $Lesson->getLessonsByDayPlan($courseId, $userIdForLessons);
     if (!$lessonsByDay || !is_array($lessonsByDay)) {
         $lessonsByDay = [];
     }
     
-    // Get reviews
-    $reviews = $Rating->getReviews($courseId);
+    // Get reviews (include user_id/learner_phone for comparison)
+    $reviewsQuery = "SELECT
+        learners.learner_name,
+        learners.learner_phone,
+        learners.learner_image,
+        ratings.id,
+        ratings.time,
+        ratings.star,
+        ratings.review
+    FROM ratings
+    JOIN learners ON learners.learner_phone = ratings.user_id
+    WHERE ratings.course_id = $courseId
+    ORDER BY ratings.time DESC";
+    
+    $DB = new Database();
+    $reviews = $DB->read($reviewsQuery);
     if (!$reviews || !is_array($reviews)) {
         $reviews = [];
     }
@@ -122,15 +164,23 @@ try {
                 $lessonTitle = mb_convert_encoding($lesson['lesson_title'] ?? '', 'UTF-8', 'UTF-8');
                 $categoryTitle = mb_convert_encoding($lesson['category_title'] ?? '', 'UTF-8', 'UTF-8');
                 
+                $lessonIsVip = isset($lesson['isVip']) ? (int)$lesson['isVip'] : 0;
+                // Access logic:
+                // - If course is FREE (is_vip = 0): all lessons accessible
+                // - If course is VIP (is_vip = 1): need subscription for all lessons
+                $hasAccess = ($courseIsVip === 0) ? true : $hasVipAccess;
+                
                 $formattedLessons[] = [
                     'id' => (int)$lesson['id'],
                     'title' => $lessonTitle,
                     'duration' => (int)($lesson['duration'] ?? 0),
                     'formattedDuration' => $Lesson->formatDuration($lesson['duration'] ?? 0),
                     'isVideo' => (bool)($lesson['isVideo'] ?? false),
-                    'isVip' => (bool)($lesson['isVip'] ?? false),
+                    'isVip' => (bool)$lessonIsVip,
                     'category' => $categoryTitle,
                     'thumbnail' => $lesson['thumbnail'] ?? null,
+                    'learned' => isset($lesson['learned']) ? (int)$lesson['learned'] : 0,
+                    'hasAccess' => $hasAccess,
                 ];
             }
             
@@ -143,19 +193,28 @@ try {
         }
     }
     
-    // Format reviews
+    // Format reviews and check if user has a rating
     $formattedReviews = [];
+    $userRating = null;
     if ($reviews) {
         foreach ($reviews as $index => $review) {
-            $formattedReviews[] = [
-                'id' => $index + 1,
+            $reviewData = [
+                'id' => isset($review['id']) ? (int)$review['id'] : ($index + 1),
                 'learnerName' => $review['learner_name'],
                 'learnerImage' => $review['learner_image'],
+                'learnerPhone' => $review['learner_phone'],
                 'star' => (int)$review['star'],
                 'review' => $review['review'],
                 'time' => $review['time'],
                 'formattedTime' => $Rating->formatDateTime($review['time'])
             ];
+            
+            // Check if this is the current user's rating
+            if (!empty($userId) && $review['learner_phone'] == $userId) {
+                $userRating = $reviewData;
+            }
+            
+            $formattedReviews[] = $reviewData;
         }
     }
     
@@ -186,8 +245,15 @@ try {
         'curriculum' => $formattedDays,
         'reviews' => $formattedReviews,
         'ratingDistribution' => $ratingDistribution,
-        'totalReviews' => count($formattedReviews)
+        'totalReviews' => count($formattedReviews),
+        'progress' => $progress,
+        'learnedCount' => $learnedCount,
+        'userRating' => $userRating // Current user's rating if exists
     ];
+    
+    // Include course VIP status in response
+    $formattedCourse['isVip'] = $courseIsVip;
+    $formattedCourse['hasAccess'] = ($courseIsVip === 0) ? true : $hasVipAccess;
     
     echo json_encode([
         'success' => true,

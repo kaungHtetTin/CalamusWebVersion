@@ -1,12 +1,4 @@
-For lesson play page,
-You need to update for document lesson
-
-We have two type of lesson: video and document
-Current implementation is okay for video lesson.
-
-but you need to update to show document lesson.
-The document lesson will be html file and 
-locate in http://domain/uploads/lessons/html/lesson_table_id.html 
-
-You need to replace  Video Player & Info & Comments section in left column with document lesson display 
-for document lesson
+for lesson list
+you need to consider one logic.
+although the lesson is not vip, the user do not subscribe to the course,
+we need to give access to lesson if the course is free, not vip.

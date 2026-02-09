@@ -18,7 +18,9 @@ const fetchAPI = async (endpoint) => {
     const response = await fetch(`${API_BASE_URL}${endpoint}`);
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const error = new Error(`HTTP error! status: ${response.status}`);
+      error.status = response.status;
+      throw error;
     }
     
     const data = await response.json();
@@ -29,7 +31,11 @@ const fetchAPI = async (endpoint) => {
     
     return data;
   } catch (error) {
-    console.error(`API Error (${endpoint}):`, error);
+    // Don't log 404 errors as they're expected for missing resources
+    // Also check if error.message contains 404 in case status isn't set
+    if (error.status !== 404 && !error.message?.includes('404')) {
+      console.error(`API Error (${endpoint}):`, error);
+    }
     throw error;
   }
 };
@@ -129,8 +135,13 @@ export const courseAPI = {
   /**
    * Get course detail by ID
    * @param {number} id - Course ID
+   * @param {string} userId - Optional user ID for learned status
    */
-  getDetail: (id) => fetchAPI(`/courses/detail.php?id=${id}`),
+  getDetail: (id, userId = null) => {
+    let params = `id=${id}`;
+    if (userId) params += `&userId=${userId}`;
+    return fetchAPI(`/courses/detail.php?${params}`);
+  },
 };
 
 /**
@@ -141,8 +152,19 @@ export const lessonAPI = {
    * Get lesson detail with course context
    * @param {number} lessonId
    * @param {number} courseId
+   * @param {string} userId - Optional user ID for learned status
    */
-  getDetail: (lessonId, courseId) => fetchAPI(`/lessons/detail.php?id=${lessonId}&course_id=${courseId}`).then((r) => r.data),
+  getDetail: (lessonId, courseId, userId = null) => {
+    let params = `id=${lessonId}&course_id=${courseId}`;
+    if (userId) params += `&userId=${userId}`;
+    return fetchAPI(`/lessons/detail.php?${params}`).then((r) => r.data);
+  },
+  
+  /**
+   * Mark lesson as learned
+   * @param {number} lessonId
+   */
+  markLearned: (lessonId) => postAPI('/lessons/mark-learned.php', { lessonId }),
 };
 
 /**
@@ -250,6 +272,17 @@ export const discussionAPI = {
     let params = `postId=${postId}`;
     if (userId) params += `&userId=${userId}`;
     return fetchAPI(`/discussions/detail.php?${params}`);
+  },
+  
+  /**
+   * Get lesson post detail (allows hide = 1 posts)
+   * @param {number} postId - Post ID
+   * @param {string} userId - Optional user ID for like status
+   */
+  getLessonPostDetail: (postId, userId = null) => {
+    let params = `postId=${postId}`;
+    if (userId) params += `&userId=${userId}`;
+    return fetchAPI(`/discussions/lesson-detail.php?${params}`);
   },
 
   /**
@@ -364,6 +397,39 @@ export const vipPlanAPI = {
    * Get VIP plan data (pricing, payment methods, etc.)
    */
   get: () => fetchAPI('/vip-plan/get.php'),
+};
+
+/**
+ * Rating API endpoints
+ */
+export const ratingAPI = {
+  /**
+   * Create a rating/review for a course
+   * @param {number} courseId - Course ID
+   * @param {number} star - Rating (1-5)
+   * @param {string} review - Review text
+   */
+  create: (courseId, star, review) => postAPI('/ratings/create.php', { courseId, star, review }),
+  
+  /**
+   * Update a rating/review
+   * @param {number} id - Rating ID
+   * @param {number} star - Rating (1-5, optional)
+   * @param {string} review - Review text (optional)
+   */
+  update: (id, star, review) => postAPI('/ratings/update.php', { id, star, review }),
+  
+  /**
+   * Delete a rating/review
+   * @param {number} id - Rating ID
+   */
+  delete: (id) => postAPI('/ratings/delete.php', { id }),
+  
+  /**
+   * Get latest reviews
+   * @param {number} limit - Number of reviews to fetch (default: 6)
+   */
+  getLatest: (limit = 6) => fetchAPI(`/ratings/latest.php?limit=${limit}`),
 };
 
 /**

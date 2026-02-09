@@ -13,6 +13,8 @@ import {
   Rating,
   useTheme,
   alpha,
+  Card,
+  CardContent,
 } from '@mui/material';
 import { 
   PlayCircleOutline as PlayIcon,
@@ -26,8 +28,14 @@ import {
   People as PeopleIcon,
   GetApp as DownloadIcon,
   PhoneAndroid as PhoneIcon,
+  MenuBook as MenuBookIcon,
+  ShowChart as ShowChartIcon,
+  Article as ArticleIcon,
+  MusicNote as MusicNoteIcon,
+  Search as SearchIcon,
+  Brightness5 as BrightnessIcon,
 } from '@mui/icons-material';
-import { courseAPI, statsAPI, pinnedPostsAPI, instructorAPI, appsAPI } from '../services/api';
+import { courseAPI, statsAPI, pinnedPostsAPI, instructorAPI, appsAPI, ratingAPI } from '../services/api';
 import { CourseCard, CourseCardSkeleton, ResponsiveGrid } from '../components/CourseCard';
 
 // Feature card for hero section
@@ -388,6 +396,7 @@ const defaultStats = {
 
 // Horizontal scroll carousel with circle dot indicators
 const ScrollCarousel = ({ children, itemCount }) => {
+  const theme = useTheme();
   const scrollRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -438,11 +447,18 @@ const ScrollCarousel = ({ children, itemCount }) => {
           display: 'flex',
           gap: 2,
           overflowX: 'auto',
-          scrollSnapType: 'x mandatory',
+          overflowY: 'hidden',
+          scrollSnapType: 'x proximity',
           scrollbarWidth: 'none',
           WebkitOverflowScrolling: 'touch',
           touchAction: 'pan-x',
-          '&::-webkit-scrollbar': { display: 'none' },
+          cursor: 'grab',
+          '&:active': {
+            cursor: 'grabbing',
+          },
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
         }}
       >
         {children}
@@ -484,6 +500,8 @@ const Home = () => {
   const [loadingTeachers, setLoadingTeachers] = useState(true);
   const [apps, setApps] = useState([]);
   const [loadingApps, setLoadingApps] = useState(true);
+  const [latestReviews, setLatestReviews] = useState([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
   const [error, setError] = useState(null);
 
   // Fetch hero stats
@@ -588,6 +606,23 @@ const Home = () => {
     fetchApps();
   }, []);
 
+  // Fetch latest reviews
+  useEffect(() => {
+    const fetchLatestReviews = async () => {
+      try {
+        setLoadingReviews(true);
+        const response = await ratingAPI.getLatest(6);
+        setLatestReviews(response.data || []);
+      } catch (err) {
+        console.error('Failed to fetch latest reviews:', err);
+        // Silently fail - section won't show if no reviews
+      } finally {
+        setLoadingReviews(false);
+      }
+    };
+    fetchLatestReviews();
+  }, []);
+
   const handleBookmark = (courseId, isBookmarked) => {
     console.log(`Course ${courseId} bookmark: ${isBookmarked}`);
     // TODO: Implement bookmark API call
@@ -671,6 +706,272 @@ const Home = () => {
           )}
         </ResponsiveGrid>
       </Box>
+
+      {/* Quick Links Section - Udemy Style */}
+      <Box sx={{ mb: 5, px: { xs: 2, sm: 3, md: 4 } }}>
+        <Box sx={{ mb: 2.5 }}>
+          <Typography variant="h5" fontWeight={700} gutterBottom>
+            Quick Links
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Quick access to popular sections
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 1.5,
+          }}
+        >
+          {[
+            { icon: <SearchIcon />, label: 'Explore', path: '/explore' },
+            { icon: <MenuBookIcon />, label: 'Vocab Learning', path: '/vocab-learning' },
+            { icon: <ShowChartIcon />, label: 'My Learning', path: '/my-learning' },
+            { icon: <ArticleIcon />, label: 'Discussion', path: '/discussion/english' },
+            { icon: <BrightnessIcon />, label: 'Lessons', path: '/additional-lessons/english' },
+            { icon: <MusicNoteIcon />, label: 'Songs', path: '/songs/english' },
+          ].map((link) => (
+            <Box
+              key={link.label}
+              onClick={() => navigate(link.path)}
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 1,
+                p: 2,
+                minWidth: 100,
+                maxWidth: 120,
+                cursor: 'pointer',
+                borderRadius: 1,
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  bgcolor: alpha(theme.palette.primary.main, 0.08),
+                  '& .quick-link-icon': {
+                    transform: 'scale(1.1)',
+                  },
+                  '& .quick-link-label': {
+                    color: theme.palette.primary.main,
+                  },
+                },
+              }}
+            >
+              <Box
+                className="quick-link-icon"
+                sx={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: '50%',
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  color: theme.palette.primary.main,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                  mb: 0.5,
+                  '& svg': {
+                    fontSize: '1.75rem',
+                  },
+                }}
+              >
+                {link.icon}
+              </Box>
+              <Typography
+                className="quick-link-label"
+                variant="body2"
+                fontWeight={500}
+                sx={{
+                  color: 'text.primary',
+                  fontSize: '0.8125rem',
+                  textAlign: 'center',
+                  transition: 'color 0.2s ease',
+                  lineHeight: 1.3,
+                }}
+              >
+                {link.label}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Box>
+
+      {/* Latest Reviews Section - Horizontal Scroll */}
+      {(loadingReviews || latestReviews.length > 0) && (
+        <Box sx={{ mb: 5, px: { xs: 2, sm: 3, md: 4 } }}>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h5" fontWeight={700} gutterBottom>
+              Latest Reviews
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              What our students are saying
+            </Typography>
+          </Box>
+          <ScrollCarousel itemCount={loadingReviews ? 6 : latestReviews.length}>
+            {loadingReviews ? (
+              [...Array(6)].map((_, i) => (
+                <Paper
+                  key={i}
+                  elevation={0}
+                  sx={{
+                    minWidth: { xs: 280, sm: 300 },
+                    width: { xs: 280, sm: 300 },
+                    flexShrink: 0,
+                    scrollSnapAlign: 'start',
+                    p: 2.5,
+                    borderRadius: 0,
+                    border: 'none',
+                    bgcolor: 'background.paper',
+                  }}
+                >
+                  <Stack direction="row" spacing={1.5} sx={{ mb: 1.5 }}>
+                    <Skeleton variant="circular" width={40} height={40} />
+                    <Box sx={{ flex: 1 }}>
+                      <Skeleton variant="text" width="60%" height={18} sx={{ mb: 0.5 }} />
+                      <Skeleton variant="text" width="40%" height={14} />
+                    </Box>
+                  </Stack>
+                  <Skeleton variant="text" width="80%" height={16} sx={{ mb: 1 }} />
+                  <Skeleton variant="text" width="100%" height={14} />
+                  <Skeleton variant="text" width="90%" height={14} sx={{ mt: 0.5 }} />
+                  <Skeleton variant="text" width="70%" height={14} sx={{ mt: 0.5 }} />
+                </Paper>
+              ))
+            ) : latestReviews.length > 0 ? (
+              latestReviews.map((review) => (
+                <Paper
+                  key={review.id}
+                  elevation={0}
+                  sx={{
+                    minWidth: { xs: 280, sm: 300 },
+                    width: { xs: 280, sm: 300 },
+                    flexShrink: 0,
+                    scrollSnapAlign: 'start',
+                    p: 2.5,
+                    borderRadius: 0,
+                    border: 'none',
+                    bgcolor: 'background.paper',
+                    transition: 'all 0.2s ease',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      bgcolor: alpha(theme.palette.grey[50], 0.5),
+                    },
+                  }}
+                  onClick={() => navigate(`/course/${review.courseId}`)}
+                >
+                  {/* User Header - Udemy Style */}
+                  <Stack direction="row" spacing={1.5} sx={{ mb: 1.5 }}>
+                    <Avatar
+                      src={review.learnerImage}
+                      alt={review.learnerName}
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        bgcolor: '#5624d0',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {review.learnerName?.charAt(0)?.toUpperCase()}
+                    </Avatar>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+                        <Typography
+                          variant="body2"
+                          fontWeight={700}
+                          sx={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            fontSize: '0.875rem',
+                            color: '#1c1d1f',
+                          }}
+                        >
+                          {review.learnerName}
+                        </Typography>
+                        <Rating
+                          value={review.star}
+                          readOnly
+                          size="small"
+                          sx={{
+                            '& .MuiRating-icon': {
+                              fontSize: '0.875rem',
+                              color: '#f3ca8c',
+                            },
+                            '& .MuiRating-iconFilled': {
+                              color: '#f3ca8c',
+                            },
+                            '& .MuiRating-iconEmpty': {
+                              color: '#e4e4e4',
+                            },
+                          }}
+                        />
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            color: '#1c1d1f',
+                          }}
+                        >
+                          {review.star}.0
+                        </Typography>
+                      </Stack>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          fontSize: '0.75rem',
+                          color: '#6a6f73',
+                          display: 'block',
+                        }}
+                      >
+                        {review.formattedTime}
+                      </Typography>
+                    </Box>
+                  </Stack>
+
+                  {/* Course Title - Udemy Style */}
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: '0.875rem',
+                      fontWeight: 700,
+                      color: theme.palette.primary.main,
+                      mb: 1,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      '&:hover': {
+                        color: theme.palette.primary.dark,
+                        textDecoration: 'underline',
+                      },
+                    }}
+                  >
+                    {review.courseTitle}
+                  </Typography>
+
+                  {/* Review Text - Udemy Style */}
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: '#1c1d1f',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      fontSize: '0.875rem',
+                      lineHeight: 1.4,
+                      mb: 0,
+                    }}
+                  >
+                    {review.review}
+                  </Typography>
+                </Paper>
+              ))
+            ) : null}
+          </ScrollCarousel>
+        </Box>
+      )}
 
       {/* 3. Our Teachers Section - Horizontal Scroll */}
       {(loadingTeachers || teachers.length > 0) && (

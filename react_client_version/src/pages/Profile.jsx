@@ -128,9 +128,71 @@ const CommentsModal = ({ open, onClose, post, user, isAuthenticated, navigate })
   const handleReplySubmit = async (parentId, body) => {
     if (!isAuthenticated) { navigate('/login'); return; }
     if (!post?.postId) return;
-    const result = await discussionAPI.createComment({ postId: post.postId, body, parent: parentId });
-    if (result.data?.comment) {
-      setComments((prev) => addReplyToTree(prev, parentId, result.data.comment));
+    
+    // Create optimistic reply immediately
+    const optimisticReply = {
+      id: 0,
+      postId: post.postId,
+      writerId: user?.phone || '',
+      body: body,
+      image: '',
+      time: Date.now(), // Temporary timestamp
+      parent: parentId,
+      likes: 0,
+      userName: user?.name || user?.learner_name || 'You',
+      userImage: user?.image || user?.learner_image || 'https://www.calamuseducation.com/uploads/placeholder.png',
+      isLiked: 0,
+      replies: [],
+    };
+    
+    // Add optimistic reply to tree immediately
+    setComments((prev) => addReplyToTree(prev, parentId, optimisticReply));
+    
+    try {
+      const result = await discussionAPI.createComment({ postId: post.postId, body, parent: parentId });
+      if (result.data?.comment) {
+        // Replace optimistic reply with real one from server
+        setComments((prev) => {
+          // First remove optimistic reply
+          const withoutOptimistic = prev.map((c) => {
+            if (c.time === parentId) {
+              return {
+                ...c,
+                replies: c.replies?.filter((r) => r.time !== optimisticReply.time) || []
+              };
+            }
+            if (c.replies?.length) {
+              return {
+                ...c,
+                replies: removeCommentFromTree(c.replies, optimisticReply.time)
+              };
+            }
+            return c;
+          });
+          // Then add real reply
+          return addReplyToTree(withoutOptimistic, parentId, result.data.comment);
+        });
+      }
+    } catch (err) {
+      console.error('Reply submit error:', err);
+      // Revert optimistic update on error
+      setComments((prev) => {
+        return prev.map((c) => {
+          if (c.time === parentId) {
+            return {
+              ...c,
+              replies: c.replies?.filter((r) => r.time !== optimisticReply.time) || []
+            };
+          }
+          if (c.replies?.length) {
+            return {
+              ...c,
+              replies: removeCommentFromTree(c.replies, optimisticReply.time)
+            };
+          }
+          return c;
+        });
+      });
     }
   };
 
@@ -506,7 +568,7 @@ const Profile = () => {
       const postIdToLike = post?.share || postId;
       
       const result = await discussionAPI.likePost(postIdToLike);
-      if (result.data) {
+      if (result.success && result.count !== undefined) {
         setPosts(prev => prev.map(p => {
           // Update the post that was clicked
           if (p.postId === postId) {
@@ -516,15 +578,15 @@ const Profile = () => {
                 ...p,
                 originalPost: {
                   ...p.originalPost,
-                  postLikes: result.data.count,
-                  isLiked: result.data.isLiked ? 1 : 0,
+                  postLikes: result.count,
+                  isLiked: result.isLiked ? 1 : 0,
                 },
-                postLikes: result.data.count, // Also update main post likes for consistency
-                isLiked: result.data.isLiked ? 1 : 0,
+                postLikes: result.count, // Also update main post likes for consistency
+                isLiked: result.isLiked ? 1 : 0,
               };
             }
             // Regular post
-            return { ...p, postLikes: result.data.count, isLiked: result.data.isLiked ? 1 : 0 };
+            return { ...p, postLikes: result.count, isLiked: result.isLiked ? 1 : 0 };
           }
           // Update other shared posts of the same original post
           if (p.share && p.share === postIdToLike && p.postId !== postId) {
@@ -532,11 +594,11 @@ const Profile = () => {
               ...p,
               originalPost: {
                 ...p.originalPost,
-                postLikes: result.data.count,
-                isLiked: result.data.isLiked ? 1 : 0,
+                postLikes: result.count,
+                isLiked: result.isLiked ? 1 : 0,
               },
-              postLikes: result.data.count,
-              isLiked: result.data.isLiked ? 1 : 0,
+              postLikes: result.count,
+              isLiked: result.isLiked ? 1 : 0,
             };
           }
           return p;

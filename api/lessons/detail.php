@@ -115,6 +115,19 @@ try {
 
     $curriculum = array_values($curriculum);
 
+    // Determine lesson type and set document URL for non-video lessons
+    // Format: http://domain/uploads/lessons/html/lesson_table_id.html
+    $isVideo = isset($lesson['isVideo']) ? (int)$lesson['isVideo'] : 0;
+    $documentUrl = null;
+    
+    if (!$isVideo) {
+        // Construct document URL: http://domain/uploads/lessons/html/lesson_table_id.html
+        $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $lessonTableId = (int)$lesson['id']; // lesson_table_id from lessons table
+        $documentUrl = $protocol . '://' . $host . '/uploads/lessons/html/' . $lessonTableId . '.html';
+    }
+
     echo json_encode([
         'success' => true,
         'data' => [
@@ -122,9 +135,10 @@ try {
                 'id' => (int)$lesson['id'],
                 'title' => $lesson['title'],
                 'description' => isset($lesson['description']) ? $lesson['description'] : '',
-                'isVideo' => isset($lesson['isVideo']) ? (int)$lesson['isVideo'] : 0,
+                'isVideo' => $isVideo,
                 'duration' => (int)$lesson['duration'],
                 'vimeo' => isset($lesson['vimeo']) ? $lesson['vimeo'] : null,
+                'documentUrl' => $documentUrl,
                 'viewCount' => isset($lesson['view_count']) ? (int)$lesson['view_count'] : 0,
                 'likeCount' => isset($lesson['post_like']) ? (int)$lesson['post_like'] : 0,
                 'comments' => isset($lesson['comments']) ? (int)$lesson['comments'] : 0,

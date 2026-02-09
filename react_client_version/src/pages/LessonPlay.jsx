@@ -85,9 +85,9 @@ const CurriculumItem = ({ lesson, isActive, onClick }) => {
           },
         }}
       />
-      {lesson.duration && (
+      {lesson.duration > 0 && (lesson.isVideo === 1 || lesson.isVideo === true) && (
         <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-          {lesson.duration}m
+          {Math.round(lesson.duration / 60)} min
         </Typography>
       )}
     </ListItem>
@@ -270,163 +270,255 @@ export default function LessonPlay() {
           p: { xs: 0, sm: 2, md: 3 },
         }}
       >
-        {/* Left Column — Video Player & Info & Comments */}
+        {/* Left Column — Video Player & Info & Comments OR Document Viewer */}
         <Box sx={{ flex: 1, minWidth: 0, maxWidth: showSidebar ? 'calc(100% - 374px)' : '100%' }}>
-          {/* Video Player */}
-          <VimeoPlayer
-            src={lesson.vimeo || ''}
-            title={lesson.title}
-            onBack={handleBack}
-          />
+          {/* Video Lesson: Show Video Player & Info & Comments */}
+          {(lesson.isVideo === 1 || lesson.isVideo === true) ? (
+            <>
+              {/* Video Player */}
+              <VimeoPlayer
+                src={lesson.vimeo || ''}
+                title={lesson.title}
+                onBack={handleBack}
+              />
 
-          {/* Video Info Section — matches WatchVideo */}
-          <Box sx={{ p: { xs: 2, lg: 0 }, pt: { lg: 2 } }}>
-            {/* Title */}
-            <Typography
-              variant="h6"
-              fontWeight={600}
-              sx={{
-                fontSize: { xs: '1rem', sm: '1.125rem' },
-                lineHeight: 1.4,
-                mb: 1.5,
-              }}
-            >
-              {lesson.title}
-            </Typography>
-
-            {/* Channel Info & Actions Row — same as WatchVideo */}
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: { xs: 'column', sm: 'row' },
-                justifyContent: 'space-between',
-                alignItems: { xs: 'flex-start', sm: 'center' },
-                gap: 2,
-                pb: 2,
-                boxShadow: '0 1px 0 rgba(0,0,0,0.05)',
-              }}
-            >
-              {/* Instructor Info */}
-              <Stack direction="row" spacing={1.5} alignItems="center">
-                <Avatar
-                  src={course.instructorImage || undefined}
+              {/* Video Info Section — matches WatchVideo */}
+              <Box sx={{ p: { xs: 2, lg: 0 }, pt: { lg: 2 } }}>
+                {/* Title */}
+                <Typography
+                  variant="h6"
+                  fontWeight={600}
                   sx={{
-                    width: 40,
-                    height: 40,
-                    bgcolor: 'primary.main',
-                    fontSize: '1rem',
+                    fontSize: { xs: '1rem', sm: '1.125rem' },
+                    lineHeight: 1.4,
+                    mb: 1.5,
                   }}
                 >
-                  {course.instructorName?.charAt(0) || 'C'}
-                </Avatar>
-                <Box>
-                  <Typography fontWeight={600} sx={{ fontSize: '0.9rem' }}>
-                    {course.instructorName || course.title}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {lesson.viewCount ? `${formatCount(lesson.viewCount)} views` : ''}{lesson.viewCount && lesson.duration ? ' • ' : ''}{lesson.duration ? `${Math.round(lesson.duration / 60)} min` : ''}
-                  </Typography>
-                </Box>
-              </Stack>
+                  {lesson.title}
+                </Typography>
 
-              {/* Action Buttons */}
-              <Stack direction="row" spacing={1} alignItems="center">
-                {/* Like Button */}
-                <Tooltip title="Like" arrow>
-                  <Button
-                    onClick={handleLike}
-                    sx={{
-                      minWidth: 'auto',
-                      px: 2,
-                      py: 0.75,
-                      bgcolor: liked ? alpha(theme.palette.primary.main, 0.1) : alpha('#000', 0.05),
-                      color: liked ? 'primary.main' : 'text.primary',
-                      borderRadius: 5,
-                      textTransform: 'none',
-                      '&:hover': { bgcolor: alpha('#000', 0.1) },
-                    }}
-                    startIcon={liked ? <LikedIcon /> : <LikeIcon />}
-                  >
-                    {formatCount(lesson.likeCount)}
-                  </Button>
-                </Tooltip>
+                {/* Channel Info & Actions Row — same as WatchVideo */}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    justifyContent: 'space-between',
+                    alignItems: { xs: 'flex-start', sm: 'center' },
+                    gap: 2,
+                    pb: 2,
+                    boxShadow: '0 1px 0 rgba(0,0,0,0.05)',
+                  }}
+                >
+                  {/* Instructor Info */}
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Avatar
+                      src={course.instructorImage || undefined}
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        bgcolor: 'primary.main',
+                        fontSize: '1rem',
+                      }}
+                    >
+                      {course.instructorName?.charAt(0) || 'C'}
+                    </Avatar>
+                    <Box>
+                      <Typography fontWeight={600} sx={{ fontSize: '0.9rem' }}>
+                        {course.instructorName || course.title}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {lesson.viewCount ? `${formatCount(lesson.viewCount)} views` : ''}{lesson.viewCount && lesson.duration ? ' • ' : ''}{lesson.duration ? `${Math.round(lesson.duration / 60)} min` : ''}
+                      </Typography>
+                    </Box>
+                  </Stack>
 
-                {/* Share Button */}
-                <Tooltip title="Share" arrow>
-                  <Button
-                    onClick={handleShare}
-                    sx={{
-                      minWidth: 'auto',
-                      px: 2,
-                      py: 0.75,
-                      bgcolor: alpha('#000', 0.05),
-                      color: 'text.primary',
-                      borderRadius: 5,
-                      textTransform: 'none',
-                      '&:hover': { bgcolor: alpha('#000', 0.1) },
-                    }}
-                    startIcon={<ShareIcon sx={{ fontSize: 20 }} />}
-                  >
-                    Share
-                  </Button>
-                </Tooltip>
+                  {/* Action Buttons */}
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    {/* Like Button */}
+                    <Tooltip title="Like" arrow>
+                      <Button
+                        onClick={handleLike}
+                        sx={{
+                          minWidth: 'auto',
+                          px: 2,
+                          py: 0.75,
+                          bgcolor: liked ? alpha(theme.palette.primary.main, 0.1) : alpha('#000', 0.05),
+                          color: liked ? 'primary.main' : 'text.primary',
+                          borderRadius: 5,
+                          textTransform: 'none',
+                          '&:hover': { bgcolor: alpha('#000', 0.1) },
+                        }}
+                        startIcon={liked ? <LikedIcon /> : <LikeIcon />}
+                      >
+                        {formatCount(lesson.likeCount)}
+                      </Button>
+                    </Tooltip>
 
-                {/* Curriculum toggle (mobile) */}
-                {!isDesktop && (
-                  <Tooltip title="Curriculum" arrow>
+                    {/* Share Button */}
+                    <Tooltip title="Share" arrow>
+                      <Button
+                        onClick={handleShare}
+                        sx={{
+                          minWidth: 'auto',
+                          px: 2,
+                          py: 0.75,
+                          bgcolor: alpha('#000', 0.05),
+                          color: 'text.primary',
+                          borderRadius: 5,
+                          textTransform: 'none',
+                          '&:hover': { bgcolor: alpha('#000', 0.1) },
+                        }}
+                        startIcon={<ShareIcon sx={{ fontSize: 20 }} />}
+                      >
+                        Share
+                      </Button>
+                    </Tooltip>
+
+                    {/* Curriculum toggle (mobile) */}
+                    {!isDesktop && (
+                      <Tooltip title="Curriculum" arrow>
+                        <IconButton
+                          onClick={() => setMobileSidebarOpen(true)}
+                          sx={{
+                            bgcolor: alpha('#000', 0.05),
+                            '&:hover': { bgcolor: alpha('#000', 0.1) },
+                          }}
+                        >
+                          <MenuIcon />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+
+                    {/* More Button */}
                     <IconButton
-                      onClick={() => setMobileSidebarOpen(true)}
                       sx={{
                         bgcolor: alpha('#000', 0.05),
                         '&:hover': { bgcolor: alpha('#000', 0.1) },
                       }}
                     >
-                      <MenuIcon />
+                      <MoreIcon />
                     </IconButton>
-                  </Tooltip>
+                  </Stack>
+                </Box>
+
+                {/* Lesson description (collapsible, if exists) */}
+                {lesson.description && (
+                  <Box
+                    sx={{
+                      mt: 2,
+                      p: 2,
+                      bgcolor: alpha('#000', 0.03),
+                      borderRadius: 2,
+                    }}
+                  >
+                    <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-wrap' }}>
+                      {lesson.description}
+                    </Typography>
+                  </Box>
                 )}
 
-                {/* More Button */}
-                <IconButton
+                {/* Comments Section */}
+                <Comments
+                  commentCount={lesson.comments || 0}
+                  comment={comment}
+                  setComment={setComment}
+                  onSubmit={() => {
+                    if (comment.trim()) {
+                      console.log('Submit comment:', comment);
+                      setComment('');
+                    }
+                  }}
+                />
+              </Box>
+            </>
+          ) : (
+            /* Document Lesson: Show ONLY Document Viewer (full column) */
+            <Box
+              sx={{
+                width: '100%',
+                bgcolor: 'background.paper',
+                borderRadius: { xs: 0, lg: 2 },
+                overflow: 'hidden',
+                border: 'none',
+                boxShadow: { xs: 'none', lg: '0 2px 12px rgba(0,0,0,0.06)' },
+                position: 'relative',
+              }}
+            >
+              {/* Curriculum toggle button for mobile - positioned at top right */}
+              {!isDesktop && (
+                <Tooltip title="Curriculum" arrow>
+                  <IconButton
+                    onClick={() => setMobileSidebarOpen(true)}
+                    sx={{
+                      position: 'absolute',
+                      top: 12,
+                      right: 12,
+                      zIndex: 10,
+                      bgcolor: 'rgba(0,0,0,0.5)',
+                      color: 'white',
+                      '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' },
+                    }}
+                  >
+                    <MenuIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+              
+              {lesson.documentUrl ? (
+                <Box
+                  component="iframe"
+                  src={lesson.documentUrl}
                   sx={{
-                    bgcolor: alpha('#000', 0.05),
-                    '&:hover': { bgcolor: alpha('#000', 0.1) },
+                    width: '100%',
+                    border: 'none',
+                    display: 'block',
+                  }}
+                  title={lesson.title}
+                  allowFullScreen
+                  onLoad={(e) => {
+                    // Resize iframe to match content height
+                    try {
+                      const iframe = e.target;
+                      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                      if (iframeDoc && iframeDoc.body) {
+                        const height = Math.max(
+                          iframeDoc.body.scrollHeight,
+                          iframeDoc.body.offsetHeight,
+                          iframeDoc.documentElement.clientHeight,
+                          iframeDoc.documentElement.scrollHeight,
+                          iframeDoc.documentElement.offsetHeight
+                        );
+                        iframe.style.height = height + 'px';
+                      }
+                    } catch (err) {
+                      // Cross-origin restriction - set a reasonable default height
+                      e.target.style.height = '1200px';
+                    }
+                  }}
+                />
+              ) : (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: '400px',
+                    p: 4,
+                    textAlign: 'center',
                   }}
                 >
-                  <MoreIcon />
-                </IconButton>
-              </Stack>
+                  <DocumentIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+                  <Typography variant="h6" color="text.secondary" gutterBottom>
+                    Document not available
+                  </Typography>
+                  <Typography variant="body2" color="text.disabled">
+                    The lesson document could not be loaded.
+                  </Typography>
+                </Box>
+              )}
             </Box>
-
-            {/* Lesson description (collapsible, if exists) */}
-            {lesson.description && (
-              <Box
-                sx={{
-                  mt: 2,
-                  p: 2,
-                  bgcolor: alpha('#000', 0.03),
-                  borderRadius: 2,
-                }}
-              >
-                <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-wrap' }}>
-                  {lesson.description}
-                </Typography>
-              </Box>
-            )}
-
-            {/* Comments Section — same as WatchVideo */}
-            <Comments
-              commentCount={lesson.comments || 0}
-              comment={comment}
-              setComment={setComment}
-              onSubmit={() => {
-                if (comment.trim()) {
-                  console.log('Submit comment:', comment);
-                  setComment('');
-                }
-              }}
-            />
-          </Box>
+          )}
 
           {/* Mobile curriculum is accessible via the Curriculum drawer button */}
         </Box>

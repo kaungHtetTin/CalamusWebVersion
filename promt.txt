@@ -1,11 +1,12 @@
-In post table,
-some post may be shared by other.
-check the share column which has id than zero is the share post and id is the 
-original post id. 
+For lesson play page,
+You need to update for document lesson
 
-you don't need to show share post in discussion page. 
+We have two type of lesson: video and document
+Current implementation is okay for video lesson.
 
-For post sharing. 
-create new post in db and just save original post id  share column
+but you need to update to show document lesson.
+The document lesson will be html file and 
+locate in http://domain/uploads/lessons/html/lesson_table_id.html 
 
-activate share feature for post item.
+You need to replace  Video Player & Info & Comments section in left column with document lesson display 
+for document lesson

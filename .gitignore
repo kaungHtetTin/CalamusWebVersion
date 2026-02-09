@@ -1,0 +1,40 @@
+# Local configuration overrides (should not be committed)
+api/config.local.php
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Uploads directory (already has its own .gitignore)
+# uploads/
+
+# Node modules (React app)
+react_client_version/node_modules/
+react_client_version/build/
+react_client_version/.pnp
+react_client_version/.pnp.js
+
+# PHP
+vendor/
+composer.lock

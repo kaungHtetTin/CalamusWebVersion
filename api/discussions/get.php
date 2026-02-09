@@ -33,7 +33,7 @@ try {
     
     $DB = new Database();
     
-    // Fetch posts from database
+    // Fetch posts from database (exclude shared posts - where share > 0)
     $postsQuery = "SELECT 
         posts.post_id as postId,
         posts.body,
@@ -47,6 +47,7 @@ try {
         posts.view_count as viewCount,
         posts.show_on_blog,
         posts.blog_title,
+        posts.major as category,
         posts.learner_id as userId,
         learners.learner_name as userName,
         learners.learner_image as userImage
@@ -54,6 +55,7 @@ try {
     LEFT JOIN learners ON learners.learner_phone = posts.learner_id
     WHERE posts.hide = 0 
     AND posts.major = '$category'
+    AND posts.share = 0
     ORDER BY posts.post_id DESC
     LIMIT $limit OFFSET $offset";
     
@@ -96,6 +98,7 @@ try {
                 'isLiked' => $isLiked,
                 'showOnBlog' => (int)($post['show_on_blog'] ?? 0),
                 'blogTitle' => mb_convert_encoding($post['blog_title'] ?? '', 'UTF-8', 'UTF-8'),
+                'category' => $post['category'] ?? $category,
                 'userId' => $post['userId'] ?? '',
                 'userName' => mb_convert_encoding($post['userName'] ?? 'Anonymous', 'UTF-8', 'UTF-8'),
                 'userImage' => $post['userImage'] ?? 'https://www.calamuseducation.com/uploads/placeholder.png',
@@ -104,8 +107,8 @@ try {
         }
     }
     
-    // Get total count for pagination
-    $countQuery = "SELECT COUNT(*) as total FROM posts WHERE hide = 0 AND major = '$category'";
+    // Get total count for pagination (exclude shared posts)
+    $countQuery = "SELECT COUNT(*) as total FROM posts WHERE hide = 0 AND major = '$category' AND share = 0";
     $countResult = $DB->read($countQuery);
     $totalPosts = $countResult && is_array($countResult) ? (int)$countResult[0]['total'] : 0;
     

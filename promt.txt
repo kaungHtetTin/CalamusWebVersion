@@ -1,22 +1,11 @@
-I want to add flashcard feature in flashcard_section of vocab_learning.php
-for UI query is already install, add js code below part of the file
-here is the flash card LearningFlow
-fetch the cards from api/vocab-learning/get-cards.php
-then show the cards in order of one by one.
-here how to show the card.
-first show the front side with answer button, 
-when click answer, show the back side with 1 to 5 rating button and skip button,
-when user click rating 1 to 5 button
-request to api/vocab-learning/rate-word.php managing on request, on loaded, error event with loading progress UI
-and when finish, switch to the next card,
+In post table,
+some post may be shared by other.
+check the share column which has id than zero is the share post and id is the 
+original post id. 
 
-when the user click skip button,
-request to api/vocab-learning/skip-word.php.
-the api will give the new word, replace the new word in local cards arrays.
+you don't need to show share post in discussion page. 
 
-Firstly don't make any implementation 
-show your step by step implemention flow and question
+For post sharing. 
+create new post in db and just save original post id  share column
 
-Let's make some changes and modification,
-I want to make the learning flow easily
-
+activate share feature for post item.

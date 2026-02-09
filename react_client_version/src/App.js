@@ -5,7 +5,7 @@ import theme from './theme/theme';
 import { Layout } from './components/Layout';
 import { DrawerProvider } from './context/DrawerContext';
 import { AuthProvider } from './context/AuthContext';
-import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList, VipPlan, Login, Profile, MyLearning, LessonPlay } from './pages';
+import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList, VipPlan, Login, Profile, EditProfile, MyLearning, LessonPlay } from './pages';
 
 function App() {
   return (
@@ -44,6 +44,7 @@ function App() {
                 <Route path="/terms" element={<PlaceholderPage title="Terms" />} />
                 <Route path="/privacy" element={<PlaceholderPage title="Privacy" />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/edit" element={<EditProfile />} />
                 <Route path="/profile/:userId" element={<Profile />} />
               </Routes>
             </Layout>

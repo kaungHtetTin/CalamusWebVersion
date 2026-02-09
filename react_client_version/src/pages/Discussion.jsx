@@ -28,8 +28,6 @@ import {
   Favorite as LikedIcon,
   ChatBubbleOutline as CommentIcon,
   Send as ShareIcon,
-  BookmarkBorder as SaveIcon,
-  Bookmark as SavedIcon,
   MoreHoriz as MoreIcon,
   Verified as VerifiedIcon,
   AddCircleOutline as AddIcon,
@@ -44,6 +42,7 @@ import {
 import { discussionAPI } from '../services/api';
 import { PostCard, formatRelativeTime, formatNumber } from '../components/PostCard';
 import CommentItem from '../components/CommentItem';
+import CreatePost from '../components/CreatePost';
 import { useAuth } from '../context/AuthContext';
 
 // Transition for dialog
@@ -115,6 +114,7 @@ const CommentsModal = ({ open, onClose, post, user, isAuthenticated, navigate })
 
   const handleLikeComment = async (commentTime, isLiked) => {
     if (!isAuthenticated) { navigate('/login'); return; }
+    if (!post?.postId) return;
     try {
       const result = await discussionAPI.likeComment(post.postId, commentTime);
       if (result.data) {
@@ -130,8 +130,20 @@ const CommentsModal = ({ open, onClose, post, user, isAuthenticated, navigate })
     setComments((prev) => removeCommentFromTree(prev, commentId));
   };
 
+  const handleUpdateComment = async (postId, commentId, body) => {
+    if (!isAuthenticated) { navigate('/login'); return; }
+    const result = await discussionAPI.updateComment(postId, commentId, body);
+    if (result.success) {
+      setComments((prev) => updateCommentInTree(prev, commentId, (c) => ({
+        ...c,
+        body: body,
+      })));
+    }
+  };
+
   const handleReplySubmit = async (parentId, body) => {
     if (!isAuthenticated) { navigate('/login'); return; }
+    if (!post?.postId) return;
     const result = await discussionAPI.createComment({ postId: post.postId, body, parent: parentId });
     if (result.data?.comment) {
       setComments((prev) => addReplyToTree(prev, parentId, result.data.comment));
@@ -142,16 +154,51 @@ const CommentsModal = ({ open, onClose, post, user, isAuthenticated, navigate })
     const body = commentText.trim();
     if (!body) return;
     if (!isAuthenticated) { navigate('/login'); return; }
+    if (!post?.postId) return;
+    
+    // Clear input immediately
+    const commentTextToSubmit = body;
+    setCommentText('');
     setSubmitting(true);
+    
+    // Optimistic update - add comment immediately
+    const optimisticComment = {
+      id: 0,
+      postId: post.postId,
+      writerId: user?.phone || '',
+      body: commentTextToSubmit,
+      image: '',
+      time: Date.now(), // Temporary timestamp
+      parent: 0,
+      likes: 0,
+      userName: user?.name || user?.learner_name || 'You',
+      userImage: user?.image || user?.learner_image || 'https://www.calamuseducation.com/uploads/placeholder.png',
+      isLiked: 0,
+      replies: [],
+    };
+    
+    setComments((prev) => [optimisticComment, ...prev]);
+    
     try {
-      const result = await discussionAPI.createComment({ postId: post.postId, body });
+      const result = await discussionAPI.createComment({ postId: post.postId, body: commentTextToSubmit });
       if (result.data?.comment) {
-        setComments((prev) => [result.data.comment, ...prev]);
-        setCommentText('');
+        // Replace optimistic comment with real one from server
+        setComments((prev) => {
+          const filtered = prev.filter((c) => c.time !== optimisticComment.time);
+          return [result.data.comment, ...filtered];
+        });
       }
-    } catch (err) { console.error('Submit comment error:', err); }
-    finally { setSubmitting(false); }
+    } catch (err) {
+      console.error('Submit comment error:', err);
+      // Revert optimistic update on error
+      setComments((prev) => prev.filter((c) => c.time !== optimisticComment.time));
+      setCommentText(commentTextToSubmit); // Restore text
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  if (!post) return null;
   
   return (
     <Dialog
@@ -178,11 +225,10 @@ const CommentsModal = ({ open, onClose, post, user, isAuthenticated, navigate })
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          fontWeight: 600,
         }}
       >
-        <Typography variant="h6" fontWeight={600}>
-          Comments
-        </Typography>
+        Comments
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
         </IconButton>
@@ -191,39 +237,41 @@ const CommentsModal = ({ open, onClose, post, user, isAuthenticated, navigate })
       {/* Content */}
       <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column' }}>
         {/* Post Preview */}
-        <Box sx={{ p: 2, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-          <Stack direction="row" spacing={1.5} alignItems="flex-start">
-            <Avatar
-              src={post?.userImage}
-              sx={{ width: 36, height: 36 }}
-            />
-            <Box sx={{ flex: 1 }}>
-              <Stack direction="row" alignItems="center" spacing={0.5}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  {post?.userName}
-                </Typography>
-                {post?.vip === 1 && (
-                  <VerifiedIcon sx={{ fontSize: 14, color: 'primary.main' }} />
+        {post && (
+          <Box sx={{ p: 2, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+            <Stack direction="row" spacing={1.5} alignItems="flex-start">
+              <Avatar
+                src={post?.userImage}
+                sx={{ width: 36, height: 36 }}
+              />
+              <Box sx={{ flex: 1 }}>
+                <Stack direction="row" alignItems="center" spacing={0.5}>
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    {post?.userName}
+                  </Typography>
+                  {post?.vip === 1 && (
+                    <VerifiedIcon sx={{ fontSize: 14, color: 'primary.main' }} />
+                  )}
+                </Stack>
+                {post?.body && (
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary"
+                    sx={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                    }}
+                  >
+                    {post.body}
+                  </Typography>
                 )}
-              </Stack>
-              {post?.body && (
-                <Typography 
-                  variant="body2" 
-                  color="text.secondary"
-                  sx={{
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                  }}
-                >
-                  {post.body}
-                </Typography>
-              )}
-            </Box>
-          </Stack>
-        </Box>
+              </Box>
+            </Stack>
+          </Box>
+        )}
         
         {/* Comments List */}
         <Box 
@@ -264,11 +312,12 @@ const CommentsModal = ({ open, onClose, post, user, isAuthenticated, navigate })
             comments.map((comment) => (
               <CommentItem
                 key={comment.id || comment.time}
-                postId={post.postId}
+                postId={post?.postId}
                 comment={comment}
                 currentUserId={user?.phone}
                 onLikeComment={handleLikeComment}
                 onDeleteComment={isAuthenticated ? handleDeleteComment : null}
+                onUpdateComment={isAuthenticated ? handleUpdateComment : null}
                 onReplySubmit={isAuthenticated ? handleReplySubmit : null}
                 isAuthenticated={!!isAuthenticated}
               />
@@ -371,224 +420,14 @@ const StoryItem = ({ post, onClick }) => {
   );
 };
 
-// Create Post Component
-const CreatePostBox = ({ category, onPostCreated, variant = 'inline' }) => {
-  const theme = useTheme();
-  const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
-  const [text, setText] = useState('');
-  const [image, setImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const fileInputRef = useRef(null);
-
-  const handleImageSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      setError('Please select an image file');
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image must be less than 5MB');
-      return;
-    }
-
-    setError('');
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setImage(event.target.result);
-      setImagePreview(event.target.result);
-    };
-    reader.readAsDataURL(file);
+// Helper function to map category to language code
+// Maps discussion category (english/korea) to language code from database
+const mapCategoryToLanguageCode = (category) => {
+  const mapping = {
+    'english': 'english', // Default fallback
+    'korea': 'korea',     // Default fallback
   };
-
-  const handleRemoveImage = () => {
-    setImage(null);
-    setImagePreview('');
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
-  const handleSubmit = async () => {
-    if (!text.trim() && !image) return;
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-
-    setSubmitting(true);
-    setError('');
-    try {
-      const res = await discussionAPI.createPost({
-        body: text.trim(),
-        category: category || 'english',
-        image: image || '',
-      });
-
-      if (res.success && res.data?.post) {
-        setText('');
-        handleRemoveImage();
-        if (onPostCreated) onPostCreated(res.data.post);
-      } else {
-        setError(res.error || 'Failed to create post');
-      }
-    } catch (err) {
-      if (err.message === 'Not authenticated') {
-        navigate('/login');
-        return;
-      }
-      console.error('Create post error:', err);
-      setError('Something went wrong. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const isDialog = variant === 'dialog';
-
-  if (!isAuthenticated) {
-    return (
-      <Paper
-        elevation={0}
-        sx={{
-          bgcolor: 'background.paper',
-          borderRadius: { xs: 0, sm: 2 },
-          boxShadow: { xs: 'none', sm: '0 2px 12px rgba(0,0,0,0.06)' },
-          p: 2.5,
-          mb: 2,
-          cursor: 'pointer',
-          '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.04) },
-        }}
-        onClick={() => navigate('/login')}
-      >
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Avatar sx={{ width: 40, height: 40, bgcolor: 'grey.200' }} />
-          <Typography variant="body2" color="text.secondary">
-            Log in to share what's on your mind...
-          </Typography>
-        </Stack>
-      </Paper>
-    );
-  }
-
-  return (
-    <Paper
-      elevation={0}
-      sx={{
-        bgcolor: 'background.paper',
-        borderRadius: isDialog ? 0 : { xs: 0, sm: 2 },
-        border: 'none',
-        boxShadow: isDialog ? 'none' : { xs: 'none', sm: '0 2px 12px rgba(0,0,0,0.06)' },
-        p: isDialog ? 0 : 2,
-        mb: isDialog ? 0 : 2,
-      }}
-    >
-      <Stack direction="row" spacing={2} alignItems="flex-start">
-        <Avatar
-          src={user?.image || user?.learner_image || ''}
-          sx={{ width: 40, height: 40 }}
-        >
-          {user?.name?.[0] || user?.learner_name?.[0] || 'U'}
-        </Avatar>
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <TextField
-            fullWidth
-            multiline
-            minRows={isDialog ? 4 : 2}
-            maxRows={8}
-            placeholder="What's on your mind?"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            variant="standard"
-            InputProps={{
-              disableUnderline: true,
-            }}
-            sx={{
-              '& .MuiInputBase-root': {
-                fontSize: '0.95rem',
-              },
-            }}
-          />
-
-          {/* Image Preview */}
-          {imagePreview && (
-            <Box sx={{ position: 'relative', mt: 1.5, mb: 1 }}>
-              <Box
-                component="img"
-                src={imagePreview}
-                alt="Preview"
-                sx={{
-                  width: '100%',
-                  maxHeight: 300,
-                  objectFit: 'cover',
-                  borderRadius: 2,
-                  display: 'block',
-                }}
-              />
-              <IconButton
-                size="small"
-                onClick={handleRemoveImage}
-                sx={{
-                  position: 'absolute',
-                  top: 6,
-                  right: 6,
-                  bgcolor: 'rgba(0,0,0,0.6)',
-                  color: 'white',
-                  '&:hover': { bgcolor: 'rgba(0,0,0,0.8)' },
-                  width: 28,
-                  height: 28,
-                }}
-              >
-                <CloseIcon sx={{ fontSize: 16 }} />
-              </IconButton>
-            </Box>
-          )}
-
-          {/* Error */}
-          {error && (
-            <Typography variant="caption" color="error" sx={{ display: 'block', mt: 0.5, mb: 0.5 }}>
-              {error}
-            </Typography>
-          )}
-
-          <Divider sx={{ my: 1.5 }} />
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Stack direction="row" spacing={0.5}>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handleImageSelect}
-              />
-              <IconButton
-                size="small"
-                color="primary"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <ImageIcon fontSize="small" />
-              </IconButton>
-            </Stack>
-            <Button
-              variant="contained"
-              size="small"
-              disabled={(!text.trim() && !image) || submitting}
-              onClick={handleSubmit}
-              sx={{ 
-                borderRadius: 5,
-                px: 3,
-                textTransform: 'none',
-              }}
-            >
-              {submitting ? <CircularProgress size={18} color="inherit" /> : 'Post'}
-            </Button>
-          </Stack>
-        </Box>
-      </Stack>
-    </Paper>
-  );
+  return mapping[category] || 'english';
 };
 
 // Loading Skeleton
@@ -781,6 +620,33 @@ const Discussion = () => {
     await discussionAPI.hidePost(postId);
     setPosts(prev => prev.filter(p => p.postId !== postId));
   };
+
+  // Handle share post
+  const handleSharePost = async (postId) => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    try {
+      const result = await discussionAPI.sharePost(postId);
+      if (result.success) {
+        if (result.data?.alreadyShared) {
+          // Already shared - return info instead of throwing error
+          return { alreadyShared: true, message: result.message || 'You have already shared this post' };
+        }
+        // Update share count for the original post
+        setPosts(prev => prev.map(p =>
+          p.postId === postId
+            ? { ...p, shareCount: (p.shareCount || 0) + 1 }
+            : p
+        ));
+      } else {
+        throw new Error(result.message || 'Failed to share post');
+      }
+    } catch (err) {
+      throw err;
+    }
+  };
   
   // Loading state
   if (loading) {
@@ -935,7 +801,10 @@ const Discussion = () => {
       >
         {/* Create Post */}
         {!isMobile && (
-          <CreatePostBox category={category} onPostCreated={handlePostCreated} />
+          <CreatePost 
+            defaultLanguage={mapCategoryToLanguageCode(category)} 
+            onPostCreated={handlePostCreated} 
+          />
         )}
         
         {/* Posts Feed */}
@@ -965,6 +834,7 @@ const Discussion = () => {
                   onDelete={isAuthenticated ? handleDeletePost : null}
                   onReport={isAuthenticated ? handleReportPost : null}
                   onHide={isAuthenticated ? handleHidePost : null}
+                  onShare={isAuthenticated ? handleSharePost : null}
                 />
               </Box>
             ))}
@@ -1040,8 +910,8 @@ const Discussion = () => {
             <Box sx={{ width: 40 }} /> {/* Spacer for centering */}
           </Box>
           <Box sx={{ flex: 1, p: 2, overflow: 'auto' }}>
-            <CreatePostBox
-              category={category}
+            <CreatePost
+              defaultLanguage={mapCategoryToLanguageCode(category)}
               onPostCreated={handlePostCreated}
               variant="dialog"
             />

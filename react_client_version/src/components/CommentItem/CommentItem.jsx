@@ -17,8 +17,9 @@ import {
   Button,
   Snackbar,
   Alert,
+  CircularProgress,
 } from '@mui/material';
-import { Send as SendIcon, MoreHoriz as MoreIcon, Delete as DeleteIcon, ContentCopy as CopyIcon } from '@mui/icons-material';
+import { Send as SendIcon, MoreHoriz as MoreIcon, Delete as DeleteIcon, ContentCopy as CopyIcon, Edit as EditIcon, Check as CheckIcon, Close as CloseIcon } from '@mui/icons-material';
 import { formatRelativeTime, formatNumber } from '../PostCard';
 
 const CommentItem = ({
@@ -28,6 +29,7 @@ const CommentItem = ({
   currentUserId,
   onLikeComment,
   onDeleteComment,
+  onUpdateComment,
   onReplySubmit,
   isAuthenticated,
 }) => {
@@ -41,6 +43,9 @@ const CommentItem = ({
   const [deleting, setDeleting] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [deleted, setDeleted] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(comment.body || '');
+  const [updating, setUpdating] = useState(false);
 
   const isOwner = currentUserId && String(comment.writerId) === String(currentUserId);
   const menuOpen = Boolean(menuAnchor);
@@ -86,6 +91,37 @@ const CommentItem = ({
     }
   };
 
+  const handleEditClick = () => {
+    handleMenuClose();
+    setIsEditing(true);
+    setEditText(comment.body || '');
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditText(comment.body || '');
+  };
+
+  const handleSaveEdit = async () => {
+    const trimmedText = editText.trim();
+    if (!trimmedText || !onUpdateComment) return;
+    if (trimmedText === comment.body) {
+      setIsEditing(false);
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      await onUpdateComment(postId, comment.time, trimmedText);
+      setIsEditing(false);
+      setSnackbar({ open: true, message: 'Comment updated', severity: 'success' });
+    } catch (err) {
+      setSnackbar({ open: true, message: 'Failed to update comment', severity: 'error' });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   const handleReplySubmit = async () => {
     const body = replyText.trim();
     if (!body || !onReplySubmit || !isAuthenticated) return;
@@ -112,30 +148,73 @@ const CommentItem = ({
             sx={{ width: isReply ? 24 : 32, height: isReply ? 24 : 32 }}
           />
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Stack direction="row" alignItems="flex-start" justifyContent="space-between">
-              <Box
-                sx={{
-                  bgcolor: 'grey.100',
-                  borderRadius: '18px',
-                  px: 2,
-                  py: 1,
-                  display: 'inline-block',
-                  maxWidth: '100%',
-                }}
-              >
-                <Typography variant="subtitle2" fontWeight={600} fontSize={isReply ? 12 : 13} color="text.primary" sx={{ lineHeight: 1.3 }}>
-                  {comment.userName}
-                </Typography>
-                <Typography variant="body2" fontSize={isReply ? 13 : 14} color="text.primary" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.4 }}>
-                  {comment.body}
-                </Typography>
+            {isEditing ? (
+              <Box sx={{ mb: 1 }}>
+                <TextField
+                  fullWidth
+                  multiline
+                  minRows={2}
+                  maxRows={6}
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  disabled={updating}
+                  autoFocus
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                      fontSize: isReply ? 13 : 14,
+                    },
+                  }}
+                />
+                <Stack direction="row" spacing={1} sx={{ mt: 1, justifyContent: 'flex-end' }}>
+                  <IconButton
+                    size="small"
+                    onClick={handleCancelEdit}
+                    disabled={updating}
+                    sx={{ color: 'text.secondary' }}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    color="primary"
+                    onClick={handleSaveEdit}
+                    disabled={!editText.trim() || updating || editText.trim() === comment.body}
+                  >
+                    {updating ? (
+                      <CircularProgress size={16} />
+                    ) : (
+                      <CheckIcon fontSize="small" />
+                    )}
+                  </IconButton>
+                </Stack>
               </Box>
-              {((comment.body) || (isOwner && onDeleteComment)) && (
-                <IconButton size="small" onClick={handleMenuOpen} sx={{ mt: -0.5 }}>
-                  <MoreIcon fontSize="small" />
-                </IconButton>
-              )}
-            </Stack>
+            ) : (
+              <Stack direction="row" alignItems="flex-start" justifyContent="space-between">
+                <Box
+                  sx={{
+                    bgcolor: 'grey.100',
+                    borderRadius: '18px',
+                    px: 2,
+                    py: 1,
+                    display: 'inline-block',
+                    maxWidth: '100%',
+                  }}
+                >
+                  <Typography variant="subtitle2" fontWeight={600} fontSize={isReply ? 12 : 13} color="text.primary" sx={{ lineHeight: 1.3 }}>
+                    {comment.userName}
+                  </Typography>
+                  <Typography variant="body2" fontSize={isReply ? 13 : 14} color="text.primary" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.4 }}>
+                    {comment.body}
+                  </Typography>
+                </Box>
+                {((comment.body) || (isOwner && (onDeleteComment || onUpdateComment))) && (
+                  <IconButton size="small" onClick={handleMenuOpen} sx={{ mt: -0.5 }}>
+                    <MoreIcon fontSize="small" />
+                  </IconButton>
+                )}
+              </Stack>
+            )}
 
             <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mt: 0.3, ml: 1.5 }}>
               <Typography
@@ -196,6 +275,7 @@ const CommentItem = ({
                     currentUserId={currentUserId}
                     onLikeComment={onLikeComment}
                     onDeleteComment={onDeleteComment}
+                    onUpdateComment={onUpdateComment}
                     onReplySubmit={onReplySubmit}
                     isAuthenticated={isAuthenticated}
                   />
@@ -211,6 +291,12 @@ const CommentItem = ({
           <MenuItem onClick={handleCopyText}>
             <ListItemIcon><CopyIcon fontSize="small" /></ListItemIcon>
             <ListItemText>Copy text</ListItemText>
+          </MenuItem>
+        )}
+        {isOwner && onUpdateComment && (
+          <MenuItem onClick={handleEditClick}>
+            <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
+            <ListItemText>Edit</ListItemText>
           </MenuItem>
         )}
         {isOwner && onDeleteComment && (

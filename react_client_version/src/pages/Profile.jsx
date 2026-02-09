@@ -16,6 +16,11 @@ import {
   useTheme,
   useMediaQuery,
   alpha,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Slide,
+  TextField,
 } from '@mui/material';
 import {
   Work as WorkIcon,
@@ -26,10 +31,330 @@ import {
   Article as PostIcon,
   PushPin as PinIcon,
   Person as PersonIcon,
+  Close as CloseIcon,
+  ChatBubbleOutline as CommentIcon,
+  Verified as VerifiedIcon,
+  Send as ShareIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import { userAPI, discussionAPI } from '../services/api';
 import { PostCard } from '../components/PostCard';
+import CommentItem from '../components/CommentItem';
+import CreatePost from '../components/CreatePost';
+
+// Transition for dialog
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+// Comments Modal Component
+const CommentsModal = ({ open, onClose, post, user, isAuthenticated, navigate }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [commentText, setCommentText] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const fetchComments = useCallback(async () => {
+    if (!post?.postId) return;
+    setLoading(true);
+    try {
+      const response = await discussionAPI.getComments(post.postId, user?.phone || null);
+      setComments(response.data.comments || []);
+    } catch (error) {
+      console.error('Failed to fetch comments:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [post?.postId, user?.phone]);
+
+  useEffect(() => {
+    if (open && post?.postId) fetchComments();
+  }, [open, post?.postId, fetchComments]);
+
+  const updateCommentInTree = (list, commentId, updater) => {
+    return list.map((c) => {
+      if (c.time === commentId) return updater(c);
+      if (c.replies?.length) return { ...c, replies: updateCommentInTree(c.replies, commentId, updater) };
+      return c;
+    });
+  };
+
+  const removeCommentFromTree = (list, commentId) => {
+    return list.filter((c) => c.time !== commentId).map((c) => {
+      if (c.replies?.length) return { ...c, replies: removeCommentFromTree(c.replies, commentId) };
+      return c;
+    });
+  };
+
+  const addReplyToTree = (list, parentId, newComment) => {
+    return list.map((c) => {
+      if (c.time === parentId) return { ...c, replies: [...(c.replies || []), newComment] };
+      if (c.replies?.length) return { ...c, replies: addReplyToTree(c.replies, parentId, newComment) };
+      return c;
+    });
+  };
+
+  const handleLikeComment = async (commentTime, isLiked) => {
+    if (!isAuthenticated) { navigate('/login'); return; }
+    if (!post?.postId) return;
+    try {
+      const result = await discussionAPI.likeComment(post.postId, commentTime);
+      if (result.data) {
+        setComments((prev) => updateCommentInTree(prev, commentTime, (c) => ({
+          ...c, likes: result.data.count, isLiked: result.data.isLiked ? 1 : 0,
+        })));
+      }
+    } catch (err) { console.error('Like comment error:', err); }
+  };
+
+  const handleDeleteComment = async (postId, commentId) => {
+    await discussionAPI.deleteComment(postId, commentId);
+    setComments((prev) => removeCommentFromTree(prev, commentId));
+  };
+
+  const handleUpdateComment = async (postId, commentId, body) => {
+    if (!isAuthenticated) { navigate('/login'); return; }
+    const result = await discussionAPI.updateComment(postId, commentId, body);
+    if (result.success) {
+      setComments((prev) => updateCommentInTree(prev, commentId, (c) => ({
+        ...c,
+        body: body,
+      })));
+    }
+  };
+
+  const handleReplySubmit = async (parentId, body) => {
+    if (!isAuthenticated) { navigate('/login'); return; }
+    if (!post?.postId) return;
+    const result = await discussionAPI.createComment({ postId: post.postId, body, parent: parentId });
+    if (result.data?.comment) {
+      setComments((prev) => addReplyToTree(prev, parentId, result.data.comment));
+    }
+  };
+
+  const handleSubmitComment = async () => {
+    const body = commentText.trim();
+    if (!body) return;
+    if (!isAuthenticated) { navigate('/login'); return; }
+    if (!post?.postId) return;
+    
+    // Clear input immediately
+    const commentTextToSubmit = body;
+    setCommentText('');
+    setSubmitting(true);
+    
+    // Optimistic update - add comment immediately
+    const optimisticComment = {
+      id: 0,
+      postId: post.postId,
+      writerId: user?.phone || '',
+      body: commentTextToSubmit,
+      image: '',
+      time: Date.now(), // Temporary timestamp
+      parent: 0,
+      likes: 0,
+      userName: user?.name || user?.learner_name || 'You',
+      userImage: user?.image || user?.learner_image || 'https://www.calamuseducation.com/uploads/placeholder.png',
+      isLiked: 0,
+      replies: [],
+    };
+    
+    setComments((prev) => [optimisticComment, ...prev]);
+    
+    try {
+      const result = await discussionAPI.createComment({ postId: post.postId, body: commentTextToSubmit });
+      if (result.data?.comment) {
+        // Replace optimistic comment with real one from server
+        setComments((prev) => {
+          const filtered = prev.filter((c) => c.time !== optimisticComment.time);
+          return [result.data.comment, ...filtered];
+        });
+      }
+    } catch (err) {
+      console.error('Submit comment error:', err);
+      // Revert optimistic update on error
+      setComments((prev) => prev.filter((c) => c.time !== optimisticComment.time));
+      setCommentText(commentTextToSubmit); // Restore text
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  
+  if (!post) return null;
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      TransitionComponent={Transition}
+      fullScreen={isMobile}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: isMobile ? 0 : 2,
+          maxHeight: isMobile ? '100%' : '85vh',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+        },
+      }}
+    >
+      {/* Header */}
+      <DialogTitle
+        sx={{
+          p: 2,
+          borderBottom: 'none',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontWeight: 600,
+        }}
+      >
+        Comments
+        <IconButton onClick={onClose} size="small">
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      
+      {/* Content */}
+      <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column' }}>
+        {/* Post Preview */}
+        {post && (
+          <Box sx={{ p: 2, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+            <Stack direction="row" spacing={1.5} alignItems="flex-start">
+              <Avatar
+                src={post?.userImage}
+                sx={{ width: 36, height: 36 }}
+              />
+              <Box sx={{ flex: 1 }}>
+                <Stack direction="row" alignItems="center" spacing={0.5}>
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    {post?.userName}
+                  </Typography>
+                  {post?.vip === 1 && (
+                    <VerifiedIcon sx={{ fontSize: 14, color: 'primary.main' }} />
+                  )}
+                </Stack>
+                {post?.body && (
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary"
+                    sx={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                    }}
+                  >
+                    {post.body}
+                  </Typography>
+                )}
+              </Box>
+            </Stack>
+          </Box>
+        )}
+        
+        {/* Comments List */}
+        <Box 
+          sx={{ 
+            flex: 1, 
+            overflowY: 'auto', 
+            p: 2,
+            minHeight: 200,
+          }}
+        >
+          {loading ? (
+            <Stack spacing={2}>
+              {[1, 2, 3].map((i) => (
+                <Stack key={i} direction="row" spacing={1.5}>
+                  <Skeleton variant="circular" width={32} height={32} />
+                  <Box sx={{ flex: 1 }}>
+                    <Skeleton variant="rounded" width="60%" height={60} sx={{ borderRadius: 2 }} />
+                    <Stack direction="row" spacing={2} sx={{ mt: 0.5 }}>
+                      <Skeleton variant="text" width={40} />
+                      <Skeleton variant="text" width={30} />
+                      <Skeleton variant="text" width={35} />
+                    </Stack>
+                  </Box>
+                </Stack>
+              ))}
+            </Stack>
+          ) : comments.length === 0 ? (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <CommentIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
+              <Typography variant="body1" color="text.secondary">
+                No comments yet
+              </Typography>
+              <Typography variant="body2" color="text.disabled">
+                Be the first to comment!
+              </Typography>
+            </Box>
+          ) : (
+            comments.map((comment) => (
+              <CommentItem
+                key={comment.id || comment.time}
+                postId={post?.postId}
+                comment={comment}
+                currentUserId={user?.phone}
+                onLikeComment={handleLikeComment}
+                onDeleteComment={isAuthenticated ? handleDeleteComment : null}
+                onUpdateComment={isAuthenticated ? handleUpdateComment : null}
+                onReplySubmit={isAuthenticated ? handleReplySubmit : null}
+                isAuthenticated={!!isAuthenticated}
+              />
+            ))
+          )}
+        </Box>
+        
+        {/* Comment Input */}
+        <Box
+          sx={{
+            p: 2,
+            boxShadow: '0 -2px 8px rgba(0,0,0,0.04)',
+            bgcolor: 'background.paper',
+          }}
+        >
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Avatar
+              src={user?.image || user?.learner_image || ''}
+              sx={{ width: 32, height: 32 }}
+            >
+              {user?.name?.[0] || user?.learner_name?.[0] || 'U'}
+            </Avatar>
+            <TextField
+              size="small"
+              placeholder="Add a comment..."
+              fullWidth
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmitComment();
+                }
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                },
+              }}
+            />
+            <IconButton 
+              color="primary" 
+              onClick={handleSubmitComment}
+              disabled={!commentText.trim() || submitting}
+            >
+              <ShareIcon />
+            </IconButton>
+          </Stack>
+        </Box>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 // Skeleton for the profile page
 const ProfileSkeleton = () => (
@@ -80,6 +405,10 @@ const Profile = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
 
+  // Comments modal state
+  const [commentsModalOpen, setCommentsModalOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
+
   // Determine which user to show
   const isOwnProfile = !paramUserId;
   const targetUserId = paramUserId || authUser?.phone;
@@ -99,7 +428,8 @@ const Profile = () => {
     else setLoadingMore(true);
 
     try {
-      const response = await userAPI.getProfile(targetUserId, pageNum, authUser?.phone || null);
+      const tab = activeTab === 0 ? 'posts' : 'shared';
+      const response = await userAPI.getProfile(targetUserId, pageNum, authUser?.phone || null, tab);
       const data = response.data;
 
       setProfileUser(data.user);
@@ -119,13 +449,14 @@ const Profile = () => {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [targetUserId]);
+  }, [targetUserId, activeTab]);
 
   useEffect(() => {
     if (targetUserId) {
+      setPage(1);
       fetchProfile(1);
     }
-  }, [targetUserId, fetchProfile]);
+  }, [targetUserId, activeTab, fetchProfile]);
 
   // Infinite scroll
   const sentinelRef = useRef(null);
@@ -160,10 +491,8 @@ const Profile = () => {
     };
   }, [loading, loadingMore, hasMore, fetchProfile]);
 
-  // Filter posts by tab
-  const filteredPosts = activeTab === 0
-    ? posts
-    : posts.filter((p) => p.showOnBlog === 1);
+  // Posts are already filtered by API based on activeTab
+  const filteredPosts = posts;
 
   // Handle like
   const handleLike = async (postId, isLiked) => {
@@ -172,13 +501,46 @@ const Profile = () => {
       return;
     }
     try {
-      const result = await discussionAPI.likePost(postId);
+      // For shared posts, like the original post
+      const post = posts.find(p => p.postId === postId);
+      const postIdToLike = post?.share || postId;
+      
+      const result = await discussionAPI.likePost(postIdToLike);
       if (result.data) {
-        setPosts(prev => prev.map(p =>
-          p.postId === postId
-            ? { ...p, postLikes: result.data.count, isLiked: result.data.isLiked ? 1 : 0 }
-            : p
-        ));
+        setPosts(prev => prev.map(p => {
+          // Update the post that was clicked
+          if (p.postId === postId) {
+            // If it's a shared post, update original post data
+            if (p.share && p.originalPost) {
+              return {
+                ...p,
+                originalPost: {
+                  ...p.originalPost,
+                  postLikes: result.data.count,
+                  isLiked: result.data.isLiked ? 1 : 0,
+                },
+                postLikes: result.data.count, // Also update main post likes for consistency
+                isLiked: result.data.isLiked ? 1 : 0,
+              };
+            }
+            // Regular post
+            return { ...p, postLikes: result.data.count, isLiked: result.data.isLiked ? 1 : 0 };
+          }
+          // Update other shared posts of the same original post
+          if (p.share && p.share === postIdToLike && p.postId !== postId) {
+            return {
+              ...p,
+              originalPost: {
+                ...p.originalPost,
+                postLikes: result.data.count,
+                isLiked: result.data.isLiked ? 1 : 0,
+              },
+              postLikes: result.data.count,
+              isLiked: result.data.isLiked ? 1 : 0,
+            };
+          }
+          return p;
+        }));
       }
     } catch (err) {
       console.error('Like error:', err);
@@ -199,6 +561,59 @@ const Profile = () => {
   const handleHidePost = async (postId) => {
     await discussionAPI.hidePost(postId);
     setPosts(prev => prev.filter(p => p.postId !== postId));
+  };
+
+  // Handle share post
+  const handleSharePost = async (postId) => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    try {
+      const result = await discussionAPI.sharePost(postId);
+      if (result.success) {
+        if (result.data?.alreadyShared) {
+          // Already shared - just show message, don't throw error
+          return { alreadyShared: true, message: result.message || 'You have already shared this post' };
+        }
+        // Update share count for the original post
+        setPosts(prev => prev.map(p =>
+          p.postId === postId
+            ? { ...p, shareCount: (p.shareCount || 0) + 1 }
+            : p
+        ));
+        // Refresh shared posts tab if we're viewing own profile
+        if (isOwnProfile && activeTab === 1) {
+          await fetchProfile(1);
+        }
+      } else {
+        throw new Error(result.message || 'Failed to share post');
+      }
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  // Handle post creation callback
+  const handlePostCreated = async () => {
+    // Refresh profile to show new post
+    await fetchProfile(1);
+  };
+
+  // Handle open comments
+  const handleOpenComments = (post) => {
+    // For shared posts, use the original post for comments
+    const postForComments = post.share && post.originalPost 
+      ? { ...post.originalPost, postId: post.share }
+      : post;
+    setSelectedPost(postForComments);
+    setCommentsModalOpen(true);
+  };
+
+  // Handle close comments
+  const handleCloseComments = () => {
+    setCommentsModalOpen(false);
+    setSelectedPost(null);
   };
 
   if (loading) return <ProfileSkeleton />;
@@ -240,6 +655,7 @@ const Profile = () => {
         >
           {isOwnProfile && (
             <IconButton
+              onClick={() => navigate('/profile/edit')}
               size="small"
               sx={{
                 position: 'absolute',
@@ -280,6 +696,7 @@ const Profile = () => {
               </Avatar>
               {isOwnProfile && (
                 <IconButton
+                  onClick={() => navigate('/profile/edit')}
                   size="small"
                   sx={{
                     position: 'absolute',
@@ -304,7 +721,11 @@ const Profile = () => {
                   {profileUser.name}
                 </Typography>
                 {isOwnProfile && (
-                  <IconButton size="small" sx={{ color: 'text.secondary' }}>
+                  <IconButton
+                    onClick={() => navigate('/profile/edit')}
+                    size="small"
+                    sx={{ color: 'text.secondary' }}
+                  >
                     <EditIcon fontSize="small" />
                   </IconButton>
                 )}
@@ -392,13 +813,27 @@ const Profile = () => {
         </Box>
       </Paper>
 
+      {/* Create Post Box (only for own profile) */}
+      {isOwnProfile && isAuthenticated && (
+        <Box
+          sx={{
+            maxWidth: 680,
+            mx: 'auto',
+            px: { xs: 2, sm: 3 },
+            mt: 3,
+          }}
+        >
+          <CreatePost onPostCreated={handlePostCreated} />
+        </Box>
+      )}
+
       {/* Posts Feed */}
       <Box
         sx={{
           maxWidth: 680,
           mx: 'auto',
           px: { xs: 2, sm: 3 },
-          mt: 3,
+          mt: isOwnProfile && isAuthenticated ? 0 : 3,
         }}
       >
         <Stack spacing={2}>
@@ -424,33 +859,49 @@ const Profile = () => {
             </Paper>
           ) : (
             filteredPosts.map((post) => (
-              <PostCard
-                key={post.postId}
-                post={{
-                  ...post,
-                  userName: profileUser.name,
-                  userImage: profileUser.image,
-                  userId: targetUserId,
-                }}
-                onLike={handleLike}
-                onNavigate={navigate}
-                onOpenComments={(p) => navigate(`/post/${p.postId}`)}
-                currentUserId={authUser?.phone}
-                onDelete={isAuthenticated ? handleDeletePost : null}
-                onReport={isAuthenticated ? handleReportPost : null}
-                onHide={isAuthenticated ? handleHidePost : null}
-              />
+              <Box key={post.postId}>
+                <PostCard
+                  post={{
+                    ...post,
+                    userName: post.share && post.originalPost ? post.originalPost.userName : profileUser.name,
+                    userImage: post.share && post.originalPost ? post.originalPost.userImage : profileUser.image,
+                    userId: post.share && post.originalPost ? post.originalPost.userId : targetUserId,
+                    // For shared posts, show the sharer's info in the header
+                    sharerName: profileUser.name,
+                    sharerImage: profileUser.image,
+                    sharerId: targetUserId,
+                  }}
+                  onLike={handleLike}
+                  onNavigate={navigate}
+                  onOpenComments={handleOpenComments}
+                  currentUserId={authUser?.phone}
+                  onDelete={isAuthenticated ? handleDeletePost : null}
+                  onReport={isAuthenticated ? handleReportPost : null}
+                  onHide={isAuthenticated ? handleHidePost : null}
+                  onShare={isAuthenticated ? handleSharePost : null}
+                />
+              </Box>
             ))
           )}
         </Stack>
 
         {/* Infinite scroll sentinel */}
-        {hasMore && activeTab === 0 && (
+        {hasMore && (
           <Box ref={sentinelRef} sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
             {loadingMore && <CircularProgress size={28} />}
           </Box>
         )}
       </Box>
+
+      {/* Comments Modal */}
+      <CommentsModal
+        open={commentsModalOpen}
+        onClose={handleCloseComments}
+        post={selectedPost}
+        user={authUser}
+        isAuthenticated={isAuthenticated}
+        navigate={navigate}
+      />
     </Box>
   );
 };

@@ -205,6 +205,16 @@ export const songAPI = {
 };
 
 /**
+ * Languages API endpoints
+ */
+export const languagesAPI = {
+  /**
+   * Get all supported languages
+   */
+  getAll: () => fetchAPI('/languages/get.php'),
+};
+
+/**
  * Discussion/Posts API endpoints
  */
 export const discussionAPI = {
@@ -288,10 +298,24 @@ export const discussionAPI = {
   deleteComment: (postId, commentId) => postAPI('/discussions/comment-delete.php', { postId, commentId }),
 
   /**
+   * Update a comment (owner only)
+   * @param {number} postId
+   * @param {number} commentId - comment.time
+   * @param {string} body - Updated comment text
+   */
+  updateComment: (postId, commentId, body) => postAPI('/discussions/comment-update.php', { postId, commentId, body }),
+
+  /**
    * Create a comment or reply
    * @param {object} data - { postId, body, parent? }
    */
   createComment: (data) => postAPI('/discussions/comment-create.php', data),
+
+  /**
+   * Share a post
+   * @param {number} postId - Original post ID to share
+   */
+  sharePost: (postId) => postAPI('/discussions/share.php', { postId }),
 };
 
 /**
@@ -355,14 +379,50 @@ export const appsAPI = {
 /**
  * User Profile API endpoints
  */
+/**
+ * POST fetch wrapper with FormData (for file uploads)
+ */
+const postFormDataAPI = async (endpoint, formData) => {
+  try {
+    const token = getToken();
+    const headers = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.error || 'API request failed');
+    }
+
+    return data;
+  } catch (error) {
+    if (error.message !== 'Not authenticated') {
+      console.error(`API Error (${endpoint}):`, error);
+    }
+    throw error;
+  }
+};
+
 export const userAPI = {
   /**
    * Get public profile + posts for any user
    * @param {string} userId - User phone (learner_phone)
    * @param {number} page - Page number for posts pagination
    */
-  getProfile: (userId, page = 1, viewerId = null) => {
-    let params = `id=${userId}&page=${page}`;
+  getProfile: (userId, page = 1, viewerId = null, tab = 'posts') => {
+    let params = `id=${userId}&page=${page}&tab=${tab}`;
     if (viewerId) params += `&viewerId=${viewerId}`;
     return fetchAPI(`/users/profile.php?${params}`);
   },
@@ -370,6 +430,35 @@ export const userAPI = {
    * Get current authenticated user's enrolled courses and progress
    */
   getMyLearning: () => authFetchAPI('/users/my-learning.php'),
+  /**
+   * Update user profile
+   * @param {Object} profileData - Profile data to update
+   * @param {File} profileData.profileImage - Profile image file (optional)
+   * @param {File} profileData.coverImage - Cover image file (optional)
+   * @param {string} profileData.name - User name (required)
+   * @param {string} profileData.bio - Bio text (optional)
+   * @param {string} profileData.work - Work (optional)
+   * @param {string} profileData.education - Education (optional)
+   * @param {string} profileData.region - Region (optional)
+   */
+  updateProfile: (profileData) => {
+    const formData = new FormData();
+    
+    if (profileData.name) formData.append('name', profileData.name);
+    if (profileData.bio !== undefined) formData.append('bio', profileData.bio || '');
+    if (profileData.work !== undefined) formData.append('work', profileData.work || '');
+    if (profileData.education !== undefined) formData.append('education', profileData.education || '');
+    if (profileData.region !== undefined) formData.append('region', profileData.region || '');
+    
+    if (profileData.profileImage) {
+      formData.append('profileImage', profileData.profileImage);
+    }
+    if (profileData.coverImage) {
+      formData.append('coverImage', profileData.coverImage);
+    }
+
+    return postFormDataAPI('/users/update.php', formData);
+  },
 };
 
 /**
@@ -426,4 +515,5 @@ export default {
   user: userAPI,
   notification: notificationAPI,
   auth: authAPI,
+  languages: languagesAPI,
 };

@@ -1,0 +1,20 @@
+<?php
+/**
+ * Local Configuration Override
+ * Copy this file to config.local.php and customize for your environment
+ * This file will override default config.php settings
+ */
+
+// Uncomment and modify as needed:
+
+// For development with custom base URL:
+// define('UPLOAD_BASE_URL', 'http://localhost/upload');
+
+// For production with custom base URL:
+// define('UPLOAD_BASE_URL', 'https://www.calamuseducation.com/upload');
+
+// Custom upload directory paths:
+// define('UPLOAD_DIR_USERS', '../../uploads/users/');
+// define('UPLOAD_DIR_POSTS', '../../uploads/posts/');
+// etc.
+?>

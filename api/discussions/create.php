@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 require_once '../../classes/connect.php';
 require_once '../auth_helper.php';
+require_once '../config.php';
 
 try {
     // Authenticate user
@@ -99,7 +100,7 @@ try {
             }
 
             // Save image
-            $uploadDir = '../../uploads/posts/';
+            $uploadDir = UPLOAD_DIR_POSTS;
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
@@ -108,11 +109,9 @@ try {
             $filePath = $uploadDir . $fileName;
 
             if (file_put_contents($filePath, $imageData)) {
-                $imagePath = 'https://' . $_SERVER['HTTP_HOST'] . '/calamus/uploads/posts/' . $fileName;
-                // Fallback for localhost
-                if (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
-                    $imagePath = 'http://' . $_SERVER['HTTP_HOST'] . '/calamus/uploads/posts/' . $fileName;
-                }
+                // Use config to get upload URL
+                $relativePath = 'posts/' . $fileName;
+                $imagePath = getUploadUrl($relativePath);
             }
         }
     }

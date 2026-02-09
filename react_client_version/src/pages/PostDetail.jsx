@@ -21,12 +21,12 @@ import {
   ChatBubbleOutline as CommentIcon,
   Send as SendIcon,
   Share as ShareIcon,
-  BookmarkBorder as SaveIcon,
-  Bookmark as SavedIcon,
   Home as HomeIcon,
   Forum as ForumIcon,
   ArrowBack as BackIcon,
+  Language as LanguageIcon,
 } from '@mui/icons-material';
+import { Chip } from '@mui/material';
 import { discussionAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import CommentItem from '../components/CommentItem';
@@ -54,6 +54,23 @@ const formatNumber = (num) => {
   if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
   if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
   return num.toString();
+};
+
+// Get language display info
+const getLanguageInfo = (category) => {
+  const langMap = {
+    english: {
+      label: 'English',
+      color: '#1976d2', // Blue
+      bgColor: '#e3f2fd',
+    },
+    korea: {
+      label: 'Korean',
+      color: '#d32f2f', // Red
+      bgColor: '#ffebee',
+    },
+  };
+  return langMap[category] || langMap.english;
 };
 
 // Loading Skeleton
@@ -143,7 +160,6 @@ const PostDetail = () => {
   const [error, setError] = useState(null);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
-  const [saved, setSaved] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [commentSubmitting, setCommentSubmitting] = useState(false);
   
@@ -192,10 +208,6 @@ const PostDetail = () => {
     }
   };
   
-  const handleSave = () => {
-    setSaved(!saved);
-  };
-  
   const updateCommentInTree = (list, commentId, updater) => {
     return list.map((c) => {
       if (c.time === commentId) return updater(c);
@@ -239,6 +251,17 @@ const PostDetail = () => {
     }
   };
 
+  const handleUpdateComment = async (pId, commentId, body) => {
+    if (!isAuthenticated) { navigate('/login'); return; }
+    const result = await discussionAPI.updateComment(pId, commentId, body);
+    if (result.success) {
+      setComments((prev) => updateCommentInTree(prev, commentId, (c) => ({
+        ...c,
+        body: body,
+      })));
+    }
+  };
+
   const handleReplySubmit = async (parentId, body) => {
     if (!isAuthenticated) { navigate('/login'); return; }
     const result = await discussionAPI.createComment({ postId, body, parent: parentId });
@@ -252,16 +275,49 @@ const PostDetail = () => {
     const body = commentText.trim();
     if (!body) return;
     if (!isAuthenticated) { navigate('/login'); return; }
+    
+    // Clear input immediately
+    const commentTextToSubmit = body;
+    setCommentText('');
     setCommentSubmitting(true);
+    
+    // Optimistic update - add comment immediately
+    const optimisticComment = {
+      id: 0,
+      postId: postId,
+      writerId: user?.phone || '',
+      body: commentTextToSubmit,
+      image: '',
+      time: Date.now(), // Temporary timestamp
+      parent: 0,
+      likes: 0,
+      userName: user?.name || user?.learner_name || 'You',
+      userImage: user?.image || user?.learner_image || 'https://www.calamuseducation.com/uploads/placeholder.png',
+      isLiked: 0,
+      replies: [],
+    };
+    
+    setComments((prev) => [optimisticComment, ...prev]);
+    setPost((prev) => prev ? { ...prev, comments: (prev.comments || 0) + 1 } : null);
+    
     try {
-      const result = await discussionAPI.createComment({ postId, body });
+      const result = await discussionAPI.createComment({ postId, body: commentTextToSubmit });
       if (result.data?.comment) {
-        setComments((prev) => [result.data.comment, ...prev]);
-        setCommentText('');
-        setPost((prev) => prev ? { ...prev, comments: (prev.comments || 0) + 1 } : null);
+        // Replace optimistic comment with real one from server
+        setComments((prev) => {
+          const filtered = prev.filter((c) => c.time !== optimisticComment.time);
+          return [result.data.comment, ...filtered];
+        });
       }
-    } catch (err) { console.error('Submit comment error:', err); }
-    finally { setCommentSubmitting(false); }
+    } catch (err) {
+      console.error('Submit comment error:', err);
+      // Revert optimistic update on error
+      setComments((prev) => prev.filter((c) => c.time !== optimisticComment.time));
+      setPost((prev) => prev ? { ...prev, comments: Math.max(0, (prev.comments || 0) - 1) } : null);
+      setCommentText(commentTextToSubmit); // Restore text
+    } finally {
+      setCommentSubmitting(false);
+    }
   };
   
   const handleBack = () => {
@@ -336,14 +392,38 @@ const PostDetail = () => {
               sx={{ width: 40, height: 40, cursor: 'pointer' }}
             />
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography
-                variant="subtitle2"
-                fontWeight={600}
-                onClick={() => navigate(`/profile/${post.userId}`)}
-                sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-              >
-                {post.userName}
-              </Typography>
+              <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 0.5 }}>
+                <Typography
+                  variant="subtitle2"
+                  fontWeight={600}
+                  onClick={() => navigate(`/profile/${post.userId}`)}
+                  sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                >
+                  {post.userName}
+                </Typography>
+                {post.category && (
+                  <Chip
+                    icon={<LanguageIcon sx={{ fontSize: 12 }} />}
+                    label={getLanguageInfo(post.category).label}
+                    size="small"
+                    sx={{
+                      height: 20,
+                      fontSize: '0.65rem',
+                      fontWeight: 600,
+                      bgcolor: getLanguageInfo(post.category).bgColor,
+                      color: getLanguageInfo(post.category).color,
+                      border: `1px solid ${getLanguageInfo(post.category).color}20`,
+                      '& .MuiChip-icon': {
+                        color: getLanguageInfo(post.category).color,
+                        fontSize: 12,
+                      },
+                      '& .MuiChip-label': {
+                        px: 0.75,
+                      },
+                    }}
+                  />
+                )}
+              </Stack>
               <Typography variant="caption" color="text.secondary">
                 {formatRelativeTime(post.postId)}
               </Typography>
@@ -439,9 +519,6 @@ const PostDetail = () => {
                 <ShareIcon />
               </IconButton>
             </Stack>
-            <IconButton onClick={handleSave}>
-              {saved ? <SavedIcon /> : <SaveIcon />}
-            </IconButton>
           </Stack>
           
           {/* Likes */}
@@ -535,6 +612,7 @@ const PostDetail = () => {
                 currentUserId={user?.phone}
                 onLikeComment={handleLikeComment}
                 onDeleteComment={isAuthenticated ? handleDeleteComment : null}
+                onUpdateComment={isAuthenticated ? handleUpdateComment : null}
                 onReplySubmit={isAuthenticated ? handleReplySubmit : null}
                 isAuthenticated={!!isAuthenticated}
               />

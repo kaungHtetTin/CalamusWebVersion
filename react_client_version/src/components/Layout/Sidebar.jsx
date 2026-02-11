@@ -500,103 +500,104 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
             );
           })}
         </List>
-      </Box>
 
-      {/* Bottom Section - Settings & Actions */}
-      <Box
-        sx={{
-          borderTop: `1px solid ${alpha('#ffffff', 0.1)}`,
-          py: 0.25,
-        }}
-      >
-        <List sx={{ px: 1, py: 0 }}>
-          {bottomMenuItems.map((item) => {
-            const active = isActive(item.path);
-            return (
-              <ListItem key={item.text} disablePadding sx={{ mb: 0.25 }}>
-                <ListItemButton
-                  onClick={() => handleNavigation(item.path)}
-                  sx={{
-                    borderRadius: 1,
-                    py: 0.75,
-                    px: 1.5,
-                    minHeight: 36,
-                    bgcolor: active 
-                      ? alpha(theme.palette.primary.main, 0.15) 
-                      : 'transparent',
-                    color: active 
-                      ? theme.palette.primary.light 
-                      : alpha('#ffffff', 0.9),
-                    '&:hover': {
-                      bgcolor: active 
-                        ? alpha(theme.palette.primary.main, 0.2) 
-                        : alpha('#ffffff', 0.08),
-                    },
-                    transition: 'all 0.2s ease',
-                    borderLeft: active 
-                      ? `3px solid ${theme.palette.primary.main}` 
-                      : '3px solid transparent',
-                  }}
-                >
-                  <ListItemIcon
+        {/* Bottom Section - Settings & Actions (inside same scroll) */}
+        <Box
+          sx={{
+            borderTop: `1px solid ${alpha('#ffffff', 0.1)}`,
+            py: 0.25,
+            mt: 1,
+          }}
+        >
+          <List sx={{ px: 1, py: 0 }}>
+            {bottomMenuItems.map((item) => {
+              const active = isActive(item.path);
+              return (
+                <ListItem key={item.text} disablePadding sx={{ mb: 0.25 }}>
+                  <ListItemButton
+                    onClick={() => handleNavigation(item.path)}
                     sx={{
+                      borderRadius: 1,
+                      py: 0.75,
+                      px: 1.5,
+                      minHeight: 36,
+                      bgcolor: active 
+                        ? alpha(theme.palette.primary.main, 0.15) 
+                        : 'transparent',
                       color: active 
                         ? theme.palette.primary.light 
-                        : alpha('#ffffff', 0.7),
-                      minWidth: 36,
-                      '& svg': {
-                        fontSize: '1.1rem',
+                        : alpha('#ffffff', 0.9),
+                      '&:hover': {
+                        bgcolor: active 
+                          ? alpha(theme.palette.primary.main, 0.2) 
+                          : alpha('#ffffff', 0.08),
                       },
+                      transition: 'all 0.2s ease',
+                      borderLeft: active 
+                        ? `3px solid ${theme.palette.primary.main}` 
+                        : '3px solid transparent',
                     }}
                   >
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={item.text}
-                    primaryTypographyProps={{
-                      fontSize: '0.8125rem',
-                      fontWeight: active ? 600 : 500,
-                    }}
-                  />
-                </ListItemButton>
-              </ListItem>
-            );
-          })}
-        </List>
+                    <ListItemIcon
+                      sx={{
+                        color: active 
+                          ? theme.palette.primary.light 
+                          : alpha('#ffffff', 0.7),
+                        minWidth: 36,
+                        '& svg': {
+                          fontSize: '1.1rem',
+                        },
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.text}
+                      primaryTypographyProps={{
+                        fontSize: '0.8125rem',
+                        fontWeight: active ? 600 : 500,
+                      }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              );
+            })}
+          </List>
 
-        {/* Footer Links */}
-        <Box sx={{ px: 2, py: 0.75 }}>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 0.75 }}>
-            {footerLinks.map((link) => (
-              <Typography
-                key={link.text}
-                variant="caption"
-                component="span"
-                sx={{
-                  color: alpha('#ffffff', 0.6),
-                  cursor: 'pointer',
-                  fontSize: '0.7rem',
-                  '&:hover': {
-                    color: theme.palette.primary.light,
-                  },
-                  transition: 'color 0.2s ease',
-                }}
-                onClick={() => handleNavigation(link.path)}
-              >
-                {link.text}
-              </Typography>
-            ))}
+          {/* Footer Links */}
+          <Box sx={{ px: 2, py: 0.75 }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 0.75 }}>
+              {footerLinks.map((link) => (
+                <Typography
+                  key={link.text}
+                  variant="caption"
+                  component="span"
+                  sx={{
+                    color: alpha('#ffffff', 0.6),
+                    cursor: 'pointer',
+                    fontSize: '0.7rem',
+                    '&:hover': {
+                      color: theme.palette.primary.light,
+                    },
+                    transition: 'color 0.2s ease',
+                  }}
+                  onClick={() => handleNavigation(link.path)}
+                >
+                  {link.text}
+                </Typography>
+              ))}
+            </Box>
+            <Typography
+              variant="caption"
+              sx={{
+                color: alpha('#ffffff', 0.5),
+                fontSize: '0.65rem',
+                display: 'block',
+              }}
+            >
+              © 2024 <strong>Calamus Education</strong>
+            </Typography>
           </Box>
-          <Typography
-            variant="caption"
-            sx={{
-              color: alpha('#ffffff', 0.5),
-              fontSize: '0.65rem',
-              display: 'block',
-            }}
-          >
-            © 2024 <strong>Calamus Education</strong>
-          </Typography>
         </Box>
       </Box>
     </Box>

@@ -5,7 +5,7 @@ import theme from './theme/theme';
 import { Layout } from './components/Layout';
 import { DrawerProvider } from './context/DrawerContext';
 import { AuthProvider } from './context/AuthContext';
-import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList, VipPlan, Login, Profile, EditProfile, MyLearning, LessonPlay } from './pages';
+import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList, AdditionalLessonPlay, VipPlan, Login, Profile, EditProfile, MyLearning, LessonPlay, VocabLearning, VocabLearn } from './pages';
 
 function App() {
   return (
@@ -27,10 +27,12 @@ function App() {
                 <Route path="/course/:id" element={<CourseDetail />} />
                 <Route path="/course/:courseId/lesson/:lessonId" element={<LessonPlay />} />
                 <Route path="/explore" element={<Explore />} />
-                <Route path="/vocab-learning" element={<PlaceholderPage title="Vocab Learning" />} />
+                <Route path="/vocab-learning" element={<VocabLearning />} />
+                <Route path="/vocab-learning/learn/:deckId" element={<VocabLearn />} />
                 <Route path="/my-learning" element={<MyLearning />} />
                 <Route path="/additional-lessons/:channel" element={<AdditionalLessons />} />
                 <Route path="/additional-lessons/:channel/category/:categoryId" element={<LessonList />} />
+                <Route path="/additional-lessons/:channel/category/:categoryId/lesson/:lessonId" element={<AdditionalLessonPlay />} />
                 <Route path="/video-channel/:channel" element={<VideoChannel />} />
                 <Route path="/watch/:id" element={<WatchVideo />} />
                 <Route path="/discussion/:category" element={<Discussion />} />

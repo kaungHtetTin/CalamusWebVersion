@@ -249,9 +249,7 @@ const LessonList = () => {
     if (lesson.isVideo === 1) {
       navigate(`/watch/${lesson.id}?channel_id=${categoryId}&index=${index}`);
     } else {
-      if (lesson.link) {
-        window.open(lesson.link, '_blank');
-      }
+      navigate(`/additional-lessons/${channel}/category/${categoryId}/lesson/${lesson.id}`);
     }
   };
   

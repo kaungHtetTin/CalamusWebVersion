@@ -6,6 +6,19 @@
 const API_BASE_URL = 'http://localhost/calamus/api';
 
 /**
+ * Document lesson HTML URL (same as Lesson Play / api/lessons/detail.php).
+ * Files are stored at origin/uploads/lessons/html/{lessonId}.html
+ */
+export const getLessonDocumentUrl = (lessonId) => {
+  try {
+    const origin = new URL(API_BASE_URL).origin;
+    return `${origin}/uploads/lessons/html/${Number(lessonId)}.html`;
+  } catch {
+    return `${API_BASE_URL.replace(/\/api\/?$/, '')}/uploads/lessons/html/${Number(lessonId)}.html`;
+  }
+};
+
+/**
  * Get stored auth token from localStorage
  */
 const getToken = () => localStorage.getItem('calamus_token');
@@ -234,6 +247,79 @@ export const languagesAPI = {
    * Get all supported languages
    */
   getAll: () => fetchAPI('/languages/get.php'),
+};
+
+/**
+ * Vocab Learning API endpoints
+ */
+export const vocabLearningAPI = {
+  /**
+   * Get decks filtered by major or language
+   * @param {string} major - Optional major filter (english, korea, etc.)
+   * @param {number} languageId - Optional language ID (for backward compatibility)
+   * @param {number} userId - Optional user ID for progress data
+   */
+  getDecks: (major = null, languageId = null, userId = null) => {
+    const params = new URLSearchParams();
+    if (major) {
+      params.append('major', major);
+    } else if (languageId) {
+      params.append('language_id', languageId);
+    }
+    if (userId) params.append('user_id', userId);
+    return fetchAPI(`/vocab-learning/get-decks.php?${params}`);
+  },
+  
+  /**
+   * Get learning cards for a session
+   * @param {number} userId - User ID
+   * @param {number} languageId - Language ID
+   * @param {number} deckId - Deck ID
+   * @param {number} wordCount - Number of words (default: 10)
+   */
+  getCards: (userId, languageId, deckId, wordCount = 10) => {
+    const params = new URLSearchParams({
+      user_id: userId,
+      language_id: languageId,
+      deck_id: deckId,
+    });
+    // Note: wordCount is handled server-side, but we can pass it if needed
+    return fetchAPI(`/vocab-learning/get-cards.php?${params}`);
+  },
+  
+  /**
+   * Rate a word (SM2 algorithm)
+   * @param {number} userId - User ID
+   * @param {number} cardId - Card ID
+   * @param {number} quality - Quality rating (0-5)
+   */
+  rateWord: (userId, cardId, quality) => {
+    return postAPI('/vocab-learning/rate-word.php', {
+      user_id: userId,
+      card_id: cardId,
+      quality: quality,
+    });
+  },
+  
+  /**
+   * Skip a word
+   * @param {number} userId - User ID
+   * @param {number} cardId - Card ID
+   * @param {number} languageId - Language ID
+   * @param {number} deckId - Deck ID
+   * @param {string} reason - Reason for skipping (default: 'already_know')
+   * @param {array} sessionCardIds - Array of card IDs in current session
+   */
+  skipWord: (userId, cardId, languageId, deckId, reason = 'already_know', sessionCardIds = []) => {
+    return postAPI('/vocab-learning/skip-word.php', {
+      user_id: userId,
+      card_id: cardId,
+      language_id: languageId,
+      deck_id: deckId,
+      reason: reason,
+      session_card_ids: JSON.stringify(sessionCardIds),
+    });
+  },
 };
 
 /**
@@ -582,4 +668,5 @@ export default {
   notification: notificationAPI,
   auth: authAPI,
   languages: languagesAPI,
+  vocabLearning: vocabLearningAPI,
 };

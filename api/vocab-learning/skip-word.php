@@ -1,13 +1,42 @@
 <?php
+/**
+ * API: Skip Word
+ * POST: Skip a word and get replacement
+ * Requires: user_id, card_id, language_id, deck_id
+ */
+
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+// Handle preflight request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 include('../../classes/connect.php');
 include('../../classes/LearningFlow.php');
 
-$user_id = $_GET['user_id'] ?? $_POST['user_id'] ?? null;
-$card_id = $_GET['card_id'] ?? $_POST['card_id'] ?? null;
-$language_id = $_GET['language_id'] ?? $_POST['language_id'] ?? null;
-$deck_id = $_GET['deck_id'] ?? $_POST['deck_id'] ?? null;
-$reason = $_GET['reason'] ?? $_POST['reason'] ?? 'already_know';
-$session_card_ids = $_GET['session_card_ids'] ?? $_POST['session_card_ids'] ?? [];
+// Parse JSON input if Content-Type is application/json
+$input = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+    if (strpos($contentType, 'application/json') !== false) {
+        $jsonInput = file_get_contents('php://input');
+        $input = json_decode($jsonInput, true) ?? [];
+    } else {
+        $input = $_POST;
+    }
+}
+
+$user_id = $_GET['user_id'] ?? $input['user_id'] ?? null;
+$card_id = $_GET['card_id'] ?? $input['card_id'] ?? null;
+$language_id = $_GET['language_id'] ?? $input['language_id'] ?? null;
+$deck_id = $_GET['deck_id'] ?? $input['deck_id'] ?? null;
+$reason = $_GET['reason'] ?? $input['reason'] ?? 'already_know';
+$session_card_ids = $_GET['session_card_ids'] ?? $input['session_card_ids'] ?? [];
 
 if (empty($user_id) || empty($card_id) || empty($language_id) || empty($deck_id)) {
     $response = [

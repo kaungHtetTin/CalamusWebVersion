@@ -2,7 +2,7 @@
 /**
  * API: Get User Public Profile
  * GET: Returns public profile data + posts for any user
- * Param: id (learner_phone)
+ * Param: id = learner_phone (string) OR learners.id (numeric) so profile links work either way
  * Does NOT require authentication
  */
 
@@ -37,9 +37,10 @@ try {
     $conn = $DB->connect();
     $userId_escaped = mysqli_real_escape_string($conn, $userId);
 
-    // Fetch user - only public fields (no password, tokens, phone, email)
-    $query = "SELECT 
+    // Fetch user by learners.id (if numeric) OR learner_phone so profile links work from both
+    $baseSelect = "SELECT 
         id,
+        learner_phone,
         learner_name,
         learner_image,
         cover_image,
@@ -48,19 +49,26 @@ try {
         education,
         region,
         bio
-    FROM learners 
-    WHERE learner_phone = '$userId_escaped' 
-    LIMIT 1";
+    FROM learners";
 
-    $result = $DB->read($query);
+    $result = null;
+    if (ctype_digit($userId)) {
+        $idInt = (int) $userId;
+        $result = $DB->read("$baseSelect WHERE id = $idInt LIMIT 1");
+    }
+    if (!$result || !is_array($result) || count($result) === 0) {
+        $result = $DB->read("$baseSelect WHERE learner_phone = '$userId_escaped' LIMIT 1");
+    }
 
-    if (!$result) {
+    if (!$result || !is_array($result) || count($result) === 0) {
         http_response_code(404);
         echo json_encode(['success' => false, 'error' => 'User not found']);
         exit();
     }
 
     $user = $result[0];
+    $learner_phone = $user['learner_phone'] ?? '';
+    $learner_phone_escaped = mysqli_real_escape_string($conn, $learner_phone);
 
     // Determine which posts to fetch based on tab (posts or shared)
     $tab = isset($_GET['tab']) ? trim($_GET['tab']) : 'posts';
@@ -93,7 +101,7 @@ try {
         FROM posts
         LEFT JOIN posts as original_posts ON original_posts.post_id = posts.share
         LEFT JOIN learners as original_learner ON original_learner.learner_phone = original_posts.learner_id
-        WHERE posts.learner_id = '$userId_escaped'
+        WHERE posts.learner_id = '$learner_phone_escaped'
         AND posts.hide = 0
         AND posts.share > 0
         ORDER BY posts.post_id DESC
@@ -114,7 +122,7 @@ try {
             posts.blog_title,
             posts.major
         FROM posts
-        WHERE posts.learner_id = '$userId_escaped'
+        WHERE posts.learner_id = '$learner_phone_escaped'
         AND posts.hide = 0
         AND posts.share = 0
         ORDER BY posts.post_id DESC
@@ -186,12 +194,12 @@ try {
     }
 
     // Get total post count (own posts, excluding shared posts)
-    $countQuery = "SELECT COUNT(*) as total FROM posts WHERE learner_id = '$userId_escaped' AND hide = 0 AND share = 0";
+    $countQuery = "SELECT COUNT(*) as total FROM posts WHERE learner_id = '$learner_phone_escaped' AND hide = 0 AND share = 0";
     $countResult = $DB->read($countQuery);
     $totalPosts = $countResult ? (int)$countResult[0]['total'] : 0;
 
     // Get shared posts count (posts where share > 0)
-    $sharedQuery = "SELECT COUNT(*) as total FROM posts WHERE learner_id = '$userId_escaped' AND hide = 0 AND share > 0";
+    $sharedQuery = "SELECT COUNT(*) as total FROM posts WHERE learner_id = '$learner_phone_escaped' AND hide = 0 AND share > 0";
     $sharedResult = $DB->read($sharedQuery);
     $sharedPosts = $sharedResult ? (int)$sharedResult[0]['total'] : 0;
     

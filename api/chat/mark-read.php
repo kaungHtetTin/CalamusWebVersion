@@ -1,5 +1,12 @@
 <?php
+// CORS headers are set by .htaccess - don't duplicate them here
 header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 include('../../classes/connect.php');
 
 $db = new Database();

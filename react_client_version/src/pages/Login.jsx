@@ -339,6 +339,7 @@ const Login = () => {
               <Box component="form" onSubmit={handleLogin}>
                 <Stack spacing={2.5}>
                   <TextField
+                    id="login-phone"
                     fullWidth
                     label="Phone Number"
                     placeholder="Enter your phone number"
@@ -355,6 +356,7 @@ const Login = () => {
                   />
 
                   <TextField
+                    id="login-password"
                     fullWidth
                     label="Password"
                     type={showPassword ? 'text' : 'password'}

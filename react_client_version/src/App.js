@@ -18,6 +18,9 @@ function App() {
           {/* Login/Register - outside Layout (no navbar/sidebar) */}
           <Route path="/login" element={<Login />} />
 
+          {/* Chat route - outside Layout (has its own navigation) */}
+          <Route path="/chat" element={<Chat />} />
+
           {/* All other routes - inside Layout */}
           <Route path="*" element={
             <Layout>
@@ -48,7 +51,6 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/profile/edit" element={<EditProfile />} />
                 <Route path="/profile/:userId" element={<Profile />} />
-                <Route path="/chat" element={<Chat />} />
                 <Route path="/notifications" element={<Notifications />} />
               </Routes>
             </Layout>

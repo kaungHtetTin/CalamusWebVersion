@@ -90,6 +90,27 @@ const postAPI = async (endpoint, body = {}) => {
 };
 
 /**
+ * POST with form-urlencoded body (for APIs that read $_POST, e.g. chat)
+ */
+const postFormAPI = async (endpoint, body = {}) => {
+  const params = new URLSearchParams();
+  Object.keys(body).forEach((key) => {
+    if (body[key] != null && body[key] !== '') {
+      params.append(key, body[key]);
+    }
+  });
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString(),
+  });
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  const data = await response.json();
+  if (!data.success) throw new Error(data.error || 'API request failed');
+  return data;
+};
+
+/**
  * Authenticated GET fetch wrapper (includes Bearer token)
  */
 const authFetchAPI = async (endpoint) => {
@@ -565,12 +586,17 @@ export const friendsAPI = {
     postAPI('/friends/unfriend.php', { otherId, major }),
 
   /**
-   * Get friend list for a user (public)
+   * Get friend list for a user (public). Supports pagination.
    * @param {string} userId - learner_phone
    * @param {string} major
+   * @param {{ page?: number, limit?: number }} [params] - optional pagination
    */
-  getFriends: (userId, major = 'english') =>
-    fetchAPI(`/friends/get-friends.php?userId=${encodeURIComponent(userId)}&major=${major}`),
+  getFriends: (userId, major = 'english', params = {}) => {
+    const search = new URLSearchParams({ userId, major });
+    if (params.page != null) search.set('page', String(params.page));
+    if (params.limit != null) search.set('limit', String(params.limit));
+    return fetchAPI(`/friends/get-friends.php?${search.toString()}`);
+  },
 
   /**
    * Get my incoming requests + people you may know (authenticated)
@@ -587,6 +613,49 @@ export const friendsAPI = {
    */
   getStatus: (otherId, major = 'english') =>
     authFetchAPI(`/friends/get-status.php?otherId=${encodeURIComponent(otherId)}&major=${major}`),
+};
+
+/**
+ * Chat API (conversations + messages). Uses learner_phone as user id (numeric).
+ */
+const CHAT_MAJOR = 'english';
+export const chatAPI = {
+  getConversations: (userId, major = CHAT_MAJOR) =>
+    fetchAPI(`/chat/conversations.php?user_id=${encodeURIComponent(userId)}&major=${major}`),
+
+  getConversation: (conversationId, userId, major = CHAT_MAJOR) =>
+    fetchAPI(`/chat/conversations.php?id=${conversationId}&user_id=${encodeURIComponent(userId)}&major=${major}`),
+
+  createConversation: (user1Id, user2Id, major = CHAT_MAJOR) =>
+    postFormAPI('/chat/conversations.php', { user1_id: Number(user1Id), user2_id: Number(user2Id), major }),
+
+  getMessages: (conversationId, major = CHAT_MAJOR, params = {}) => {
+    const search = new URLSearchParams({ conversation_id: conversationId, major });
+    if (params.limit != null) search.set('limit', String(params.limit));
+    if (params.before_id != null) search.set('before_id', String(params.before_id));
+    if (params.after_id != null) search.set('after_id', String(params.after_id));
+    return fetchAPI(`/chat/messages.php?${search.toString()}`);
+  },
+
+  sendMessage: (conversationId, senderId, major = CHAT_MAJOR, payload = {}) =>
+    postFormAPI('/chat/messages.php', {
+      conversation_id: Number(conversationId),
+      sender_id: Number(senderId),
+      major,
+      message_type: payload.message_type || 'text',
+      message_text: payload.message_text || '',
+      file_path: payload.file_path || '',
+      file_size: payload.file_size || '',
+    }),
+
+  markRead: (conversationId, userId, major = CHAT_MAJOR) =>
+    postFormAPI('/chat/mark-read.php', { conversation_id: Number(conversationId), user_id: Number(userId), major }),
+
+  uploadImage: async (imageFile) => {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    return postFormDataAPI('/chat/upload-image.php', formData);
+  },
 };
 
 /**

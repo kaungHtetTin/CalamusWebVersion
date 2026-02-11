@@ -1,47 +1,5 @@
-    When you add notification for like and comment and reply
-    you need to follow the following approach. 
-
-
-INSERT INTO `notification_action` (`id`, `action`, `action_name`) VALUES
-(3, 0, 'commented on your post:'),
-(4, 1, 'reply your comment on the post:'),
-(5, 2, 'added new video lesson: '),
-(6, 3, 'commented on the video:'),
-(7, 4, 'reply your comment on the video: '),
-(8, 5, 'reacted your post:'),
-(9, 6, 'reacted your comment on the post:');
-    
-
-
-
-    Adding notification for comment like
-
-     if($user_id!=$commentOwner_id){
-                
-                $notification=new Notification;
-                $notification->post_id=$post_id;
-                $notification->comment_id=$comment_id;
-                $notification->owner_id=$commentOwner_id;
-                $notification->writer_id=$user_id;
-                $notification->action=6;
-                $notification->time=$time;
-                $notification->seen=0;
-                $notification->save();
-                
-            }
-
-Adding notification for post like
- if($user_id!=$postOwner_id){
-                
-                $notification=new Notification;
-                $notification->post_id=$post_id;
-                $notification->comment_id=0;
-                $notification->owner_id=$postOwner_id;
-                $notification->writer_id=$user_id;
-                $notification->action=5;
-                $notification->time=$time;
-                $notification->seen=0;
-                $notification->save();
-               
-                
-            }
+In chat list you load the image as
+http://localhost:3000/calamus/uploads/chat/images/FWS1VkvsxIluAXP.png
+It is not correct
+You need to load like this
+http://localhost/calamus/uploads/chat/images/FWS1VkvsxIluAXP.png

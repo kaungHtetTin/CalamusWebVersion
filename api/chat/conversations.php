@@ -1,5 +1,19 @@
 <?php
-header('Content-Type: application/json');
+// CORS headers are set by .htaccess - don't duplicate them here
+// Content-Type and OPTIONS handling
+if (function_exists('ob_start')) {
+    ob_start();
+}
+header('Content-Type: application/json; charset=utf-8');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    if (function_exists('ob_end_clean')) {
+        ob_end_clean();
+    }
+    exit();
+}
+
 include('../../classes/connect.php');
 
 $db = new Database();
@@ -187,7 +201,7 @@ if ($method === 'GET') {
                   ORDER BY c.last_message_at DESC, c.created_at DESC";
         
         $conversations = $db->read($query);
-        
+
         if ($conversations === false) {
             sendResponse(false, null, 'Failed to fetch conversations');
         }
@@ -348,6 +362,9 @@ if ($method === 'GET') {
         sendResponse(false, null, 'Cannot create conversation with yourself');
     }
     
+    // Store original caller ID before swapping (caller is the one who initiated the conversation)
+    $originalCallerId = $user1Id; // user1_id is the caller from frontend
+    
     // Ensure user1_id < user2_id for consistency
     if ($user1Id > $user2Id) {
         $temp = $user1Id;
@@ -358,13 +375,41 @@ if ($method === 'GET') {
     $conn = $db->connect();
     $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
     
+    // Determine which user is the "other" user (friend) - the one that's not the caller
+    // After swapping, we need to check which one matches the original caller
+    $friendId = ($originalCallerId === $user1Id) ? $user2Id : $user1Id;
+    
     // Check if conversation already exists (with same major)
     $checkQuery = "SELECT * FROM conversations WHERE user1_id = $user1Id AND user2_id = $user2Id AND major = $majorEscaped LIMIT 1";
     $existing = $db->read($checkQuery);
     
     if ($existing && !empty($existing)) {
         $conv = convertTimestamps($existing[0]);
+        
+        // Fetch friend data from learners table
+        $friendProfile = null;
+        if ($friendId > 0) {
+            $learnerQuery = "SELECT learner_phone, learner_name, learner_image 
+                           FROM learners 
+                           WHERE learner_phone = $friendId LIMIT 1";
+            $learnerResult = $db->read($learnerQuery);
+            
+            if ($learnerResult && !empty($learnerResult)) {
+                $learner = $learnerResult[0];
+                $friendFcmToken = getFcmTokenFromPhone($db, $friendId, $major);
+                
+                $friendProfile = [
+                    'phone' => $learner['learner_phone'],
+                    'name' => $learner['learner_name'],
+                    'image' => $learner['learner_image'],
+                    'fcm_token' => $friendFcmToken
+                ];
+            }
+        }
+        $conv['friend'] = $friendProfile;
+        
         sendResponse(true, $conv);
+        exit;
     }
     
     // Create new conversation
@@ -379,6 +424,29 @@ if ($method === 'GET') {
     $newConversation = $db->read($checkQuery);
     if ($newConversation && !empty($newConversation)) {
         $conv = convertTimestamps($newConversation[0]);
+        
+        // Fetch friend data from learners table
+        $friendProfile = null;
+        if ($friendId > 0) {
+            $learnerQuery = "SELECT learner_phone, learner_name, learner_image 
+                           FROM learners 
+                           WHERE learner_phone = $friendId LIMIT 1";
+            $learnerResult = $db->read($learnerQuery);
+            
+            if ($learnerResult && !empty($learnerResult)) {
+                $learner = $learnerResult[0];
+                $friendFcmToken = getFcmTokenFromPhone($db, $friendId, $major);
+                
+                $friendProfile = [
+                    'phone' => $learner['learner_phone'],
+                    'name' => $learner['learner_name'],
+                    'image' => $learner['learner_image'],
+                    'fcm_token' => $friendFcmToken
+                ];
+            }
+        }
+        $conv['friend'] = $friendProfile;
+        
         sendResponse(true, $conv);
     } else {
         sendResponse(false, null, 'Conversation created but failed to retrieve');

@@ -34,6 +34,7 @@ import {
   Gavel as TermsIcon,
   PrivacyTip as PrivacyIcon,
   ChevronRight as ChevronRightIcon,
+  Chat as ChatIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -45,6 +46,7 @@ const mainMenuItems = [
   { text: 'Explore', icon: <SearchIcon />, path: '/explore' },
   { text: 'Vocab Learning', icon: <MenuBookIcon />, path: '/vocab-learning' },
   { text: 'My Learning', icon: <ShowChartIcon />, path: '/my-learning' },
+  { text: 'Chat', icon: <ChatIcon />, path: '/chat' },
 ];
 
 const subMenuItems = [

@@ -2,6 +2,15 @@
 
 Complete CRUD operations for chat conversations and messages.
 
+## Database setup
+
+If you see **"Failed to fetch conversations"**, the `conversations` and `messages` tables may be missing the `major` column. Run the migration once:
+
+- **phpMyAdmin:** Open your database → SQL tab → paste and run the contents of `api/chat/migrations/add_major_columns.sql`.
+- **CLI:** `mysql -u root -p your_database_name < api/chat/migrations/add_major_columns.sql`
+
+Then reload the Chat page.
+
 ## Base URL
 
 `/api/chat/`

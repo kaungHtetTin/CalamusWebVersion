@@ -25,6 +25,8 @@ require_once 'friends_helper.php';
 try {
     $userId = isset($_GET['userId']) ? trim((string)$_GET['userId']) : '';
     $major = friends_validate_major(isset($_GET['major']) ? $_GET['major'] : 'english');
+    $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+    $limit = isset($_GET['limit']) ? min(50, max(1, (int)$_GET['limit'])) : 20;
 
     if (!$major || $userId === '') {
         echo json_encode(['success' => false, 'error' => 'userId and major required']);
@@ -57,7 +59,21 @@ try {
         }
     }
 
-    echo json_encode(['success' => true, 'data' => $list], JSON_INVALID_UTF8_SUBSTITUTE);
+    $total = count($list);
+    $offset = ($page - 1) * $limit;
+    $list = array_slice($list, $offset, $limit);
+    $hasMore = ($offset + count($list)) < $total;
+
+    echo json_encode([
+        'success' => true,
+        'data' => $list,
+        'pagination' => [
+            'page' => $page,
+            'limit' => $limit,
+            'total' => $total,
+            'hasMore' => $hasMore,
+        ],
+    ], JSON_INVALID_UTF8_SUBSTITUTE);
 
 } catch (Exception $e) {
     http_response_code(500);

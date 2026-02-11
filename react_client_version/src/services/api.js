@@ -529,6 +529,67 @@ export const appsAPI = {
 };
 
 /**
+ * Friends API endpoints (add friend, requests, confirm, unfriend, status)
+ */
+export const friendsAPI = {
+  /**
+   * Send friend request (or unsend if already sent)
+   * @param {string} otherId - learner_phone of the user to add
+   * @param {string} major - english | korea | chinese | japanese | russian
+   */
+  addRequest: (otherId, major = 'english') =>
+    postAPI('/friends/add.php', { otherId, major }),
+
+  /**
+   * Remove an incoming friend request (decline)
+   * @param {string} otherId - learner_phone of the person who sent the request
+   * @param {string} major
+   */
+  removeRequest: (otherId, major = 'english') =>
+    postAPI('/friends/remove-request.php', { otherId, major }),
+
+  /**
+   * Accept friend request
+   * @param {string} otherId - learner_phone of the person who sent the request
+   * @param {string} major
+   */
+  confirm: (otherId, major = 'english') =>
+    postAPI('/friends/confirm.php', { otherId, major }),
+
+  /**
+   * Unfriend a user
+   * @param {string} otherId - learner_phone
+   * @param {string} major
+   */
+  unfriend: (otherId, major = 'english') =>
+    postAPI('/friends/unfriend.php', { otherId, major }),
+
+  /**
+   * Get friend list for a user (public)
+   * @param {string} userId - learner_phone
+   * @param {string} major
+   */
+  getFriends: (userId, major = 'english') =>
+    fetchAPI(`/friends/get-friends.php?userId=${encodeURIComponent(userId)}&major=${major}`),
+
+  /**
+   * Get my incoming requests + people you may know (authenticated)
+   * @param {string} major
+   */
+  getRequests: (major = 'english') =>
+    authFetchAPI(`/friends/get-requests.php?major=${major}`),
+
+  /**
+   * Get friend status between me and another user (authenticated)
+   * @param {string} otherId - learner_phone
+   * @param {string} major
+   * @returns {Promise<{ success, status: 'friend'|'pending_sent'|'pending_received'|'none' }>}
+   */
+  getStatus: (otherId, major = 'english') =>
+    authFetchAPI(`/friends/get-status.php?otherId=${encodeURIComponent(otherId)}&major=${major}`),
+};
+
+/**
  * User Profile API endpoints
  */
 /**
@@ -619,13 +680,24 @@ export const userAPI = {
 export const notificationAPI = {
   /**
    * Get notifications for authenticated user
+   * @param {Object} [params] - optional: { major, limit } (e.g. { major: 'english', limit: 150 })
    */
-  get: () => authFetchAPI('/notifications/get.php'),
+  get: (params) => {
+    const qs = params && Object.keys(params).length ? '?' + new URLSearchParams(params).toString() : '';
+    return authFetchAPI('/notifications/get.php' + qs);
+  },
 
   /**
    * Mark all notifications as read
    */
   markRead: () => postAPI('/notifications/mark-read.php'),
+
+  /**
+   * Mark a single notification as seen (on click)
+   * @param {number} notificationId - notification id from get()
+   */
+  markOneRead: (notificationId) =>
+    postAPI('/notifications/mark-one-read.php', { notificationId }),
 };
 
 /**
@@ -665,6 +737,7 @@ export default {
   vipPlan: vipPlanAPI,
   apps: appsAPI,
   user: userAPI,
+  friends: friendsAPI,
   notification: notificationAPI,
   auth: authAPI,
   languages: languagesAPI,

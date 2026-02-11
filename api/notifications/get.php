@@ -45,26 +45,36 @@ try {
 
     $userId = $userResult[0]['learner_phone'];
 
-    // Fetch notifications
+    // Optional: major (filter by posts.major), limit (default 150)
+    $major = isset($_GET['major']) ? trim($_GET['major']) : '';
+    $limit = isset($_GET['limit']) ? min(200, max(1, (int)$_GET['limit'])) : 150;
+    $majorWhere = '';
+    if ($major !== '') {
+        $major_escaped = mysqli_real_escape_string($conn, $major);
+        $majorWhere = " AND posts.major = '$major_escaped'";
+    }
+
+    // Fetch notifications (align with fetchNotification: writer_name, writer_image, post_id, body, image, has_video, action_name, time, seen)
     $query = "SELECT
         learners.learner_name as writer_name,
         learners.learner_image as writer_image,
         posts.post_id,
         posts.body,
         posts.image as post_image,
+        posts.has_video,
         notification.id,
         notification.time,
         notification.seen,
         notification.action,
         notification.comment_id,
         notification_action.action_name as taking_action
-    FROM notification 
+    FROM notification
     JOIN posts ON posts.post_id = notification.post_id
     JOIN learners ON learners.learner_phone = notification.writer_id
     JOIN notification_action ON notification_action.action = notification.action
-    WHERE notification.owner_id = '$userId'
+    WHERE notification.owner_id = '$userId'" . $majorWhere . "
     ORDER BY notification.time DESC
-    LIMIT 50";
+    LIMIT $limit";
 
     $result = $DB->read($query);
     $notifications = [];
@@ -79,6 +89,7 @@ try {
                 'writerImage' => $row['writer_image'],
                 'postBody' => mb_substr(mb_convert_encoding($row['body'] ?? '', 'UTF-8', 'UTF-8'), 0, 100),
                 'postImage' => $row['post_image'],
+                'hasVideo' => !empty($row['has_video']),
                 'action' => $row['taking_action'],
                 'time' => (int)$row['time'],
                 'seen' => (int)$row['seen'],

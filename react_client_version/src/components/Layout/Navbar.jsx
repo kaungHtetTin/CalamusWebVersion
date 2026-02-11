@@ -30,8 +30,9 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import { useNavigate } from 'react-router-dom';
-import { notificationAPI } from '../../services/api';
+import { notificationAPI, friendsAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 // Hide AppBar on scroll down (mobile only)
 function HideOnScroll({ children }) {
@@ -124,6 +125,8 @@ const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLo
   const [loadingNotifs, setLoadingNotifs] = useState(false);
   const [notifsFetched, setNotifsFetched] = useState(false);
   const [markingRead, setMarkingRead] = useState(false);
+  const [friendRequests, setFriendRequests] = useState([]);
+  const totalNotificationCount = unreadCount + friendRequests.length;
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -133,17 +136,20 @@ const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLo
     setAnchorEl(null);
   };
 
-  // Fetch notifications when the menu opens
+  // Fetch notifications and friend requests (for badge + dropdown)
   const fetchNotifications = useCallback(async () => {
     if (!isAuthenticated || authLoading) return;
     setLoadingNotifs(true);
     try {
-      const response = await notificationAPI.get();
-      setNotifications(response.data?.notifications || []);
-      setUnreadCount(response.data?.unreadCount || 0);
+      const [notifRes, friendRes] = await Promise.all([
+        notificationAPI.get(),
+        friendsAPI.getRequests('english').catch(() => ({ data: { request: [] } })),
+      ]);
+      setNotifications(notifRes.data?.notifications || []);
+      setUnreadCount(notifRes.data?.unreadCount || 0);
+      setFriendRequests(friendRes.data?.request || []);
       setNotifsFetched(true);
     } catch (err) {
-      // Silently ignore auth errors for notifications
       if (err.message !== 'Not authenticated') {
         console.error('Failed to fetch notifications:', err);
       }
@@ -152,20 +158,19 @@ const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLo
     }
   }, [isAuthenticated, authLoading]);
 
-  // Fetch unread count on mount (for the badge)
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
       fetchNotifications();
     } else {
       setNotifications([]);
       setUnreadCount(0);
+      setFriendRequests([]);
       setNotifsFetched(false);
     }
   }, [isAuthenticated, authLoading, fetchNotifications]);
 
   const handleNotificationOpen = (event) => {
     setNotificationAnchor(event.currentTarget);
-    // Refresh when opening
     if (isAuthenticated) {
       fetchNotifications();
     }
@@ -176,12 +181,13 @@ const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLo
   };
 
   const handleMarkAllRead = async () => {
-    if (markingRead || unreadCount === 0) return;
+    if (markingRead || (unreadCount === 0 && friendRequests.length === 0)) return;
     setMarkingRead(true);
     try {
       await notificationAPI.markRead();
       setUnreadCount(0);
       setNotifications((prev) => prev.map((n) => ({ ...n, seen: 1 })));
+      // Friend requests stay until accepted/declined; no "mark read" for them
     } catch (err) {
       console.error('Failed to mark notifications as read:', err);
     } finally {
@@ -189,9 +195,23 @@ const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLo
     }
   };
 
-  const handleNotificationClick = (notif) => {
+  const handleNotificationClick = async (notif) => {
+    if (notif.id && notif.seen !== 1) {
+      try {
+        await notificationAPI.markOneRead(notif.id);
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+        setNotifications((prev) => prev.map((n) => (n.id === notif.id ? { ...n, seen: 1 } : n)));
+      } catch (err) {
+        console.error('Failed to mark notification as read:', err);
+      }
+    }
     handleNotificationClose();
     navigate(`/post/${notif.postId}`);
+  };
+
+  const handleFriendRequestClick = (userId) => {
+    handleNotificationClose();
+    navigate(`/profile/${userId}`);
   };
 
   return (
@@ -249,8 +269,9 @@ const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLo
             <IconButton
               color="inherit"
               onClick={handleNotificationOpen}
+              aria-label="notifications"
             >
-              <Badge badgeContent={unreadCount} color="secondary" max={99}>
+              <Badge badgeContent={totalNotificationCount} color="secondary" max={99}>
                 <NotificationsIcon />
               </Badge>
             </IconButton>
@@ -352,28 +373,36 @@ const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLo
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
           {/* Header */}
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 1.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1, px: 2, py: 1.5 }}>
             <Typography variant="subtitle1" fontWeight={700}>
               Notifications
             </Typography>
-            {unreadCount > 0 && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              {totalNotificationCount > 0 && (
+                <Button
+                  size="small"
+                  startIcon={markingRead ? <CircularProgress size={14} /> : <DoneAllIcon fontSize="small" />}
+                  onClick={handleMarkAllRead}
+                  disabled={markingRead}
+                  sx={{ textTransform: 'none', fontSize: '0.75rem', minWidth: 0 }}
+                >
+                  Mark all read
+                </Button>
+              )}
               <Button
                 size="small"
-                startIcon={markingRead ? <CircularProgress size={14} /> : <DoneAllIcon fontSize="small" />}
-                onClick={handleMarkAllRead}
-                disabled={markingRead}
-                sx={{ textTransform: 'none', fontSize: '0.75rem', minWidth: 0 }}
+                onClick={() => { handleNotificationClose(); navigate('/notifications'); }}
+                sx={{ textTransform: 'none', fontSize: '0.75rem' }}
               >
-                Mark all read
+                View all
               </Button>
-            )}
+            </Box>
           </Box>
           <Divider />
 
-          {/* Notification list */}
+          {/* Notification list: friend requests first, then post notifications */}
           <Box sx={{ overflowY: 'auto', maxHeight: 360 }}>
             {loadingNotifs && !notifsFetched ? (
-              // Skeleton loading
               [...Array(3)].map((_, i) => (
                 <Box key={i} sx={{ display: 'flex', gap: 1.5, px: 2, py: 1.5 }}>
                   <Skeleton variant="circular" width={40} height={40} />
@@ -384,7 +413,7 @@ const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLo
                   </Box>
                 </Box>
               ))
-            ) : notifications.length === 0 ? (
+            ) : friendRequests.length === 0 && notifications.length === 0 ? (
               <Box sx={{ p: 4, textAlign: 'center' }}>
                 <NotificationsIcon sx={{ fontSize: 40, color: 'text.disabled', mb: 1 }} />
                 <Typography variant="body2" color="text.secondary">
@@ -392,7 +421,55 @@ const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLo
                 </Typography>
               </Box>
             ) : (
-              notifications.map((notif) => (
+              <>
+                {friendRequests.length > 0 && (
+                  <>
+                    <Box sx={{ px: 2, py: 1, bgcolor: alpha('#000', 0.03) }}>
+                      <Typography variant="caption" fontWeight={600} color="text.secondary">
+                        Friend requests
+                      </Typography>
+                    </Box>
+                    {friendRequests.map((req) => (
+                      <Box
+                        key={req.userId || req.phone}
+                        onClick={() => handleFriendRequestClick(req.userId || req.phone)}
+                        sx={{
+                          display: 'flex',
+                          gap: 1.5,
+                          px: 2,
+                          py: 1.5,
+                          cursor: 'pointer',
+                          borderLeft: '3px solid',
+                          borderColor: 'primary.main',
+                          bgcolor: alpha('#2e7d32', 0.06),
+                          transition: 'background 0.15s ease',
+                          '&:hover': { bgcolor: alpha('#000', 0.06) },
+                        }}
+                      >
+                        <Avatar
+                          src={req.userImage}
+                          sx={{ width: 40, height: 40, flexShrink: 0 }}
+                        >
+                          {(req.userName || '?').charAt(0).toUpperCase()}
+                        </Avatar>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography variant="body2" sx={{ lineHeight: 1.4 }}>
+                            <Typography component="span" fontWeight={600}>
+                              {req.userName || 'Someone'}
+                            </Typography>{' '}
+                            sent you a friend request
+                          </Typography>
+                          <Typography variant="caption" color="text.disabled" sx={{ mt: 0.3, display: 'block' }}>
+                            Tap to view profile
+                          </Typography>
+                        </Box>
+                        <PersonAddIcon sx={{ color: 'primary.main', fontSize: 20 }} />
+                      </Box>
+                    ))}
+                    <Divider sx={{ my: 1 }} />
+                  </>
+                )}
+                {notifications.map((notif) => (
                 <Box
                   key={notif.id}
                   onClick={() => handleNotificationClick(notif)}
@@ -442,7 +519,8 @@ const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLo
                     </Typography>
                   </Box>
                 </Box>
-              ))
+              ))}
+              </>
             )}
           </Box>
         </Menu>

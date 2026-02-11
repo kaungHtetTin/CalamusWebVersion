@@ -65,20 +65,23 @@ try {
         exit();
     }
 
-    $postCheck = $DB->read("SELECT post_id FROM posts WHERE post_id = $postId LIMIT 1");
-    if (!$postCheck || !is_array($postCheck) || count($postCheck) === 0) {
+    $postResult = $DB->read("SELECT post_id, learner_id FROM posts WHERE post_id = $postId LIMIT 1");
+    if (!$postResult || !is_array($postResult) || count($postResult) === 0) {
         http_response_code(404);
         echo json_encode(['success' => false, 'message' => 'Post not found']);
         exit();
     }
+    $postOwnerId = $postResult[0]['learner_id'];
 
+    $parentCommentWriterId = null;
     if ($parent > 0) {
-        $parentCheck = $DB->read("SELECT time FROM comment WHERE time = $parent AND post_id = $postId LIMIT 1");
+        $parentCheck = $DB->read("SELECT time, writer_id FROM comment WHERE time = $parent AND post_id = $postId LIMIT 1");
         if (!$parentCheck || !is_array($parentCheck) || count($parentCheck) === 0) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Parent comment not found']);
             exit();
         }
+        $parentCommentWriterId = $parentCheck[0]['writer_id'];
     }
 
     $time = (int)round(microtime(true) * 1000);
@@ -89,6 +92,23 @@ try {
                VALUES ($postId, '$userIdEsc', '$bodyEsc', '', $time, $parent, 0)");
 
     $DB->save("UPDATE posts SET comments = comments + 1 WHERE post_id = $postId");
+
+    // Notifications: action 0 = commented on your post, action 1 = reply your comment on the post
+    if ($parent === 0) {
+        // Top-level comment: notify post owner (unless commenter is the owner)
+        if ($userId != $postOwnerId) {
+            $postOwnerEsc = mysqli_real_escape_string($conn, $postOwnerId);
+            $DB->save("INSERT INTO notification (post_id, comment_id, owner_id, writer_id, action, time, seen)
+                       VALUES ($postId, $time, '$postOwnerEsc', '$userIdEsc', 0, $time, 0)");
+        }
+    } else {
+        // Reply: notify parent comment's writer (unless replier is the same user)
+        if ($parentCommentWriterId && $userId != $parentCommentWriterId) {
+            $parentWriterEsc = mysqli_real_escape_string($conn, $parentCommentWriterId);
+            $DB->save("INSERT INTO notification (post_id, comment_id, owner_id, writer_id, action, time, seen)
+                       VALUES ($postId, $time, '$parentWriterEsc', '$userIdEsc', 1, $time, 0)");
+        }
+    }
 
     $comment = [
         'id' => 0,

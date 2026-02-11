@@ -35,9 +35,13 @@ import {
   ChatBubbleOutline as CommentIcon,
   Verified as VerifiedIcon,
   Send as ShareIcon,
+  PersonAdd as PersonAddIcon,
+  Chat as ChatIcon,
+  HowToReg as HowToRegIcon,
+  PersonRemove as PersonRemoveIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
-import { userAPI, discussionAPI } from '../services/api';
+import { userAPI, discussionAPI, friendsAPI } from '../services/api';
 import { PostCard } from '../components/PostCard';
 import CommentItem from '../components/CommentItem';
 import CreatePost from '../components/CreatePost';
@@ -471,9 +475,23 @@ const Profile = () => {
   const [commentsModalOpen, setCommentsModalOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
 
+  // Friend status (when viewing another user's profile): 'friend' | 'pending_sent' | 'pending_received' | 'none'
+  const [friendStatus, setFriendStatus] = useState(null);
+  const [friendLoading, setFriendLoading] = useState(false);
+  const [friendActionLoading, setFriendActionLoading] = useState(false);
+
   // Determine which user to show
   const isOwnProfile = !paramUserId;
   const targetUserId = paramUserId || authUser?.phone;
+  // Hide Message/Add Friend for: own profile (no param), Calamus platform (id 10000/100000), or viewing self by id (e.g. /profile/100000)
+  const isCalamusPlatform = profileUser && (Number(profileUser.id) === 100000 || Number(profileUser.id) === 10000);
+  const isViewingSelf = isOwnProfile || (profileUser && authUser && (
+    Number(profileUser.id) === Number(authUser.id) ||
+    (profileUser.phone && profileUser.phone === authUser.phone) ||
+    String(targetUserId) === String(authUser.phone) ||
+    String(targetUserId) === String(authUser.id)
+  ));
+  const showFriendMessageButtons = !isViewingSelf && !isCalamusPlatform;
 
   // Redirect to login if viewing own profile and not authenticated
   useEffect(() => {
@@ -519,6 +537,91 @@ const Profile = () => {
       fetchProfile(1);
     }
   }, [targetUserId, activeTab, fetchProfile]);
+
+  // Fetch friend status when viewing another user's profile (authenticated)
+  useEffect(() => {
+    if (isOwnProfile || !isAuthenticated || !targetUserId || !profileUser) {
+      setFriendStatus(null);
+      return;
+    }
+    let cancelled = false;
+    setFriendLoading(true);
+    friendsAPI
+      .getStatus(targetUserId, 'english')
+      .then((res) => {
+        if (!cancelled && res.success) setFriendStatus(res.status || 'none');
+      })
+      .catch(() => {
+        if (!cancelled) setFriendStatus('none');
+      })
+      .finally(() => {
+        if (!cancelled) setFriendLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [isOwnProfile, isAuthenticated, targetUserId, profileUser?.id]);
+
+  // Friend action handlers (single major 'english' for global friend list)
+  const handleAddFriend = async () => {
+    if (!isAuthenticated) { navigate('/login'); return; }
+    setFriendActionLoading(true);
+    try {
+      const res = await friendsAPI.addRequest(targetUserId, 'english');
+      if (res.success) {
+        if (res.action === 'unsent request') setFriendStatus('none');
+        else setFriendStatus('pending_sent');
+      } else if (res.code === 'err53') {
+        setError('Friend limit reached');
+      }
+    } catch (err) {
+      console.error('Add friend error:', err);
+    } finally {
+      setFriendActionLoading(false);
+    }
+  };
+
+  const handleRemoveRequest = async () => {
+    setFriendActionLoading(true);
+    try {
+      await friendsAPI.removeRequest(targetUserId, 'english');
+      setFriendStatus('none');
+    } catch (err) {
+      console.error('Remove request error:', err);
+    } finally {
+      setFriendActionLoading(false);
+    }
+  };
+
+  const handleAcceptRequest = async () => {
+    setFriendActionLoading(true);
+    try {
+      await friendsAPI.confirm(targetUserId, 'english');
+      setFriendStatus('friend');
+    } catch (err) {
+      console.error('Accept request error:', err);
+    } finally {
+      setFriendActionLoading(false);
+    }
+  };
+
+  const handleUnfriend = async () => {
+    setFriendActionLoading(true);
+    try {
+      await friendsAPI.unfriend(targetUserId, 'english');
+      setFriendStatus('none');
+    } catch (err) {
+      console.error('Unfriend error:', err);
+    } finally {
+      setFriendActionLoading(false);
+    }
+  };
+
+  const handleMessage = () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    navigate(`/chat?with=${encodeURIComponent(targetUserId)}`);
+  };
 
   // Infinite scroll
   const sentinelRef = useRef(null);
@@ -733,11 +836,18 @@ const Profile = () => {
           )}
         </Box>
 
-        {/* Profile info bar */}
-        <Box sx={{ px: { xs: 2, sm: 3, md: 4 }, pb: 2, mt: { xs: -4.5, sm: -5.5 } }}>
+        {/* Profile info bar: more space below cover on large screens so name isn't cramped */}
+        <Box
+          sx={{
+            px: { xs: 2, sm: 3, md: 4 },
+            pb: 2,
+            mt: { xs: -4.5, sm: -5.5, md: -3 },
+            pt: { md: 3.5 },
+          }}
+        >
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
-            spacing={{ xs: 1.5, sm: 2.5 }}
+            spacing={{ xs: 1.5, sm: 2.5, md: 3 }}
             alignItems={{ xs: 'center', sm: 'flex-end' }}
           >
             {/* Avatar */}
@@ -776,8 +886,8 @@ const Profile = () => {
               )}
             </Box>
 
-            {/* Name + Meta */}
-            <Box sx={{ flex: 1, textAlign: { xs: 'center', sm: 'left' }, pt: { xs: 0, sm: 1 } }}>
+            {/* Name + Meta: extra top padding on md+ to separate name from cover */}
+            <Box sx={{ flex: 1, textAlign: { xs: 'center', sm: 'left' }, pt: { xs: 0, sm: 1, md: 2.5 } }}>
               <Stack direction="row" alignItems="center" justifyContent={{ xs: 'center', sm: 'flex-start' }} spacing={1}>
                 <Typography variant="h5" fontWeight={800}>
                   {profileUser.name}
@@ -793,13 +903,13 @@ const Profile = () => {
                 )}
               </Stack>
 
-              {/* Quick info chips */}
+              {/* Quick info chips: more spacing on large screens */}
               <Stack
                 direction="row"
                 spacing={1}
                 flexWrap="wrap"
                 justifyContent={{ xs: 'center', sm: 'flex-start' }}
-                sx={{ mt: 0.8, gap: 0.5 }}
+                sx={{ mt: { xs: 0.8, md: 1.5 }, gap: { xs: 0.5, md: 1 } }}
               >
                 {profileUser.work && (
                   <Chip icon={<WorkIcon sx={{ fontSize: 14 }} />} label={profileUser.work} size="small" variant="outlined" sx={{ height: 26, fontSize: '0.75rem' }} />
@@ -811,6 +921,81 @@ const Profile = () => {
                   <Chip icon={<LocationIcon sx={{ fontSize: 14 }} />} label={profileUser.region} size="small" variant="outlined" sx={{ height: 26, fontSize: '0.75rem' }} />
                 )}
               </Stack>
+
+              {/* Friend + Message buttons (hide for own profile and Calamus platform userId 10000/100000) */}
+              {showFriendMessageButtons && (
+                <Stack
+                  direction="row"
+                  spacing={1.5}
+                  flexWrap="wrap"
+                  justifyContent={{ xs: 'center', sm: 'flex-start' }}
+                  sx={{ mt: 2, gap: 1 }}
+                >
+                  {friendLoading ? (
+                    <Button variant="outlined" disabled startIcon={<CircularProgress size={18} />} sx={{ textTransform: 'none' }}>
+                      Loading…
+                    </Button>
+                  ) : friendStatus === 'friend' ? (
+                    <Button
+                      variant="outlined"
+                      startIcon={<PersonRemoveIcon />}
+                      disabled={friendActionLoading}
+                      onClick={handleUnfriend}
+                      sx={{ textTransform: 'none' }}
+                    >
+                      Unfriend
+                    </Button>
+                  ) : friendStatus === 'pending_sent' ? (
+                    <Button
+                      variant="outlined"
+                      startIcon={<PersonAddIcon />}
+                      disabled={friendActionLoading}
+                      onClick={handleAddFriend}
+                      sx={{ textTransform: 'none' }}
+                    >
+                      Requested
+                    </Button>
+                  ) : friendStatus === 'pending_received' ? (
+                    <>
+                      <Button
+                        variant="contained"
+                        startIcon={<HowToRegIcon />}
+                        disabled={friendActionLoading}
+                        onClick={handleAcceptRequest}
+                        sx={{ textTransform: 'none' }}
+                      >
+                        Accept
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        disabled={friendActionLoading}
+                        onClick={handleRemoveRequest}
+                        sx={{ textTransform: 'none' }}
+                      >
+                        Decline
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      startIcon={<PersonAddIcon />}
+                      disabled={friendActionLoading}
+                      onClick={handleAddFriend}
+                      sx={{ textTransform: 'none' }}
+                    >
+                      Add Friend
+                    </Button>
+                  )}
+                  <Button
+                    variant="outlined"
+                    startIcon={<ChatIcon />}
+                    onClick={handleMessage}
+                    sx={{ textTransform: 'none' }}
+                  >
+                    Message
+                  </Button>
+                </Stack>
+              )}
             </Box>
 
             {/* Stats */}

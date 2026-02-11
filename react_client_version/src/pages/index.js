@@ -18,3 +18,5 @@ export { default as MyLearning } from './MyLearning';
 export { default as LessonPlay } from './LessonPlay';
 export { default as VocabLearning } from './VocabLearning';
 export { default as VocabLearn } from './VocabLearn';
+export { default as Chat } from './Chat';
+export { default as Notifications } from './Notifications';

@@ -35,11 +35,8 @@ if ($method === 'POST') {
     $messageId = isset($_POST['message_id']) ? (int) $_POST['message_id'] : 0;
     $conversationId = isset($_POST['conversation_id']) ? (int) $_POST['conversation_id'] : 0;
     $userId = isset($_POST['user_id']) ? (int) $_POST['user_id'] : 0;
-    $major = isset($_POST['major']) ? sanitize($_POST['major']) : '';
-    
-    if (empty($major)) {
-        sendResponse(false, null, 'major is required');
-    }
+    // Make major optional - default to 'english' for backward compatibility with mobile apps
+    $major = isset($_POST['major']) && !empty($_POST['major']) ? sanitize($_POST['major']) : 'english';
     
     $conn = $db->connect();
     $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";

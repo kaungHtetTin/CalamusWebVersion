@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Drawer,
   List,
@@ -14,6 +14,7 @@ import {
   Toolbar,
   useTheme,
   alpha,
+  Badge,
 } from '@mui/material';
 import {
   Home as HomeIcon,
@@ -35,9 +36,12 @@ import {
   PrivacyTip as PrivacyIcon,
   ChevronRight as ChevronRightIcon,
   Chat as ChatIcon,
+  Support as SupportIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useSupportChat } from '../../context/SupportChatContext';
+import { chatAPI } from '../../services/api';
 
 const drawerWidth = 280;
 
@@ -89,11 +93,13 @@ const adminTeamItems = [
     text: 'Easy English',
     icon: '/icons/easyenglish_icon.png',
     path: '/admin-team/english',
+    major: 'english',
   },
   {
     text: 'Easy Korean',
     icon: '/icons/easykorean_icon.png',
     path: '/admin-team/korea',
+    major: 'korea',
   },
 ];
 
@@ -115,12 +121,18 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
   const location = useLocation();
   const theme = useTheme();
   const { user, isAuthenticated } = useAuth();
+  const { openChat } = useSupportChat();
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+  const [supportUnreadCounts, setSupportUnreadCounts] = useState({ english: 0, korea: 0 });
+  
   // Initialize all menus as expanded by default
   const [expandedMenus, setExpandedMenus] = useState(() => {
     const initial = {};
     subMenuItems.forEach((item) => {
       initial[item.text] = true;
     });
+    // Add Support section to expanded menus
+    initial['Support'] = true;
     return initial;
   });
 
@@ -139,12 +151,118 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
     }
   };
 
+  // Handle admin team/support chat - open floating chatbox
+  const handleSupportChat = (major) => {
+    if (!isAuthenticated || !user?.phone) {
+      navigate('/login');
+      return;
+    }
+
+    // Open floating support chatbox instead of navigating
+    openChat(major);
+    
+    // Close drawer on mobile
+    if (variant === 'temporary') {
+      onClose();
+    }
+  };
+
   const isActive = (path) => {
     if (path === '/') {
       return location.pathname === '/';
     }
     return location.pathname.startsWith(path);
   };
+
+  // Fetch unread message count for friendship chats
+  useEffect(() => {
+    if (!isAuthenticated || !user?.phone) {
+      setUnreadMessageCount(0);
+      return;
+    }
+
+    const fetchUnreadCount = async () => {
+      try {
+        const userId = Number(user.phone);
+        const result = await chatAPI.getConversations(userId, 'english');
+        if (result && result.data && Array.isArray(result.data)) {
+          // Sum all unread_count from conversations (excluding admin support conversations)
+          const totalUnread = result.data.reduce((sum, conv) => {
+            // Exclude conversations with support user (ID 10000)
+            // Check both string and number comparison to handle type differences
+            const friendPhone = conv.friend?.phone;
+            const friendPhoneNum = Number(friendPhone);
+            
+            // Skip admin support conversations (user ID 10000)
+            if (friendPhoneNum === 10000) {
+              return sum; // Skip admin support conversations
+            }
+            
+            // Only count friendship conversations
+            return sum + (Number(conv.unread_count) || 0);
+          }, 0);
+          setUnreadMessageCount(totalUnread);
+        }
+      } catch (err) {
+        console.error('Failed to fetch unread message count:', err);
+        setUnreadMessageCount(0);
+      }
+    };
+
+    fetchUnreadCount();
+    // Poll every 10 seconds for new messages
+    const interval = setInterval(fetchUnreadCount, 10000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, user?.phone]);
+
+  // Fetch unread message count for admin support chats
+  useEffect(() => {
+    if (!isAuthenticated || !user?.phone) {
+      setSupportUnreadCounts({ english: 0, korea: 0 });
+      return;
+    }
+
+    const fetchSupportUnreadCounts = async () => {
+      try {
+        const userId = Number(user.phone);
+        const majors = ['english', 'korea'];
+        const counts = { english: 0, korea: 0 };
+
+        // Fetch unread counts for each major
+        for (const major of majors) {
+          try {
+            const result = await chatAPI.getConversations(userId, major);
+            if (result && result.data && Array.isArray(result.data)) {
+              // Find conversation with support user (ID 10000)
+              const supportConv = result.data.find((conv) => {
+                const friendPhone = conv.friend?.phone;
+                const friendPhoneNum = Number(friendPhone);
+                return friendPhoneNum === 10000;
+              });
+              if (supportConv) {
+                counts[major] = Number(supportConv.unread_count) || 0;
+              } else {
+                counts[major] = 0;
+              }
+            }
+          } catch (err) {
+            console.error(`Failed to fetch unread count for ${major}:`, err);
+            counts[major] = 0;
+          }
+        }
+
+        setSupportUnreadCounts(counts);
+      } catch (err) {
+        console.error('Failed to fetch support unread counts:', err);
+        setSupportUnreadCounts({ english: 0, korea: 0 });
+      }
+    };
+
+    fetchSupportUnreadCounts();
+    // Poll every 10 seconds for new messages
+    const interval = setInterval(fetchSupportUnreadCounts, 10000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, user?.phone]);
 
   const drawer = (
     <Box 
@@ -273,6 +391,9 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
         <List sx={{ px: 1, py: 0 }}>
           {mainMenuItems.map((item) => {
             const active = isActive(item.path);
+            const isChatItem = item.path === '/chat';
+            const showBadge = isChatItem && unreadMessageCount > 0;
+            
             return (
               <ListItem key={item.text} disablePadding sx={{ mb: 0.25 }}>
                 <ListItemButton
@@ -302,7 +423,27 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
                       },
                     }}
                   >
-                    {item.icon}
+                    {showBadge ? (
+                      <Badge 
+                        badgeContent={unreadMessageCount} 
+                        color="secondary" 
+                        max={99}
+                        sx={{
+                          '& .MuiBadge-badge': {
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            minWidth: 18,
+                            height: 18,
+                            right: -4,
+                            top: -4,
+                          },
+                        }}
+                      >
+                        {item.icon}
+                      </Badge>
+                    ) : (
+                      item.icon
+                    )}
                   </ListItemIcon>
                   <ListItemText
                     primary={item.text}
@@ -437,7 +578,7 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
           })}
         </List>
 
-        {/* Admin Team Section */}
+        {/* Support Section - Collapsible like other sections */}
         <Box sx={{ px: 2, py: 0.75, mt: 1 }}>
           <Typography
             variant="caption"
@@ -453,54 +594,155 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
           </Typography>
         </Box>
         <List sx={{ px: 1, py: 0 }}>
-          {adminTeamItems.map((item) => {
-            const active = isActive(item.path);
-            return (
-              <ListItem key={item.text} disablePadding sx={{ mb: 0.25 }}>
-                <ListItemButton
-                  onClick={() => handleNavigation(item.path)}
+          <React.Fragment>
+            <ListItem disablePadding sx={{ mb: 0.25 }}>
+              <ListItemButton
+                onClick={() => handleToggleMenu('Support')}
+                sx={{
+                  borderRadius: 1,
+                  py: 0.75,
+                  px: 1.5,
+                  minHeight: 36,
+                  bgcolor: expandedMenus['Support']
+                    ? alpha(theme.palette.primary.main, 0.1)
+                    : 'transparent',
+                  color: alpha('#ffffff', 0.9),
+                  '&:hover': {
+                    bgcolor: alpha('#ffffff', 0.08),
+                  },
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <ListItemIcon
                   sx={{
-                    borderRadius: 1,
-                    py: 0.75,
-                    px: 1.5,
-                    minHeight: 36,
-                    bgcolor: active 
-                      ? alpha(theme.palette.primary.main, 0.15) 
-                      : 'transparent',
-                    color: active ? theme.palette.primary.light : alpha('#ffffff', 0.9),
-                    '&:hover': {
-                      bgcolor: active 
-                        ? alpha(theme.palette.primary.main, 0.2) 
-                        : alpha('#ffffff', 0.08),
+                    color: alpha('#ffffff', 0.7),
+                    minWidth: 36,
+                    '& svg': {
+                      fontSize: '1.1rem',
                     },
-                    transition: 'all 0.2s ease',
-                    borderLeft: active 
-                      ? `3px solid ${theme.palette.primary.main}` 
-                      : '3px solid transparent',
                   }}
                 >
-                  <ListItemIcon sx={{ minWidth: 36 }}>
-                    <Avatar
-                      src={item.icon}
-                      alt={item.text}
+                  {(() => {
+                    const totalSupportUnread = (supportUnreadCounts.english || 0) + (supportUnreadCounts.korea || 0);
+                    const showBadge = totalSupportUnread > 0;
+                    
+                    return showBadge ? (
+                      <Badge
+                        badgeContent={totalSupportUnread}
+                        color="secondary"
+                        max={99}
+                        sx={{
+                          '& .MuiBadge-badge': {
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            minWidth: 18,
+                            height: 18,
+                            right: -4,
+                            top: -4,
+                          },
+                        }}
+                      >
+                        <SupportIcon />
+                      </Badge>
+                    ) : (
+                      <SupportIcon />
+                    );
+                  })()}
+                </ListItemIcon>
+                <ListItemText
+                  primary="Support"
+                  primaryTypographyProps={{
+                    fontSize: '0.8125rem',
+                    fontWeight: 500,
+                  }}
+                />
+                <ChevronRightIcon
+                  sx={{
+                    fontSize: 16,
+                    color: alpha('#ffffff', 0.5),
+                    transform: expandedMenus['Support'] ? 'rotate(90deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s ease',
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+            <Collapse in={expandedMenus['Support']} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding sx={{ pl: 0.5 }}>
+                {adminTeamItems.map((item) => {
+                  const unreadCount = supportUnreadCounts[item.major] || 0;
+                  const showBadge = unreadCount > 0;
+                  
+                  return (
+                    <ListItemButton
+                      key={item.text}
+                      onClick={() => handleSupportChat(item.major)}
                       sx={{
-                        width: 24,
-                        height: 24,
-                        bgcolor: alpha('#ffffff', 0.1),
+                        borderRadius: 1,
+                        py: 0.5,
+                        px: 1.5,
+                        pl: 4,
+                        minHeight: 32,
+                        bgcolor: 'transparent',
+                        color: alpha('#ffffff', 0.8),
+                        '&:hover': {
+                          bgcolor: alpha('#ffffff', 0.06),
+                        },
+                        transition: 'all 0.2s ease',
+                        borderLeft: '3px solid transparent',
                       }}
-                    />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={item.text}
-                    primaryTypographyProps={{
-                      fontSize: '0.8125rem',
-                      fontWeight: active ? 600 : 500,
-                    }}
-                  />
-                </ListItemButton>
-              </ListItem>
-            );
-          })}
+                    >
+                      <ListItemIcon sx={{ minWidth: 36 }}>
+                        {showBadge ? (
+                          <Badge
+                            badgeContent={unreadCount}
+                            color="secondary"
+                            max={99}
+                            sx={{
+                              '& .MuiBadge-badge': {
+                                fontSize: '0.7rem',
+                                fontWeight: 700,
+                                minWidth: 18,
+                                height: 18,
+                                right: -4,
+                                top: -4,
+                              },
+                            }}
+                          >
+                            <Avatar
+                              src={item.icon}
+                              alt={item.text}
+                              sx={{
+                                width: 24,
+                                height: 24,
+                                bgcolor: alpha('#ffffff', 0.1),
+                              }}
+                            />
+                          </Badge>
+                        ) : (
+                          <Avatar
+                            src={item.icon}
+                            alt={item.text}
+                            sx={{
+                              width: 24,
+                              height: 24,
+                              bgcolor: alpha('#ffffff', 0.1),
+                            }}
+                          />
+                        )}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={item.text}
+                        primaryTypographyProps={{
+                          fontSize: '0.75rem',
+                          fontWeight: 400,
+                        }}
+                      />
+                    </ListItemButton>
+                  );
+                })}
+              </List>
+            </Collapse>
+          </React.Fragment>
         </List>
 
         {/* Bottom Section - Settings & Actions (inside same scroll) */}

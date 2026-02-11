@@ -39,6 +39,12 @@ import {
   Settings as SettingsIcon,
   Logout as LogoutIcon,
   Home as HomeIcon,
+  MoreVert as MoreVertIcon,
+  Delete as DeleteIcon,
+  Block as BlockIcon,
+  Visibility as VisibilityIcon,
+  Done as DoneIcon,
+  DoneAll as DoneAllIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import { friendsAPI, chatAPI, notificationAPI } from '../services/api';
@@ -53,6 +59,7 @@ const FRIENDS_PAGE_SIZE = 20;
 const Chat = () => {
   const [searchParams] = useSearchParams();
   const withUserId = searchParams.get('with');
+  const majorParam = searchParams.get('major');
   const navigate = useNavigate();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
@@ -61,6 +68,7 @@ const Chat = () => {
   // Profile menu state
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
   const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
+  const [conversationMenuAnchorEl, setConversationMenuAnchorEl] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -86,20 +94,28 @@ const Chat = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [mobileConversationsDrawerOpen, setMobileConversationsDrawerOpen] = useState(false);
   const [mobileFriendsDrawerOpen, setMobileFriendsDrawerOpen] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [blockedByMe, setBlockedByMe] = useState(false);
+  const [blockedByOther, setBlockedByOther] = useState(false);
   const fileInputRef = useRef(null);
 
   const myId = authUser?.phone != null ? Number(authUser.phone) : null;
-  const CHAT_MAJOR = 'english';
+  // Determine major from URL parameter or default to 'english'
+  // Valid majors: english, korea, chinese, japanese, russian
+  const validMajors = ['english', 'korea', 'chinese', 'japanese', 'russian'];
+  const CHAT_MAJOR = majorParam && validMajors.includes(majorParam.toLowerCase()) 
+    ? majorParam.toLowerCase() 
+    : 'english';
 
   // Fetch notifications
   useEffect(() => {
     if (isAuthenticated && authUser) {
       const fetchNotifications = async () => {
         try {
-          const result = await notificationAPI.getNotifications();
-          if (result && Array.isArray(result)) {
-            setNotifications(result);
-            const unread = result.filter((n) => !n.seen).length;
+          const result = await notificationAPI.get();
+          if (result && result.data && Array.isArray(result.data)) {
+            setNotifications(result.data);
+            const unread = result.data.filter((n) => !n.seen).length;
             setUnreadCount(unread);
           }
         } catch (err) {
@@ -146,19 +162,138 @@ const Chat = () => {
     }
   };
 
+  // Conversation menu handlers
+  const handleConversationMenuOpen = (event) => {
+    setConversationMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleConversationMenuClose = () => {
+    setConversationMenuAnchorEl(null);
+  };
+
+  const handleViewProfile = () => {
+    handleConversationMenuClose();
+    if (currentConversation?.friend?.phone) {
+      navigate(`/profile/${currentConversation.friend.phone}`);
+    }
+  };
+
+  const handleDeleteConversation = async () => {
+    handleConversationMenuClose();
+    if (!currentConversation?.id) return;
+    
+    if (!window.confirm('Are you sure you want to delete this conversation? All messages will be permanently deleted.')) {
+      return;
+    }
+
+    try {
+      await chatAPI.deleteConversation(currentConversation.id, CHAT_MAJOR);
+      // Remove conversation from list
+      setConversations((prev) => prev.filter((c) => c.id !== currentConversation.id));
+      // Clear current conversation
+      setCurrentConversation(null);
+      setMessages([]);
+      // Refresh conversations list
+      fetchConversations(false);
+    } catch (err) {
+      console.error('Failed to delete conversation:', err);
+      alert('Failed to delete conversation. Please try again.');
+    }
+  };
+
+  const handleBlockUser = async () => {
+    handleConversationMenuClose();
+    if (!currentConversation?.friend?.phone) return;
+    
+    if (!window.confirm(`Are you sure you want to block ${currentConversation.friend.name || 'this user'}? You will no longer receive messages from them.`)) {
+      return;
+    }
+
+    try {
+      // Block the user (adds to blocks table and unfriends)
+      await friendsAPI.block(currentConversation.friend.phone);
+      // Delete the conversation
+      if (currentConversation?.id) {
+        try {
+          await chatAPI.deleteConversation(currentConversation.id, CHAT_MAJOR);
+        } catch (err) {
+          console.error('Failed to delete conversation after blocking:', err);
+        }
+      }
+      // Remove conversation from list
+      setConversations((prev) => prev.filter((c) => c.id !== currentConversation.id));
+      // Clear current conversation
+      setCurrentConversation(null);
+      setMessages([]);
+      // Refresh conversations and friends lists
+      fetchConversations(false);
+      fetchFriends();
+      // Update block status
+      setIsBlocked(true);
+      setBlockedByMe(true);
+      setBlockedByOther(false);
+      alert('User has been blocked successfully.');
+    } catch (err) {
+      console.error('Failed to block user:', err);
+      alert('Failed to block user. Please try again.');
+    }
+  };
+
+  const handleUnblockUser = async () => {
+    if (!currentConversation?.friend?.phone) return;
+    
+    if (!window.confirm(`Are you sure you want to unblock ${currentConversation.friend.name || 'this user'}? You will be able to send and receive messages again.`)) {
+      return;
+    }
+
+    try {
+      // Unblock the user
+      await friendsAPI.unblock(currentConversation.friend.phone);
+      // Update block status
+      setIsBlocked(false);
+      setBlockedByMe(false);
+      setBlockedByOther(false);
+      // Refresh conversations to get updated block status
+      fetchConversations(false);
+      alert('User has been unblocked successfully.');
+    } catch (err) {
+      console.error('Failed to unblock user:', err);
+      alert('Failed to unblock user. Please try again.');
+    }
+  };
+
   const fetchConversations = useCallback(async (showLoading = true) => {
     if (!myId) return;
     if (showLoading) setConversationsLoading(true);
     try {
       const res = await chatAPI.getConversations(myId, CHAT_MAJOR);
-      const list = (res.data || []).map((c) => ({
-        id: c.id,
-        name: c.friend?.name ?? 'Unknown',
-        image: c.friend?.image,
-        preview: c.last_message_text || 'No messages yet',
-        friend: c.friend,
-      }));
+      const list = (res.data || [])
+        // Filter out admin support conversations (friend id 10000)
+        // Handle both string and number comparison
+        .filter((c) => {
+          const friendPhone = c.friend?.phone;
+          const friendPhoneNum = Number(friendPhone);
+          return friendPhoneNum !== 10000; // Hide admin support conversations
+        })
+        .map((c) => ({
+          id: c.id,
+          name: c.friend?.name ?? 'Unknown',
+          image: c.friend?.image,
+          preview: c.last_message_text || 'No messages yet',
+          friend: c.friend,
+          unread_count: c.unread_count || 0,
+        }));
       setConversations(list);
+      
+      // Update block status if current conversation is in the list
+      if (currentConversation?.id) {
+        const currentConv = list.find((c) => c.id === currentConversation.id);
+        if (currentConv?.friend) {
+          setIsBlocked(currentConv.friend.blocked || false);
+          setBlockedByMe(currentConv.friend.blocked_by_me || false);
+          setBlockedByOther(currentConv.friend.blocked_by_other || false);
+        }
+      }
     } catch (err) {
       console.error('Failed to fetch conversations:', err);
       // Don't clear conversations on error during polling
@@ -166,7 +301,7 @@ const Chat = () => {
     } finally {
       if (showLoading) setConversationsLoading(false);
     }
-  }, [myId]);
+  }, [myId, currentConversation?.id]);
 
   const fetchFriends = useCallback(async (page = 1, append = false) => {
     if (!authUser?.phone) return;
@@ -213,7 +348,7 @@ const Chat = () => {
     }
   }, [authLoading, isAuthenticated, authUser?.phone, navigate, fetchFriends, fetchConversations]);
 
-  // Open conversation from URL ?with=userId
+  // Open conversation from URL ?with=userId&major=language
   useEffect(() => {
     if (!withUserId || !myId || !isAuthenticated) return;
     const friendId = Number(withUserId);
@@ -236,13 +371,65 @@ const Chat = () => {
           id: conv.id,
           friend: friendData,
         });
+        
+        // Update block status from conversation data
+        if (friendData.blocked !== undefined) {
+          setIsBlocked(friendData.blocked || false);
+          setBlockedByMe(friendData.blocked_by_me || false);
+          setBlockedByOther(friendData.blocked_by_other || false);
+        }
+        
+        // Clean up URL - remove query params after conversation is created
         navigate('/chat', { replace: true });
       } catch (err) {
         console.error('Failed to open conversation:', err);
+        // Clean up URL immediately to stop loading spinner
+        navigate('/chat', { replace: true });
+        setCurrentConversation(null);
+        // Show user-friendly error message after navigation
+        const errorMessage = err?.message || err?.error || 'Failed to start conversation. The support user may not exist or there was a database error.';
+        alert(`Unable to start chat: ${errorMessage}`);
       }
     })();
     return () => { cancelled = true; };
-  }, [withUserId, myId, isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [withUserId, myId, isAuthenticated, CHAT_MAJOR]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Check block status when conversation changes
+  useEffect(() => {
+    if (!currentConversation?.friend?.phone || !myId) {
+      setIsBlocked(false);
+      setBlockedByMe(false);
+      setBlockedByOther(false);
+      return;
+    }
+
+    // Use block status from conversation data if available (from API)
+    if (currentConversation.friend.blocked !== undefined) {
+      setIsBlocked(currentConversation.friend.blocked || false);
+      setBlockedByMe(currentConversation.friend.blocked_by_me || false);
+      setBlockedByOther(currentConversation.friend.blocked_by_other || false);
+      return;
+    }
+
+    // Otherwise, check block status via API
+    const checkBlockStatus = async () => {
+      try {
+        const result = await friendsAPI.checkBlock(currentConversation.friend.phone);
+        if (result && result.data) {
+          setIsBlocked(result.data.blocked || false);
+          setBlockedByMe(result.data.blocked_by_me || false);
+          setBlockedByOther(result.data.blocked_by_other || false);
+        }
+      } catch (err) {
+        console.error('Failed to check block status:', err);
+        setIsBlocked(false);
+        setBlockedByMe(false);
+        setBlockedByOther(false);
+      }
+    };
+
+    checkBlockStatus();
+  }, [currentConversation?.friend?.phone, currentConversation?.friend?.blocked, myId]);
 
   // Fetch messages function (can be called manually or by polling)
   const fetchMessages = useCallback(async (showLoading = true, beforeId = null, afterId = null) => {
@@ -461,7 +648,23 @@ const Chat = () => {
   const hasFriends = friends.length > 0;
 
   const handleSelectConversation = (conv) => {
-    setCurrentConversation({ id: conv.id, friend: conv.friend || { name: conv.name, image: conv.image, phone: null } });
+    const friendData = conv.friend || { name: conv.name, image: conv.image, phone: null };
+    setCurrentConversation({ id: conv.id, friend: friendData });
+    
+    // Update block status from conversation data
+    if (friendData.blocked !== undefined) {
+      setIsBlocked(friendData.blocked || false);
+      setBlockedByMe(friendData.blocked_by_me || false);
+      setBlockedByOther(friendData.blocked_by_other || false);
+    }
+    
+    // Clear unread count for this conversation immediately (optimistic update)
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === conv.id ? { ...c, unread_count: 0 } : c
+      )
+    );
+    
     if (!isDesktop) setMobileConversationsDrawerOpen(false);
   };
 
@@ -483,6 +686,14 @@ const Chat = () => {
         id: conv.id,
         friend: friendData,
       });
+      
+      // Update block status from conversation data
+      if (friendData.blocked !== undefined) {
+        setIsBlocked(friendData.blocked || false);
+        setBlockedByMe(friendData.blocked_by_me || false);
+        setBlockedByOther(friendData.blocked_by_other || false);
+      }
+      
       fetchConversations(false); // Don't show loading spinner when refreshing after action
     } catch (err) {
       console.error('Failed to create conversation:', err);
@@ -597,8 +808,8 @@ const Chat = () => {
       <Paper
         elevation={0}
         sx={{
-          px: 2,
-          py: 1.5,
+          px: { xs: 1.5, md: 3 },
+          py: { xs: 1.25, md: 1.75 },
           borderRadius: 0,
           borderBottom: '1px solid',
           borderColor: 'divider',
@@ -606,7 +817,10 @@ const Chat = () => {
           alignItems: 'center',
           justifyContent: 'space-between',
           position: 'relative',
-          zIndex: 1301, // Higher than main drawer backdrop (1200) and drawer (1300)
+          zIndex: 1301,
+          bgcolor: 'background.paper',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+          transition: 'all 0.2s ease',
         }}
       >
         {!isDesktop ? (
@@ -616,7 +830,12 @@ const Chat = () => {
               onClick={() => setMobileConversationsDrawerOpen(true)}
               sx={{ 
                 bgcolor: alpha(theme.palette.primary.main, 0.08), 
-                '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.12) },
+                '&:hover': { 
+                  bgcolor: alpha(theme.palette.primary.main, 0.15),
+                  transform: 'scale(1.05)',
+                },
+                transition: 'all 0.2s ease',
+                borderRadius: 1.5,
               }}
               aria-label="Open conversations"
             >
@@ -628,16 +847,30 @@ const Chat = () => {
               alt="Calamus Education"
               onClick={() => navigate('/')}
               sx={{
-                height: 32,
-                width: 32,
-                borderRadius: 1,
+                height: { xs: 32, md: 36 },
+                width: { xs: 32, md: 36 },
+                borderRadius: 1.5,
                 cursor: 'pointer',
                 objectFit: 'cover',
                 mx: 1,
+                transition: 'transform 0.2s ease',
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                },
               }}
             />
-            <Typography variant="h6" fontWeight={700} sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
-              <ChatIcon color="primary" />
+            <Typography 
+              variant="h6" 
+              fontWeight={700} 
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1.5, 
+                flex: 1,
+                fontSize: { xs: '1rem', md: '1.25rem' },
+              }}
+            >
+              <ChatIcon color="primary" sx={{ fontSize: { xs: 20, md: 24 } }} />
               Chat
             </Typography>
             {isAuthenticated && (
@@ -646,7 +879,14 @@ const Chat = () => {
                   color="inherit"
                   onClick={handleNotificationOpen}
                   aria-label="notifications"
-                  sx={{ mr: 1 }}
+                  sx={{ 
+                    mr: 1,
+                    transition: 'transform 0.2s ease',
+                    '&:hover': {
+                      transform: 'scale(1.1)',
+                      bgcolor: alpha(theme.palette.action.hover, 0.1),
+                    },
+                  }}
                 >
                   <Badge badgeContent={unreadCount} color="secondary" max={99}>
                     <NotificationsIcon />
@@ -654,12 +894,22 @@ const Chat = () => {
                 </IconButton>
                 <IconButton
                   onClick={handleProfileMenuOpen}
-                  sx={{ p: 0.5 }}
+                  sx={{ 
+                    p: 0.5,
+                    transition: 'transform 0.2s ease',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                    },
+                  }}
                 >
                   <Avatar
                     alt={authUser?.name || 'User'}
                     src={authUser?.image}
-                    sx={{ width: 32, height: 32 }}
+                    sx={{ 
+                      width: 32, 
+                      height: 32,
+                      border: `2px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                    }}
                   />
                 </IconButton>
               </>
@@ -669,8 +919,13 @@ const Chat = () => {
               onClick={() => setMobileFriendsDrawerOpen(true)}
               sx={{ 
                 bgcolor: alpha(theme.palette.primary.main, 0.08), 
-                '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.12) },
+                '&:hover': { 
+                  bgcolor: alpha(theme.palette.primary.main, 0.15),
+                  transform: 'scale(1.05)',
+                },
                 ml: 1,
+                transition: 'all 0.2s ease',
+                borderRadius: 1.5,
               }}
               aria-label="Open friends list"
             >
@@ -704,7 +959,19 @@ const Chat = () => {
                   color="primary"
                   size="small"
                   onClick={() => navigate('/my-learning')}
-                  sx={{ mr: 1 }}
+                  sx={{ 
+                    mr: 1,
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    px: 2,
+                    boxShadow: '0 2px 8px rgba(46, 125, 50, 0.25)',
+                    '&:hover': {
+                      boxShadow: '0 4px 12px rgba(46, 125, 50, 0.35)',
+                      transform: 'translateY(-1px)',
+                    },
+                    transition: 'all 0.2s ease',
+                  }}
                 >
                   My Learning
                 </Button>
@@ -865,11 +1132,17 @@ const Chat = () => {
             bgcolor: 'background.paper',
           }}
         >
-          <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-            <Typography variant="subtitle1" fontWeight={600}>
+          <Box sx={{ 
+            px: 2.5, 
+            py: 2, 
+            borderBottom: '1px solid', 
+            borderColor: 'divider',
+            bgcolor: alpha(theme.palette.primary.main, 0.02),
+          }}>
+            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 0.5 }}>
               Conversations
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
               {conversationsLoading ? 'Loading…' : hasConversations ? `${conversations.length} chat(s)` : 'Your chats will appear here'}
             </Typography>
           </Box>
@@ -879,32 +1152,95 @@ const Chat = () => {
                 <CircularProgress size={28} />
               </Box>
             ) : !hasConversations ? (
-              <Box sx={{ p: 3, textAlign: 'center' }}>
-                <MessageIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-                <Typography variant="body2" color="text.secondary">
+              <Box sx={{ 
+                p: 4, 
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}>
+                <Box
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: '50%',
+                    bgcolor: alpha(theme.palette.primary.main, 0.08),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mb: 2,
+                  }}
+                >
+                  <MessageIcon sx={{ fontSize: 40, color: 'primary.main', opacity: 0.6 }} />
+                </Box>
+                <Typography variant="body1" fontWeight={600} color="text.primary" sx={{ mb: 0.5 }}>
                   No conversations yet
                 </Typography>
-                <Typography variant="caption" color="text.disabled" sx={{ display: 'block', mt: 0.5 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 200 }}>
                   Tap a friend to start a chat
                 </Typography>
               </Box>
             ) : (
               <List disablePadding>
-                {conversations.map((c) => (
-                  <ListItem key={c.id} disablePadding>
-                    <ListItemButton
-                      selected={currentConversation?.id === c.id}
-                      onClick={() => handleSelectConversation(c)}
-                    >
-                      <ListItemAvatar>
-                        <Avatar src={c.image} alt={c.name}>
-                          {(c.name || '?').charAt(0)}
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText primary={c.name} secondary={c.preview} primaryTypographyProps={{ fontWeight: 500 }} />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
+                {conversations.map((c) => {
+                  const hasUnread = (c.unread_count || 0) > 0;
+                  return (
+                    <ListItem key={c.id} disablePadding>
+                      <ListItemButton
+                        selected={currentConversation?.id === c.id}
+                        onClick={() => handleSelectConversation(c)}
+                        sx={{
+                          bgcolor: hasUnread && currentConversation?.id !== c.id 
+                            ? alpha(theme.palette.primary.main, 0.08) 
+                            : 'transparent',
+                          '&:hover': {
+                            bgcolor: hasUnread && currentConversation?.id !== c.id
+                              ? alpha(theme.palette.primary.main, 0.12)
+                              : alpha(theme.palette.action.hover, 0.05),
+                          },
+                        }}
+                      >
+                        <ListItemAvatar sx={{ minWidth: 48 }}>
+                          <Badge 
+                            badgeContent={hasUnread ? c.unread_count : 0} 
+                            color="primary" 
+                            max={99}
+                            invisible={!hasUnread}
+                            sx={{
+                              '& .MuiBadge-badge': {
+                                fontWeight: 700,
+                                fontSize: '0.7rem',
+                                minWidth: 18,
+                                height: 18,
+                              },
+                            }}
+                          >
+                            <Avatar 
+                              src={c.image} 
+                              alt={c.name}
+                              sx={{
+                                width: 44,
+                                height: 44,
+                                border: hasUnread ? `2px solid ${theme.palette.primary.main}` : `2px solid ${alpha(theme.palette.grey[300], 0.5)}`,
+                                transition: 'all 0.2s ease',
+                              }}
+                            >
+                              {(c.name || '?').charAt(0)}
+                            </Avatar>
+                          </Badge>
+                        </ListItemAvatar>
+                        <ListItemText 
+                          primary={c.name} 
+                          secondary={c.preview} 
+                          primaryTypographyProps={{ 
+                            fontWeight: hasUnread ? 700 : 500,
+                            color: hasUnread ? 'primary.main' : 'text.primary',
+                          }} 
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  );
+                })}
               </List>
             )}
           </Box>
@@ -954,25 +1290,55 @@ const Chat = () => {
             </Box>
           ) : (
             <>
-              <Paper 
-                elevation={0} 
-                sx={{ 
-                  px: 2, 
-                  py: 1.5, 
+              <Paper
+                elevation={0}
+                sx={{
+                  px: { xs: 1.5, md: 2.5 }, 
+                  py: { xs: 1.25, md: 1.75 }, 
                   borderBottom: '1px solid', 
                   borderColor: 'divider', 
                   display: 'flex', 
                   alignItems: 'center', 
-                  gap: 1,
+                  gap: 1.5,
                   flexShrink: 0,
+                  bgcolor: 'background.paper',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                 }}
               >
-                <Avatar src={currentConversation.friend?.image} sx={{ width: 36, height: 36 }}>
+                <Avatar 
+                  src={currentConversation.friend?.image} 
+                  sx={{ 
+                    width: { xs: 36, md: 40 }, 
+                    height: { xs: 36, md: 40 },
+                    border: `2px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                  }}
+                >
                   {(currentConversation.friend?.name || '?').charAt(0)}
                 </Avatar>
-                <Typography variant="subtitle1" fontWeight={600}>
+                <Typography 
+                  variant="subtitle1" 
+                  fontWeight={700} 
+                  sx={{ 
+                    flex: 1,
+                    fontSize: { xs: '0.95rem', md: '1rem' },
+                  }}
+                >
                   {currentConversation.friend?.name || 'Chat'}
                 </Typography>
+                <IconButton
+                  onClick={handleConversationMenuOpen}
+                  size="small"
+                  aria-label="conversation options"
+                  sx={{
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      bgcolor: alpha(theme.palette.action.hover, 0.1),
+                      transform: 'rotate(90deg)',
+                    },
+                  }}
+                >
+                  <MoreVertIcon />
+                </IconButton>
               </Paper>
               <Box 
                 ref={messagesContainerRef}
@@ -983,8 +1349,9 @@ const Chat = () => {
                   overflowX: 'hidden',
                   display: 'flex', 
                   flexDirection: 'column', 
-                  p: 2,
+                  p: { xs: 1.5, md: 2.5 },
                   minHeight: 0,
+                  bgcolor: alpha(theme.palette.primary.main, 0.01),
                 }}
               >
                 {messagesLoading ? (
@@ -1001,6 +1368,13 @@ const Chat = () => {
                     {messages.map((msg) => {
                       const isMe = Number(msg.sender_id) === myId;
                       const isImage = msg.message_type === 'image' && msg.file_path;
+                      // Convert is_read to number (database may return as string "0" or "1" or number 0/1)
+                      // Default to 0 (not read) if is_read is undefined/null
+                      // is_read: 0 = sent (single checkmark), 1 = seen (double checkmark)
+                      // Handle both string and number types from database
+                      const isReadValue = msg.is_read !== undefined && msg.is_read !== null ? msg.is_read : 0;
+                      const isReadStatus = typeof isReadValue === 'string' ? parseInt(isReadValue, 10) : Number(isReadValue);
+                      const isRead = isReadStatus === 1;
                       // Construct image URL from file_path
                       // Database stores: uploads/chat/images/image.png
                       // Accessible at: http://localhost/calamus/uploads/chat/images/image.png
@@ -1017,19 +1391,39 @@ const Chat = () => {
                           data-message-id={msg.id}
                           sx={{
                             alignSelf: isMe ? 'flex-end' : 'flex-start',
-                            maxWidth: '80%',
-                            mb: 1,
+                            maxWidth: { xs: '85%', md: '70%' },
+                            mb: 1.5,
+                            animation: 'fadeIn 0.3s ease',
+                            '@keyframes fadeIn': {
+                              from: {
+                                opacity: 0,
+                                transform: 'translateY(10px)',
+                              },
+                              to: {
+                                opacity: 1,
+                                transform: 'translateY(0)',
+                              },
+                            },
                           }}
                         >
                           <Paper
                             elevation={0}
                             sx={{
-                              px: isImage ? 0 : 2,
-                              py: isImage ? 0 : 1.25,
-                              borderRadius: 2,
-                              bgcolor: isImage ? 'transparent' : (isMe ? 'primary.main' : alpha(theme.palette.grey[500], 0.12)),
+                              px: isImage ? 0 : 2.5,
+                              py: isImage ? 0 : 1.5,
+                              borderRadius: isMe ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                              bgcolor: isImage ? 'transparent' : (isMe ? 'primary.main' : 'background.paper'),
                               color: isImage ? 'inherit' : (isMe ? 'primary.contrastText' : 'text.primary'),
                               overflow: 'hidden',
+                              boxShadow: isImage ? 'none' : (isMe 
+                                ? '0 1px 3px rgba(46, 125, 50, 0.12)' 
+                                : '0 1px 3px rgba(0, 0, 0, 0.06)'),
+                              transition: 'all 0.2s ease',
+                              '&:hover': {
+                                boxShadow: isImage ? 'none' : (isMe 
+                                  ? '0 2px 6px rgba(46, 125, 50, 0.15)' 
+                                  : '0 2px 6px rgba(0, 0, 0, 0.08)'),
+                              },
                             }}
                           >
                             {isImage && imageUrl ? (
@@ -1043,8 +1437,11 @@ const Chat = () => {
                                     maxHeight: '400px',
                                     display: 'block',
                                     cursor: 'pointer',
+                                    borderRadius: 2,
+                                    transition: 'all 0.2s ease',
                                     '&:hover': {
                                       opacity: 0.9,
+                                      transform: 'scale(1.01)',
                                     },
                                   }}
                                   onClick={() => window.open(imageUrl, '_blank')}
@@ -1054,18 +1451,59 @@ const Chat = () => {
                                     {msg.message_text}
                                   </Typography>
                                 )}
-                                <Typography variant="caption" sx={{ opacity: 0.85, display: 'block', px: 2, pb: 1 }}>
-                                  {formatMessageTime(msg.created_at)}
-                                </Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.5, px: 2, pb: 1 }}>
+                                  <Typography variant="caption" sx={{ opacity: 0.85 }}>
+                                    {formatMessageTime(msg.created_at)}
+                                  </Typography>
+                                  {isMe && (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', ml: 0.5 }}>
+                                      {isRead ? (
+                                        <DoneAllIcon sx={{ fontSize: 16, opacity: 0.9, color: 'primary.contrastText' }} />
+                                      ) : (
+                                        <DoneIcon sx={{ fontSize: 16, opacity: 0.7, color: 'primary.contrastText' }} />
+                                      )}
+                                    </Box>
+                                  )}
+                                </Box>
                               </>
                             ) : (
                               <>
-                                <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                                <Typography 
+                                  variant="body2" 
+                                  sx={{ 
+                                    wordBreak: 'break-word',
+                                    lineHeight: 1.5,
+                                    fontSize: '0.95rem',
+                                  }}
+                                >
                                   {msg.message_text}
                                 </Typography>
-                                <Typography variant="caption" sx={{ opacity: 0.85, display: 'block', mt: 0.25 }}>
-                                  {formatMessageTime(msg.created_at)}
-                                </Typography>
+                                <Box sx={{ 
+                                  display: 'flex', 
+                                  alignItems: 'center', 
+                                  justifyContent: 'flex-end', 
+                                  gap: 0.5, 
+                                  mt: 1,
+                                }}>
+                                  <Typography 
+                                    variant="caption" 
+                                    sx={{ 
+                                      opacity: 0.75,
+                                      fontSize: '0.7rem',
+                                    }}
+                                  >
+                                    {formatMessageTime(msg.created_at)}
+                                  </Typography>
+                                  {isMe && (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', ml: 0.5 }}>
+                                      {isRead ? (
+                                        <DoneAllIcon sx={{ fontSize: 16, opacity: 0.95, color: 'primary.contrastText' }} />
+                                      ) : (
+                                        <DoneIcon sx={{ fontSize: 16, opacity: 0.8, color: 'primary.contrastText' }} />
+                                      )}
+                                    </Box>
+                                  )}
+                                </Box>
                               </>
                             )}
                           </Paper>
@@ -1076,60 +1514,138 @@ const Chat = () => {
                   </>
                 )}
               </Box>
-              <Paper 
-                elevation={0} 
-                sx={{ 
-                  p: 1.5, 
-                  borderTop: '1px solid', 
-                  borderColor: 'divider',
-                  flexShrink: 0,
-                }}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  onChange={handleImageSelect}
-                />
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
-                  <IconButton
-                    color="primary"
-                    onClick={handleImageButtonClick}
-                    disabled={sendLoading || uploadingImage}
-                    sx={{ flexShrink: 0 }}
-                    aria-label="Upload image"
-                  >
-                    {uploadingImage ? <CircularProgress size={24} /> : <ImageIcon />}
-                  </IconButton>
-                  <TextField
-                    size="small"
-                    placeholder="Type a message..."
-                    fullWidth
-                    multiline
-                    maxRows={4}
-                    value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendMessage();
-                      }
-                    }}
-                    sx={{
-                      '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: 'action.hover' },
-                    }}
+              {!isBlocked && (
+                <Paper 
+                  elevation={0} 
+                  sx={{ 
+                    p: { xs: 1.5, md: 2 }, 
+                    borderTop: '1px solid', 
+                    borderColor: 'divider',
+                    flexShrink: 0,
+                    bgcolor: 'background.paper',
+                    boxShadow: '0 -2px 8px rgba(0,0,0,0.04)',
+                  }}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={handleImageSelect}
                   />
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleSendMessage()}
-                    disabled={(!messageText.trim() && !uploadingImage) || sendLoading || uploadingImage}
-                    sx={{ flexShrink: 0 }}
-                  >
-                    {sendLoading ? <CircularProgress size={24} /> : <SendIcon />}
-                  </IconButton>
-                </Box>
-              </Paper>
+                  <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-end' }}>
+                    <IconButton
+                      color="primary"
+                      onClick={handleImageButtonClick}
+                      disabled={sendLoading || uploadingImage}
+                      sx={{ 
+                        flexShrink: 0,
+                        bgcolor: alpha(theme.palette.primary.main, 0.08),
+                        '&:hover': {
+                          bgcolor: alpha(theme.palette.primary.main, 0.15),
+                          transform: 'scale(1.1)',
+                        },
+                        transition: 'all 0.2s ease',
+                        borderRadius: 2,
+                      }}
+                      aria-label="Upload image"
+                    >
+                      {uploadingImage ? <CircularProgress size={24} /> : <ImageIcon />}
+                    </IconButton>
+                    <TextField
+                      size="small"
+                      placeholder="Type a message..."
+                      fullWidth
+                      multiline
+                      maxRows={4}
+                      value={messageText}
+                      onChange={(e) => setMessageText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSendMessage();
+                        }
+                      }}
+                      sx={{
+                        '& .MuiOutlinedInput-root': { 
+                          borderRadius: 3, 
+                          bgcolor: alpha(theme.palette.grey[100], 0.6),
+                          transition: 'all 0.2s ease',
+                          '&:hover': {
+                            bgcolor: alpha(theme.palette.grey[100], 0.8),
+                          },
+                          '&.Mui-focused': {
+                            bgcolor: 'background.paper',
+                            boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.2)}`,
+                          },
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: alpha(theme.palette.grey[300], 0.3),
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: alpha(theme.palette.grey[400], 0.5),
+                        },
+                        '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: theme.palette.primary.main,
+                        },
+                      }}
+                    />
+                    <IconButton
+                      color="primary"
+                      onClick={() => handleSendMessage()}
+                      disabled={(!messageText.trim() && !uploadingImage) || sendLoading || uploadingImage}
+                      sx={{ 
+                        flexShrink: 0,
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        '&:hover': {
+                          bgcolor: 'primary.main',
+                          color: 'primary.contrastText',
+                          transform: 'scale(1.1)',
+                        },
+                        '&:disabled': {
+                          bgcolor: alpha(theme.palette.action.disabled, 0.1),
+                        },
+                        transition: 'all 0.2s ease',
+                        borderRadius: 2,
+                      }}
+                    >
+                      {sendLoading ? <CircularProgress size={24} /> : <SendIcon />}
+                    </IconButton>
+                  </Box>
+                </Paper>
+              )}
+              {isBlocked && (
+                <Paper 
+                  elevation={0} 
+                  sx={{ 
+                    p: 2, 
+                    borderTop: '1px solid', 
+                    borderColor: 'divider',
+                    flexShrink: 0,
+                    bgcolor: 'error.light',
+                    color: 'error.contrastText',
+                  }}
+                >
+                  <Typography variant="body2" align="center" sx={{ mb: blockedByMe ? 1.5 : 0 }}>
+                    {blockedByMe 
+                      ? 'You have blocked this user. Messages cannot be sent.'
+                      : 'This user has blocked you. Messages cannot be sent.'}
+                  </Typography>
+                  {blockedByMe && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1.5 }}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        onClick={handleUnblockUser}
+                        sx={{ textTransform: 'none' }}
+                      >
+                        Unblock User
+                      </Button>
+                    </Box>
+                  )}
+                </Paper>
+              )}
             </>
           )}
         </Box>
@@ -1151,11 +1667,17 @@ const Chat = () => {
               bgcolor: 'background.paper',
             }}
           >
-            <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-              <Typography variant="subtitle1" fontWeight={600}>
+            <Box sx={{ 
+              px: 2.5, 
+              py: 2, 
+              borderBottom: '1px solid', 
+              borderColor: 'divider',
+              bgcolor: alpha(theme.palette.primary.main, 0.02),
+            }}>
+              <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 0.5 }}>
                 Friends
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
                 {friendsLoading ? 'Loading…' : hasFriends ? `${friends.length} friend(s)` : 'Start a chat with a friend'}
               </Typography>
             </Box>
@@ -1165,12 +1687,31 @@ const Chat = () => {
                   <CircularProgress size={32} />
                 </Box>
               ) : !hasFriends ? (
-                <Box sx={{ p: 3, textAlign: 'center' }}>
-                  <PersonIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-                  <Typography variant="body2" color="text.secondary">
+                <Box sx={{ 
+                  p: 4, 
+                  textAlign: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                }}>
+                  <Box
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      borderRadius: '50%',
+                      bgcolor: alpha(theme.palette.primary.main, 0.08),
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mb: 2,
+                    }}
+                  >
+                    <PersonIcon sx={{ fontSize: 40, color: 'primary.main', opacity: 0.6 }} />
+                  </Box>
+                  <Typography variant="body1" fontWeight={600} color="text.primary" sx={{ mb: 0.5 }}>
                     No friends yet
                   </Typography>
-                  <Typography variant="caption" color="text.disabled" sx={{ display: 'block', mt: 0.5 }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 200 }}>
                     Add friends from their profile to chat
                   </Typography>
                 </Box>
@@ -1179,13 +1720,39 @@ const Chat = () => {
                   <List disablePadding>
                     {friends.map((f) => (
                       <ListItem key={f.userId || f.phone} disablePadding>
-                        <ListItemButton onClick={() => handleSelectFriend(f.userId || f.phone)}>
-                          <ListItemAvatar>
-                            <Avatar src={f.userImage} alt={f.userName}>
+                        <ListItemButton 
+                          onClick={() => handleSelectFriend(f.userId || f.phone)}
+                          sx={{
+                            px: 2,
+                            py: 1.5,
+                            borderRadius: 0,
+                            transition: 'all 0.2s ease',
+                            '&:hover': {
+                              bgcolor: alpha(theme.palette.primary.main, 0.08),
+                              transform: 'translateX(2px)',
+                            },
+                          }}
+                        >
+                          <ListItemAvatar sx={{ minWidth: 48 }}>
+                            <Avatar 
+                              src={f.userImage} 
+                              alt={f.userName}
+                              sx={{
+                                width: 44,
+                                height: 44,
+                                border: `2px solid ${alpha(theme.palette.grey[300], 0.5)}`,
+                              }}
+                            >
                               {(f.userName || '?').charAt(0)}
                             </Avatar>
                           </ListItemAvatar>
-                          <ListItemText primary={f.userName} primaryTypographyProps={{ fontWeight: 500 }} />
+                          <ListItemText 
+                            primary={f.userName} 
+                            primaryTypographyProps={{ 
+                              fontWeight: 500,
+                              fontSize: '0.95rem',
+                            }} 
+                          />
                         </ListItemButton>
                       </ListItem>
                     ))}
@@ -1224,9 +1791,28 @@ const Chat = () => {
             disableAutoFocus: true,
           }}
         >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-            <Typography fontWeight={700}>Conversations</Typography>
-            <IconButton onClick={() => setMobileConversationsDrawerOpen(false)} size="small" aria-label="Close">
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            p: 2, 
+            borderBottom: '1px solid', 
+            borderColor: 'divider',
+            bgcolor: alpha(theme.palette.primary.main, 0.02),
+          }}>
+            <Typography fontWeight={700} variant="subtitle1">Conversations</Typography>
+            <IconButton 
+              onClick={() => setMobileConversationsDrawerOpen(false)} 
+              size="small" 
+              aria-label="Close"
+              sx={{
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  bgcolor: alpha(theme.palette.action.hover, 0.1),
+                  transform: 'rotate(90deg)',
+                },
+              }}
+            >
               <CloseIcon />
             </IconButton>
           </Box>
@@ -1236,27 +1822,76 @@ const Chat = () => {
                 <CircularProgress size={28} />
               </Box>
             ) : !hasConversations ? (
-              <Box sx={{ p: 3, textAlign: 'center' }}>
-                <MessageIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-                <Typography variant="body2" color="text.secondary">
-                  No conversations yet. Open Friends to start a chat.
+              <Box sx={{ 
+                p: 4, 
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}>
+                <Box
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: '50%',
+                    bgcolor: alpha(theme.palette.primary.main, 0.08),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mb: 2,
+                  }}
+                >
+                  <MessageIcon sx={{ fontSize: 40, color: 'primary.main', opacity: 0.6 }} />
+                </Box>
+                <Typography variant="body1" fontWeight={600} color="text.primary" sx={{ mb: 0.5 }}>
+                  No conversations yet
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 200 }}>
+                  Open Friends to start a chat
                 </Typography>
               </Box>
             ) : (
               <List disablePadding>
-                {conversations.map((c) => (
-                  <ListItem key={c.id} disablePadding>
-                    <ListItemButton
-                      selected={currentConversation?.id === c.id}
-                      onClick={() => handleSelectConversation(c)}
-                    >
-                      <ListItemAvatar>
-                        <Avatar src={c.image} alt={c.name}>{(c.name || '?').charAt(0)}</Avatar>
-                      </ListItemAvatar>
-                      <ListItemText primary={c.name} secondary={c.preview} primaryTypographyProps={{ fontWeight: 500 }} />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
+                {conversations.map((c) => {
+                  const hasUnread = (c.unread_count || 0) > 0;
+                  return (
+                    <ListItem key={c.id} disablePadding>
+                      <ListItemButton
+                        selected={currentConversation?.id === c.id}
+                        onClick={() => handleSelectConversation(c)}
+                        sx={{
+                          bgcolor: hasUnread && currentConversation?.id !== c.id 
+                            ? alpha(theme.palette.primary.main, 0.08) 
+                            : 'transparent',
+                          '&:hover': {
+                            bgcolor: hasUnread && currentConversation?.id !== c.id
+                              ? alpha(theme.palette.primary.main, 0.12)
+                              : alpha(theme.palette.action.hover, 0.05),
+                          },
+                        }}
+                      >
+                        <ListItemAvatar>
+                          <Badge 
+                            badgeContent={hasUnread ? c.unread_count : 0} 
+                            color="primary" 
+                            max={99}
+                            invisible={!hasUnread}
+                          >
+                            <Avatar src={c.image} alt={c.name}>{(c.name || '?').charAt(0)}</Avatar>
+                          </Badge>
+                        </ListItemAvatar>
+                        <ListItemText 
+                          primary={c.name} 
+                          secondary={c.preview} 
+                          primaryTypographyProps={{ 
+                            fontWeight: hasUnread ? 700 : 500,
+                            color: hasUnread ? 'primary.main' : 'text.primary',
+                          }} 
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  );
+                })}
               </List>
             )}
           </Box>
@@ -1287,13 +1922,25 @@ const Chat = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              p: 1.5,
+              p: 2,
               borderBottom: '1px solid',
               borderColor: 'divider',
+              bgcolor: alpha(theme.palette.primary.main, 0.02),
             }}
           >
-            <Typography fontWeight={700}>Friends</Typography>
-            <IconButton onClick={() => setMobileFriendsDrawerOpen(false)} size="small" aria-label="Close">
+            <Typography fontWeight={700} variant="subtitle1">Friends</Typography>
+            <IconButton 
+              onClick={() => setMobileFriendsDrawerOpen(false)} 
+              size="small" 
+              aria-label="Close"
+              sx={{
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  bgcolor: alpha(theme.palette.action.hover, 0.1),
+                  transform: 'rotate(90deg)',
+                },
+              }}
+            >
               <CloseIcon />
             </IconButton>
           </Box>
@@ -1342,6 +1989,45 @@ const Chat = () => {
           </Box>
         </Drawer>
       )}
+
+      {/* Conversation Menu */}
+      <Menu
+        anchorEl={conversationMenuAnchorEl}
+        open={Boolean(conversationMenuAnchorEl)}
+        onClose={handleConversationMenuClose}
+        onClick={handleConversationMenuClose}
+        PaperProps={{
+          elevation: 0,
+          sx: {
+            mt: 1.5,
+            minWidth: 200,
+            borderRadius: 2,
+            boxShadow: '0 4px 24px rgba(0,0,0,0.1)',
+          },
+        }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        <MenuItem onClick={handleViewProfile}>
+          <ListItemIcon>
+            <VisibilityIcon fontSize="small" />
+          </ListItemIcon>
+          View Profile
+        </MenuItem>
+        <MenuItem onClick={handleDeleteConversation}>
+          <ListItemIcon>
+            <DeleteIcon fontSize="small" />
+          </ListItemIcon>
+          Delete Conversation
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={handleBlockUser} sx={{ color: 'error.main' }}>
+          <ListItemIcon>
+            <BlockIcon fontSize="small" sx={{ color: 'error.main' }} />
+          </ListItemIcon>
+          Block
+        </MenuItem>
+      </Menu>
     </Box>
   );
 };

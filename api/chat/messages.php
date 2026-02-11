@@ -72,16 +72,13 @@ if ($method === 'GET') {
     // Get single message by ID or list messages for a conversation
     $messageId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
     $conversationId = isset($_GET['conversation_id']) ? (int) $_GET['conversation_id'] : 0;
-    $major = isset($_GET['major']) ? sanitize($_GET['major']) : '';
+    // Make major optional - default to 'english' for backward compatibility with mobile apps
+    $major = isset($_GET['major']) && !empty($_GET['major']) ? sanitize($_GET['major']) : 'english';
     $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 50;
     $oldestMessageId = isset($_GET['oldest_message_id']) ? (int) $_GET['oldest_message_id'] : 0;
     
     if ($messageId > 0) {
         // Get single message by ID
-        if (empty($major)) {
-            sendResponse(false, null, 'major is required');
-        }
-        
         $conn = $db->connect();
         $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
         
@@ -101,10 +98,6 @@ if ($method === 'GET') {
         
     } elseif ($conversationId > 0) {
         // Get messages for a conversation
-        if (empty($major)) {
-            sendResponse(false, null, 'major is required');
-        }
-        
         // Validate limit
         if ($limit > 100) $limit = 100;
         if ($limit < 1) $limit = 50;
@@ -172,7 +165,8 @@ if ($method === 'GET') {
     // Send a message
     $conversationId = isset($_POST['conversation_id']) ? (int) $_POST['conversation_id'] : 0;
     $senderId = isset($_POST['sender_id']) ? (int) $_POST['sender_id'] : 0;
-    $major = isset($_POST['major']) ? sanitize($_POST['major']) : '';
+    // Make major optional - default to 'english' for backward compatibility with mobile apps
+    $major = isset($_POST['major']) && !empty($_POST['major']) ? sanitize($_POST['major']) : 'english';
     $messageType = isset($_POST['message_type']) ? sanitize($_POST['message_type']) : 'text';
     $messageText = isset($_POST['message_text']) ? sanitize($_POST['message_text']) : null;
     $filePath = isset($_POST['file_path']) ? sanitize($_POST['file_path']) : null;
@@ -185,10 +179,6 @@ if ($method === 'GET') {
     
     if ($conversationId <= 0 || $senderId <= 0) {
         sendResponse(false, null, 'conversation_id and sender_id are required');
-    }
-    
-    if (empty($major)) {
-        sendResponse(false, null, 'major is required');
     }
     
     // Validate message content based on type
@@ -225,7 +215,7 @@ if ($method === 'GET') {
     $fileSizeEscaped = $fileSize ? $fileSize : "NULL";
     $messageTypeEscaped = "'" . mysqli_real_escape_string($conn, $messageType) . "'";
     
-    // Insert message (with major from conversation)
+    // Insert message
     $insertQuery = "INSERT INTO messages (conversation_id, sender_id, major, message_type, message_text, file_path, file_size) 
                     VALUES ($conversationId, $senderId, $majorEscaped, $messageTypeEscaped, $messageTextEscaped, $filePathEscaped, $fileSizeEscaped)";
     
@@ -254,14 +244,11 @@ if ($method === 'GET') {
     // Update message
     $input = parseInput();
     $messageId = isset($input['id']) ? (int) $input['id'] : 0;
-    $major = isset($input['major']) ? sanitize($input['major']) : '';
+    // Make major optional - default to 'english' for backward compatibility with mobile apps
+    $major = isset($input['major']) && !empty($input['major']) ? sanitize($input['major']) : 'english';
     
     if ($messageId <= 0) {
         sendResponse(false, null, 'id is required');
-    }
-    
-    if (empty($major)) {
-        sendResponse(false, null, 'major is required');
     }
     
     $conn = $db->connect();
@@ -331,14 +318,11 @@ if ($method === 'GET') {
     // Delete message
     $input = parseInput();
     $messageId = isset($input['id']) ? (int) $input['id'] : (isset($_GET['id']) ? (int) $_GET['id'] : 0);
-    $major = isset($input['major']) ? sanitize($input['major']) : (isset($_GET['major']) ? sanitize($_GET['major']) : '');
+    // Make major optional - default to 'english' for backward compatibility with mobile apps
+    $major = isset($input['major']) && !empty($input['major']) ? sanitize($input['major']) : (isset($_GET['major']) && !empty($_GET['major']) ? sanitize($_GET['major']) : 'english');
     
     if ($messageId <= 0) {
         sendResponse(false, null, 'id is required');
-    }
-    
-    if (empty($major)) {
-        sendResponse(false, null, 'major is required');
     }
     
     $conn = $db->connect();

@@ -115,7 +115,8 @@ if ($method === 'GET') {
     // Get single conversation by ID or list conversations for a user
     $conversationId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
     $userId = isset($_GET['user_id']) ? (int) $_GET['user_id'] : 0;
-    $major = isset($_GET['major']) ? sanitize($_GET['major']) : '';
+    // Make major optional - default to 'english' for backward compatibility with mobile apps
+    $major = isset($_GET['major']) && !empty($_GET['major']) ? sanitize($_GET['major']) : 'english';
     
     if ($conversationId > 0) {
         // Get single conversation by ID with friend profile
@@ -123,12 +124,9 @@ if ($method === 'GET') {
             sendResponse(false, null, 'user_id is required when fetching conversation by id');
         }
         
-        if (empty($major)) {
-            sendResponse(false, null, 'major is required');
-        }
-        
         $conn = $db->connect();
         $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
+        
         // Get single conversation by ID with friend profile
         $query = "SELECT c.*,
                   CASE 
@@ -162,11 +160,24 @@ if ($method === 'GET') {
             // Get friend's fcm_token
             $friendFcmToken = getFcmTokenFromPhone($db, $conv['friend_phone'], $major);
             
+            // Check block status (bidirectional)
+            $otherUserId = $conv['other_user_id'];
+            $blockedByMeQuery = "SELECT id FROM blocks WHERE user_id = $userId AND blocked_user_id = $otherUserId LIMIT 1";
+            $blockedByMe = $db->read($blockedByMeQuery);
+            $blockedByMeResult = $blockedByMe && !empty($blockedByMe);
+            
+            $blockedByOtherQuery = "SELECT id FROM blocks WHERE user_id = $otherUserId AND blocked_user_id = $userId LIMIT 1";
+            $blockedByOther = $db->read($blockedByOtherQuery);
+            $blockedByOtherResult = $blockedByOther && !empty($blockedByOther);
+            
             $friendProfile = [
                 'phone' => $conv['friend_phone'],
                 'name' => $conv['friend_name'],
                 'image' => $conv['friend_image'],
-                'fcm_token' => $friendFcmToken
+                'fcm_token' => $friendFcmToken,
+                'blocked' => $blockedByMeResult || $blockedByOtherResult,
+                'blocked_by_me' => $blockedByMeResult,
+                'blocked_by_other' => $blockedByOtherResult,
             ];
             // Remove individual friend fields from main object
             unset($conv['friend_phone'], $conv['friend_name'], $conv['friend_image']);
@@ -180,10 +191,6 @@ if ($method === 'GET') {
         
     } elseif ($userId > 0) {
         // Get all conversations where user is either user1 or user2 with friend profiles
-        if (empty($major)) {
-            sendResponse(false, null, 'major is required');
-        }
-        
         $conn = $db->connect();
         $majorEscaped = "'" . mysqli_real_escape_string($conn, $major) . "'";
         
@@ -228,6 +235,7 @@ if ($method === 'GET') {
         $unreadCounts = [];
         if (!empty($conversationIds)) {
             $idList = implode(',', $conversationIds);
+            
             $unreadQuery = "SELECT conversation_id, COUNT(*) as unread_count
                            FROM messages
                            WHERE conversation_id IN ($idList) 
@@ -247,6 +255,7 @@ if ($method === 'GET') {
         $lastMessages = [];
         if (!empty($conversationIds)) {
             $idList = implode(',', $conversationIds);
+            
             // Use window function if MySQL 8.0+, otherwise use optimized subquery
             $lastMessageQuery = "SELECT m1.conversation_id, m1.message_text, m1.message_type
                                 FROM messages m1
@@ -303,6 +312,28 @@ if ($method === 'GET') {
             }
         }
         
+        // Step 6.5: Batch fetch all block statuses in one query
+        $blockStatuses = [];
+        if (!empty($friendPhones)) {
+            $phoneList = implode(',', array_map('intval', array_unique($friendPhones)));
+            // Check if current user blocked any of these friends
+            $blockedByMeQuery = "SELECT blocked_user_id FROM blocks WHERE user_id = $userId AND blocked_user_id IN ($phoneList)";
+            $blockedByMeResults = $db->read($blockedByMeQuery);
+            if ($blockedByMeResults) {
+                foreach ($blockedByMeResults as $row) {
+                    $blockStatuses[(int) $row['blocked_user_id']]['blocked_by_me'] = true;
+                }
+            }
+            // Check if any of these friends blocked current user
+            $blockedByOtherQuery = "SELECT user_id FROM blocks WHERE user_id IN ($phoneList) AND blocked_user_id = $userId";
+            $blockedByOtherResults = $db->read($blockedByOtherQuery);
+            if ($blockedByOtherResults) {
+                foreach ($blockedByOtherResults as $row) {
+                    $blockStatuses[(int) $row['user_id']]['blocked_by_other'] = true;
+                }
+            }
+        }
+
         // Step 7: Combine all data in memory (using RAM as requested)
         foreach ($conversations as &$conv) {
             $convId = (int) $conv['id'];
@@ -324,11 +355,20 @@ if ($method === 'GET') {
             $friendProfile = null;
             if ($otherUserId > 0 && isset($learnerProfiles[$otherUserId])) {
                 $friendData = $learnerProfiles[$otherUserId];
+                
+                // Get block status for this friend
+                $blockedByMe = isset($blockStatuses[$otherUserId]['blocked_by_me']) && $blockStatuses[$otherUserId]['blocked_by_me'];
+                $blockedByOther = isset($blockStatuses[$otherUserId]['blocked_by_other']) && $blockStatuses[$otherUserId]['blocked_by_other'];
+                $isBlocked = $blockedByMe || $blockedByOther;
+                
                 $friendProfile = [
                     'phone' => $friendData['phone'],
                     'name' => $friendData['name'],
                     'image' => $friendData['image'],
-                    'fcm_token' => isset($fcmTokens[$otherUserId]) ? $fcmTokens[$otherUserId] : null
+                    'fcm_token' => isset($fcmTokens[$otherUserId]) ? $fcmTokens[$otherUserId] : null,
+                    'blocked' => $isBlocked,
+                    'blocked_by_me' => $blockedByMe,
+                    'blocked_by_other' => $blockedByOther,
                 ];
             }
             $conv['friend'] = $friendProfile;
@@ -348,14 +388,11 @@ if ($method === 'GET') {
     // Create or get existing conversation between two users
     $user1Id = isset($_POST['user1_id']) ? (int) $_POST['user1_id'] : 0;
     $user2Id = isset($_POST['user2_id']) ? (int) $_POST['user2_id'] : 0;
-    $major = isset($_POST['major']) ? sanitize($_POST['major']) : '';
+    // Make major optional - default to 'english' for backward compatibility with mobile apps
+    $major = isset($_POST['major']) && !empty($_POST['major']) ? sanitize($_POST['major']) : 'english';
     
     if ($user1Id <= 0 || $user2Id <= 0) {
         sendResponse(false, null, 'user1_id and user2_id are required');
-    }
-    
-    if (empty($major)) {
-        sendResponse(false, null, 'major is required');
     }
     
     if ($user1Id === $user2Id) {
@@ -398,11 +435,23 @@ if ($method === 'GET') {
                 $learner = $learnerResult[0];
                 $friendFcmToken = getFcmTokenFromPhone($db, $friendId, $major);
                 
+                // Check block status (bidirectional)
+                $blockedByMeQuery = "SELECT id FROM blocks WHERE user_id = $originalCallerId AND blocked_user_id = $friendId LIMIT 1";
+                $blockedByMe = $db->read($blockedByMeQuery);
+                $blockedByMeResult = $blockedByMe && !empty($blockedByMe);
+                
+                $blockedByOtherQuery = "SELECT id FROM blocks WHERE user_id = $friendId AND blocked_user_id = $originalCallerId LIMIT 1";
+                $blockedByOther = $db->read($blockedByOtherQuery);
+                $blockedByOtherResult = $blockedByOther && !empty($blockedByOther);
+                
                 $friendProfile = [
                     'phone' => $learner['learner_phone'],
                     'name' => $learner['learner_name'],
                     'image' => $learner['learner_image'],
-                    'fcm_token' => $friendFcmToken
+                    'fcm_token' => $friendFcmToken,
+                    'blocked' => $blockedByMeResult || $blockedByOtherResult,
+                    'blocked_by_me' => $blockedByMeResult,
+                    'blocked_by_other' => $blockedByOtherResult,
                 ];
             }
         }
@@ -417,7 +466,55 @@ if ($method === 'GET') {
     $result = $db->save($insertQuery);
     
     if (!$result) {
-        sendResponse(false, null, 'Failed to create conversation ' .$insertQuery );
+        // Get MySQL error for better debugging
+        $conn = $db->connect();
+        $mysqlError = mysqli_error($conn);
+        
+        // Check if error is due to duplicate entry (unique constraint)
+        if (strpos($mysqlError, "Duplicate entry") !== false) {
+            // Try to find existing conversation
+            $existingOld = $db->read($checkQuery);
+            if ($existingOld && !empty($existingOld)) {
+                // Return existing conversation
+                $conv = convertTimestamps($existingOld[0]);
+                
+                // Fetch friend data
+                $friendProfile = null;
+                if ($friendId > 0) {
+                    $learnerQuery = "SELECT learner_phone, learner_name, learner_image FROM learners WHERE learner_phone = $friendId LIMIT 1";
+                    $learnerResult = $db->read($learnerQuery);
+                    if ($learnerResult && !empty($learnerResult)) {
+                        $learner = $learnerResult[0];
+                        $friendFcmToken = getFcmTokenFromPhone($db, $friendId, $major);
+                        $blockedByMeQuery = "SELECT id FROM blocks WHERE user_id = $originalCallerId AND blocked_user_id = $friendId LIMIT 1";
+                        $blockedByMe = $db->read($blockedByMeQuery);
+                        $blockedByMeResult = $blockedByMe && !empty($blockedByMe);
+                        $blockedByOtherQuery = "SELECT id FROM blocks WHERE user_id = $friendId AND blocked_user_id = $originalCallerId LIMIT 1";
+                        $blockedByOther = $db->read($blockedByOtherQuery);
+                        $blockedByOtherResult = $blockedByOther && !empty($blockedByOther);
+                        $friendProfile = [
+                            'phone' => $learner['learner_phone'],
+                            'name' => $learner['learner_name'],
+                            'image' => $learner['learner_image'],
+                            'fcm_token' => $friendFcmToken,
+                            'blocked' => $blockedByMeResult || $blockedByOtherResult,
+                            'blocked_by_me' => $blockedByMeResult,
+                            'blocked_by_other' => $blockedByOtherResult,
+                        ];
+                    }
+                }
+                $conv['friend'] = $friendProfile;
+                sendResponse(true, $conv);
+                exit;
+            }
+            $errorMsg = 'A conversation already exists between these users. ' . ($mysqlError ? $mysqlError : '');
+        } else {
+            $errorMsg = 'Failed to create conversation';
+            if ($mysqlError) {
+                $errorMsg .= ': ' . $mysqlError;
+            }
+        }
+        sendResponse(false, null, $errorMsg);
     }
     
     // Get the created conversation
@@ -437,11 +534,23 @@ if ($method === 'GET') {
                 $learner = $learnerResult[0];
                 $friendFcmToken = getFcmTokenFromPhone($db, $friendId, $major);
                 
+                // Check block status (bidirectional)
+                $blockedByMeQuery = "SELECT id FROM blocks WHERE user_id = $originalCallerId AND blocked_user_id = $friendId LIMIT 1";
+                $blockedByMe = $db->read($blockedByMeQuery);
+                $blockedByMeResult = $blockedByMe && !empty($blockedByMe);
+                
+                $blockedByOtherQuery = "SELECT id FROM blocks WHERE user_id = $friendId AND blocked_user_id = $originalCallerId LIMIT 1";
+                $blockedByOther = $db->read($blockedByOtherQuery);
+                $blockedByOtherResult = $blockedByOther && !empty($blockedByOther);
+                
                 $friendProfile = [
                     'phone' => $learner['learner_phone'],
                     'name' => $learner['learner_name'],
                     'image' => $learner['learner_image'],
-                    'fcm_token' => $friendFcmToken
+                    'fcm_token' => $friendFcmToken,
+                    'blocked' => $blockedByMeResult || $blockedByOtherResult,
+                    'blocked_by_me' => $blockedByMeResult,
+                    'blocked_by_other' => $blockedByOtherResult,
                 ];
             }
         }
@@ -456,14 +565,11 @@ if ($method === 'GET') {
     // Update conversation
     $input = parseInput();
     $conversationId = isset($input['id']) ? (int) $input['id'] : 0;
-    $major = isset($input['major']) ? sanitize($input['major']) : '';
+    // Make major optional - default to 'english' for backward compatibility with mobile apps
+    $major = isset($input['major']) && !empty($input['major']) ? sanitize($input['major']) : 'english';
     
     if ($conversationId <= 0) {
         sendResponse(false, null, 'id is required');
-    }
-    
-    if (empty($major)) {
-        sendResponse(false, null, 'major is required');
     }
     
     $conn = $db->connect();
@@ -491,7 +597,7 @@ if ($method === 'GET') {
         sendResponse(false, null, 'No valid fields to update');
     }
     
-    $updateQuery = "UPDATE conversations SET " . implode(', ', $updates) . " WHERE id = $conversationId";
+    $updateQuery = "UPDATE conversations SET " . implode(', ', $updates) . " WHERE id = $conversationId AND major = $majorEscaped";
     $result = $db->save($updateQuery);
     
     if (!$result) {
@@ -511,14 +617,11 @@ if ($method === 'GET') {
     // Delete conversation
     $input = parseInput();
     $conversationId = isset($input['id']) ? (int) $input['id'] : (isset($_GET['id']) ? (int) $_GET['id'] : 0);
-    $major = isset($input['major']) ? sanitize($input['major']) : (isset($_GET['major']) ? sanitize($_GET['major']) : '');
+    // Make major optional - default to 'english' for backward compatibility with mobile apps
+    $major = isset($input['major']) && !empty($input['major']) ? sanitize($input['major']) : (isset($_GET['major']) && !empty($_GET['major']) ? sanitize($_GET['major']) : 'english');
     
     if ($conversationId <= 0) {
         sendResponse(false, null, 'id is required');
-    }
-    
-    if (empty($major)) {
-        sendResponse(false, null, 'major is required');
     }
     
     $conn = $db->connect();

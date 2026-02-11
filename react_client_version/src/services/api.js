@@ -111,6 +111,24 @@ const postFormAPI = async (endpoint, body = {}) => {
 };
 
 /**
+ * DELETE fetch wrapper
+ */
+const deleteAPI = async (endpoint) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    if (!data.success) throw new Error(data.error || 'API request failed');
+    return data;
+  } catch (error) {
+    console.error(`API Error (${endpoint}):`, error);
+    throw error;
+  }
+};
+
+/**
  * Authenticated GET fetch wrapper (includes Bearer token)
  */
 const authFetchAPI = async (endpoint) => {
@@ -613,6 +631,30 @@ export const friendsAPI = {
    */
   getStatus: (otherId, major = 'english') =>
     authFetchAPI(`/friends/get-status.php?otherId=${encodeURIComponent(otherId)}&major=${major}`),
+
+  /**
+   * Block a user (authenticated)
+   * @param {string} otherId - learner_phone of user to block
+   * @returns {Promise<{ success, action: 'blocked'|'already_blocked' }>}
+   */
+  block: (otherId) =>
+    postAPI('/friends/block.php', { otherId }),
+
+  /**
+   * Check if a user is blocked (either direction)
+   * @param {string} otherId - learner_phone
+   * @returns {Promise<{ success, blocked: boolean, blocked_by_me: boolean, blocked_by_other: boolean }>}
+   */
+  checkBlock: (otherId) =>
+    authFetchAPI(`/friends/check-block.php?otherId=${encodeURIComponent(otherId)}`),
+
+  /**
+   * Unblock a user (authenticated)
+   * @param {string} otherId - learner_phone of user to unblock
+   * @returns {Promise<{ success, action: 'unblocked'|'not_blocked' }>}
+   */
+  unblock: (otherId) =>
+    postAPI('/friends/unblock.php', { otherId }),
 };
 
 /**
@@ -647,6 +689,9 @@ export const chatAPI = {
       file_path: payload.file_path || '',
       file_size: payload.file_size || '',
     }),
+
+  deleteConversation: (conversationId, major = CHAT_MAJOR) =>
+    deleteAPI(`/chat/conversations.php?id=${conversationId}&major=${major}`),
 
   markRead: (conversationId, userId, major = CHAT_MAJOR) =>
     postFormAPI('/chat/mark-read.php', { conversation_id: Number(conversationId), user_id: Number(userId), major }),

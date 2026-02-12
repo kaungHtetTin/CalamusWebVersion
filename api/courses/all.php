@@ -4,7 +4,7 @@
  * Returns all courses with optional filtering
  */
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type');
@@ -36,14 +36,21 @@ try {
         $courses = array_values($courses); // Reset array keys
     }
     
+    // Ensure UTF-8 for Korean/Myanmar text in course titles and descriptions
+    $ensureUtf8 = function($str) {
+        if ($str === null || $str === '') return (string)$str;
+        if (!mb_check_encoding($str, 'UTF-8')) return mb_convert_encoding($str, 'UTF-8', 'auto');
+        return $str;
+    };
+
     // Format response with additional data
-    $formattedCourses = array_map(function($course) use ($Course) {
+    $formattedCourses = array_map(function($course) use ($Course, $ensureUtf8) {
         $enrolledStudents = $Course->getEnrollStudents($course['course_id']);
         
         return [
             'id' => (int)$course['course_id'],
-            'title' => $course['title'],
-            'description' => $course['description'],
+            'title' => $ensureUtf8($course['title'] ?? ''),
+            'description' => $ensureUtf8($course['description'] ?? ''),
             'duration' => (int)$course['duration'],
             'rating' => (float)$course['rating'],
             'coverUrl' => $course['cover_url'],
@@ -52,7 +59,7 @@ try {
             'fee' => (int)$course['fee'],
             'major' => $course['major'],
             'lessonsCount' => (int)$course['lessons_count'],
-            'instructor' => $course['teacher_name'],
+            'instructor' => $ensureUtf8($course['teacher_name'] ?? ''),
             'instructorId' => (int)$course['teacher_id'],
             'instructorImage' => $course['teacher_profile'] ?? null,
             'enrolledStudents' => (int)$enrolledStudents

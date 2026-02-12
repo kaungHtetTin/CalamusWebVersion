@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useThemeMode } from '../context/ThemeContext';
 import {
   Box,
   Container,
@@ -39,6 +40,7 @@ import {
   ToggleButtonGroup,
   Card,
   CardContent,
+  CircularProgress,
 } from '@mui/material';
 import {
   PlayCircleOutline as PlayIcon,
@@ -63,6 +65,8 @@ import {
   ThumbUp as ThumbUpFilledIcon,
   MoreVert as MoreVertIcon,
   Sort as SortIcon,
+  FileDownload as DownloadIcon,
+  Close as CloseIcon,
 } from '@mui/icons-material';
 import { courseAPI, ratingAPI } from '../services/api';
 
@@ -71,6 +75,7 @@ const CourseDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { mode } = useThemeMode();
   const { user, isAuthenticated } = useAuth();
 
   const [course, setCourse] = useState(null);
@@ -210,6 +215,14 @@ const CourseDetail = () => {
     );
   };
 
+  const handleGetCertificate = () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    navigate(`/certificate?course_id=${id}`);
+  };
+
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
@@ -234,8 +247,8 @@ const CourseDetail = () => {
   // Loading state
   if (loading) {
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: '#fafafa' }}>
-        <Box sx={{ bgcolor: '#1a1a2e', py: 4 }}>
+      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+        <Box sx={{ bgcolor: mode === 'light' ? '#1a1a2e' : '#1e293b', py: 4 }}>
           <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
               <Skeleton variant="rectangular" width={400} height={225} sx={{ borderRadius: 2, bgcolor: 'rgba(255,255,255,0.1)' }} />
@@ -254,7 +267,7 @@ const CourseDetail = () => {
   // Error state
   if (error || !course) {
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Box sx={{ textAlign: 'center' }}>
           <SchoolIcon sx={{ fontSize: 100, color: 'grey.300', mb: 3 }} />
           <Typography variant="h4" fontWeight={700} gutterBottom>
@@ -274,11 +287,11 @@ const CourseDetail = () => {
   const categoryInfo = getCategoryInfo(course.major);
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#fafafa' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       {/* Hero Section - Similar to original layout */}
       <Box
         sx={{
-          bgcolor: '#1a1a2e',
+          bgcolor: mode === 'light' ? '#1a1a2e' : '#1e293b',
           color: 'white',
           py: { xs: 3, md: 4 },
           position: 'relative',
@@ -465,25 +478,51 @@ const CourseDetail = () => {
                 </Box>
               )}
 
-              {/* Buy Now Button */}
-              <Button
-                variant="contained"
-                size="medium"
-                onClick={() => navigate('/vip-plan')}
-                sx={{
-                  py: 1,
-                  px: 3,
-                  fontWeight: 600,
-                  fontSize: '0.875rem',
-                  background: 'linear-gradient(135deg, #2e7d32 0%, #43a047 100%)',
-                  boxShadow: '0 4px 14px rgba(46, 125, 50, 0.4)',
-                  '&:hover': {
-                    boxShadow: '0 6px 20px rgba(46, 125, 50, 0.5)',
-                  },
-                }}
-              >
-                Buy Now - {formatPrice(course.fee)}
-              </Button>
+              {/* Buy Now Button - Hide ONLY if the course is already purchased */}
+              {!course.isPurchased ? (
+                <Button
+                  variant="contained"
+                  size="medium"
+                  onClick={() => navigate('/vip-plan')}
+                  sx={{
+                    py: 1,
+                    px: 3,
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    background: 'linear-gradient(135deg, #2e7d32 0%, #43a047 100%)',
+                    boxShadow: '0 4px 14px rgba(46, 125, 50, 0.4)',
+                    '&:hover': {
+                      boxShadow: '0 6px 20px rgba(46, 125, 50, 0.5)',
+                    },
+                  }}
+                >
+                  Buy Now - {formatPrice(course.fee)}
+                </Button>
+              ) : null}
+
+              {/* Get Certificate Button - Show if course is completed; opens certificate page */}
+              {isAuthenticated && course.progress === 100 && (
+                <Button
+                  variant="contained"
+                  size="medium"
+                  onClick={handleGetCertificate}
+                  startIcon={<SchoolIcon />}
+                  sx={{
+                    py: 1,
+                    px: 3,
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    background: 'linear-gradient(135deg, #faaf00 0%, #fbc02d 100%)',
+                    boxShadow: '0 4px 14px rgba(250, 175, 0, 0.4)',
+                    '&:hover': {
+                      boxShadow: '0 6px 20px rgba(250, 175, 0, 0.5)',
+                      background: 'linear-gradient(135deg, #fbc02d 0%, #fdd835 100%)',
+                    },
+                  }}
+                >
+                  Get Certificate
+                </Button>
+              )}
             </Box>
           </Stack>
         </Container>
@@ -492,7 +531,7 @@ const CourseDetail = () => {
       {/* Instructor Bar */}
       <Box
         sx={{
-          bgcolor: '#f0f0f0',
+          bgcolor: mode === 'light' ? '#f0f0f0' : alpha(theme.palette.background.paper, 0.5),
           boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
           py: 2,
         }}
@@ -564,10 +603,10 @@ const CourseDetail = () => {
       {/* Tab Navigation - Underline Highlight Style */}
       <Box
         sx={{
-          bgcolor: 'white',
+          bgcolor: 'background.paper',
           boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
           position: 'sticky',
-          top: 64, // below navbar
+          top: 60, // updated to match new compact navbar height
           zIndex: 10,
         }}
       >

@@ -32,6 +32,7 @@ const Explore = () => {
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
+  const searchQuery = searchParams.get('q') || '';
 
   // Fetch courses on mount
   useEffect(() => {
@@ -51,7 +52,7 @@ const Explore = () => {
     fetchCourses();
   }, []);
 
-  // Filter courses by category
+  // Filter courses by category and search query
   useEffect(() => {
     let result = [...courses];
 
@@ -62,11 +63,22 @@ const Explore = () => {
       );
     }
 
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (course) =>
+          course.title?.toLowerCase().includes(query) ||
+          course.description?.toLowerCase().includes(query) ||
+          course.instructor_name?.toLowerCase().includes(query)
+      );
+    }
+
     // Sort by newest
     result.sort((a, b) => b.id - a.id);
 
     setFilteredCourses(result);
-  }, [courses, selectedCategory]);
+  }, [courses, selectedCategory, searchQuery]);
 
   // Update URL params when category changes
   useEffect(() => {
@@ -149,7 +161,15 @@ const Explore = () => {
         {/* Results Count */}
         <Box sx={{ mb: 3 }}>
           <Typography variant="body2" color="text.secondary">
-            Showing <strong>{filteredCourses.length}</strong> courses
+            {searchQuery ? (
+              <>
+                Search results for "<strong>{searchQuery}</strong>": <strong>{filteredCourses.length}</strong> courses found
+              </>
+            ) : (
+              <>
+                Showing <strong>{filteredCourses.length}</strong> courses
+              </>
+            )}
             {selectedCategory !== 'all' && (
               <> in <strong>{categories.find((c) => c.value === selectedCategory)?.label}</strong></>
             )}
@@ -186,10 +206,12 @@ const Explore = () => {
           >
             <SchoolIcon sx={{ fontSize: 80, color: 'text.disabled', mb: 2 }} />
             <Typography variant="h5" color="text.secondary" gutterBottom>
-              No courses found
+              {searchQuery ? 'No results found' : 'No courses found'}
             </Typography>
             <Typography variant="body1" color="text.disabled">
-              No courses available in this category yet.
+              {searchQuery 
+                ? `We couldn't find any courses matching "${searchQuery}". Try a different keyword.`
+                : 'No courses available in this category yet.'}
             </Typography>
           </Box>
         )}

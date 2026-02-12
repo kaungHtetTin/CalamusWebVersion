@@ -29,23 +29,24 @@ const getToken = () => localStorage.getItem('calamus_token');
 const fetchAPI = async (endpoint) => {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`);
-    
+    const data = await response.json().catch(() => ({}));
+
     if (!response.ok) {
-      const error = new Error(`HTTP error! status: ${response.status}`);
+      const error = new Error(data.error || `HTTP error! status: ${response.status}`);
       error.status = response.status;
+      error.response = { data };
       throw error;
     }
-    
-    const data = await response.json();
-    
+
     if (!data.success) {
-      throw new Error(data.error || 'API request failed');
+      const error = new Error(data.error || 'API request failed');
+      error.response = { data };
+      throw error;
     }
-    
+
     return data;
   } catch (error) {
     // Don't log 404 errors as they're expected for missing resources
-    // Also check if error.message contains 404 in case status isn't set
     if (error.status !== 404 && !error.message?.includes('404')) {
       console.error(`API Error (${endpoint}):`, error);
     }
@@ -194,6 +195,8 @@ export const courseAPI = {
     if (userId) params += `&userId=${userId}`;
     return fetchAPI(`/courses/detail.php?${params}`);
   },
+  getCertificate: (courseId, userId) =>
+    fetchAPI(`/courses/get-certificate.php?course_id=${courseId}&userId=${userId}`),
 };
 
 /**
@@ -655,6 +658,12 @@ export const friendsAPI = {
    */
   unblock: (otherId) =>
     postAPI('/friends/unblock.php', { otherId }),
+  /**
+   * Get list of blocked users (authenticated)
+   * @returns {Promise<{ success, data: Array }>}
+   */
+  getBlocked: () =>
+    authFetchAPI('/friends/get-blocked.php'),
 };
 
 /**
@@ -786,6 +795,16 @@ export const userAPI = {
 
     return postFormDataAPI('/users/update.php', formData);
   },
+  /**
+   * Change user password
+   * @param {Object} data - { currentPassword, newPassword }
+   */
+  changePassword: (data) => postAPI('/users/change-password.php', data),
+  /**
+   * Delete user account
+   * @param {string} password - User password for confirmation
+   */
+  deleteAccount: (password) => postAPI('/users/delete-account.php', { password }),
 };
 
 /**

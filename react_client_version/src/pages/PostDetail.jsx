@@ -26,9 +26,10 @@ import {
   ArrowBack as BackIcon,
   Language as LanguageIcon,
 } from '@mui/icons-material';
-import { Chip } from '@mui/material';
+import { Chip, useTheme, alpha } from '@mui/material';
 import { discussionAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useThemeMode } from '../context/ThemeContext';
 import CommentItem from '../components/CommentItem';
 
 // Format relative time
@@ -153,6 +154,8 @@ const PostDetail = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const theme = useTheme();
+  const { mode } = useThemeMode();
   
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
@@ -639,8 +642,17 @@ const PostDetail = () => {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '20px',
-                  bgcolor: 'grey.100',
+                  bgcolor: mode === 'light' ? 'grey.100' : alpha(theme.palette.common.white, 0.05),
                   '& fieldset': { border: 'none' },
+                  color: 'text.primary',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    bgcolor: mode === 'light' ? 'grey.200' : alpha(theme.palette.common.white, 0.08),
+                  },
+                  '&.Mui-focused': {
+                    bgcolor: mode === 'light' ? '#fff' : alpha(theme.palette.common.white, 0.1),
+                    boxShadow: mode === 'light' ? '0 0 0 2px rgba(25, 118, 210, 0.2)' : `0 0 0 2px ${alpha(theme.palette.primary.main, 0.3)}`,
+                  }
                 },
               }}
             />

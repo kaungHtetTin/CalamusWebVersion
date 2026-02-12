@@ -8,9 +8,11 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
 require_once '../../classes/connect.php';
+require_once '../../classes/auth.php';
 
 try {
     $categoryId = isset($_GET['categoryId']) ? intval($_GET['categoryId']) : 0;
+    $userId = isset($_GET['userId']) ? trim($_GET['userId']) : '';
     
     if ($categoryId === 0) {
         http_response_code(400);
@@ -19,6 +21,7 @@ try {
     }
     
     $DB = new Database();
+    $Auth = new Auth();
     
     // Get category detail - exactly like old approach
     $query = "SELECT * FROM lessons_categories WHERE id = $categoryId";
@@ -32,6 +35,18 @@ try {
     
     $cat = $result[0];
     $major = $cat['major'];
+    $courseId = (int)$cat['course_id'];
+    
+    // Fetch course info to get is_vip status
+    $courseQuery = "SELECT is_vip FROM courses WHERE course_id = $courseId LIMIT 1";
+    $courseResult = $DB->read($courseQuery);
+    $courseIsVip = ($courseResult && count($courseResult) > 0) ? (int)$courseResult[0]['is_vip'] : 1; // Default to 1 if not found
+    
+    // Check if user has VIP access to this course
+    $hasVipAccess = false;
+    if (!empty($userId)) {
+        $hasVipAccess = $Auth->checkVIP($courseId, $userId);
+    }
     
     // Fix encoding
     $categoryTitle = $cat['category_title'] ?? '';
@@ -63,6 +78,27 @@ try {
                 $title = mb_convert_encoding($title, 'UTF-8', 'auto');
             }
             
+            $lessonIsVip = (int)($lesson['isVip'] ?? 0);
+            
+            // Access logic from promt.txt:
+            // 1. If course is NOT VIP, everyone can access.
+            // 2. If course IS VIP:
+            //    a. If lesson is NOT VIP, everyone can access.
+            //    b. If lesson IS VIP, only if user has access (purchased course).
+            
+            $hasAccess = false;
+            if ($courseIsVip === 0) {
+                $hasAccess = true;
+            } else {
+                if ($lessonIsVip === 0) {
+                    $hasAccess = true;
+                } else {
+                    if ($hasVipAccess) {
+                        $hasAccess = true;
+                    }
+                }
+            }
+            
             $lessons[] = [
                 'id' => (int)$lesson['id'],
                 'cate' => $lesson['cate'] ?? '',
@@ -70,7 +106,8 @@ try {
                 'title' => $title,
                 'title_mini' => $lesson['title_mini'] ?? '',
                 'isVideo' => (int)($lesson['isVideo'] ?? 0),
-                'isVip' => (int)($lesson['isVip'] ?? 0),
+                'isVip' => $lessonIsVip,
+                'hasAccess' => $hasAccess,
                 'date' => $lesson['date'] ?? '',
                 'thumbnail' => $lesson['thumbnail'] ?? '',
                 'duration' => (int)($lesson['duration'] ?? 0),

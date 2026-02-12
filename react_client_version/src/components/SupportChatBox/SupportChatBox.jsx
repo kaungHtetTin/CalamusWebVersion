@@ -21,6 +21,7 @@ import {
 } from '@mui/icons-material';
 import { useSupportChat } from '../../context/SupportChatContext';
 import { useAuth } from '../../context/AuthContext';
+import { useThemeMode } from '../../context/ThemeContext';
 import { chatAPI } from '../../services/api';
 
 const SUPPORT_USER_ID = 10000;
@@ -28,6 +29,7 @@ const SUPPORT_USER_ID = 10000;
 const SupportChatBox = () => {
   const { isOpen, isMinimized, major, closeChat, minimizeChat, maximizeChat } = useSupportChat();
   const { user: authUser } = useAuth();
+  const { mode } = useThemeMode();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const messagesEndRef = useRef(null);
@@ -421,13 +423,16 @@ const SupportChatBox = () => {
               px: 1.5,
               py: 1.25,
               borderBottom: '1px solid',
-              borderColor: 'divider',
+              borderColor: mode === 'light' ? alpha('#000', 0.08) : alpha('#fff', 0.08),
               display: 'flex',
               alignItems: 'center',
               gap: 1.5,
               flexShrink: 0,
-              bgcolor: 'background.paper',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              backgroundColor: mode === 'light' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(15, 23, 42, 0.8)',
+              backdropFilter: 'blur(20px)',
+              color: 'text.primary',
+              boxShadow: 'none',
+              zIndex: 1,
             }}
           >
             <Avatar
@@ -700,10 +705,10 @@ const SupportChatBox = () => {
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 3,
-                      bgcolor: alpha(theme.palette.grey[100], 0.6),
+                      bgcolor: mode === 'light' ? alpha(theme.palette.grey[100], 0.6) : alpha(theme.palette.common.white, 0.05),
                       transition: 'all 0.2s ease',
                       '&:hover': {
-                        bgcolor: alpha(theme.palette.grey[100], 0.8),
+                        bgcolor: mode === 'light' ? alpha(theme.palette.grey[100], 0.8) : alpha(theme.palette.common.white, 0.08),
                       },
                       '&.Mui-focused': {
                         bgcolor: 'background.paper',
@@ -711,10 +716,10 @@ const SupportChatBox = () => {
                       },
                     },
                     '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: alpha(theme.palette.grey[300], 0.3),
+                      borderColor: mode === 'light' ? alpha(theme.palette.grey[300], 0.3) : alpha(theme.palette.common.white, 0.1),
                     },
                     '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: alpha(theme.palette.grey[400], 0.5),
+                      borderColor: mode === 'light' ? alpha(theme.palette.grey[400], 0.5) : alpha(theme.palette.common.white, 0.2),
                     },
                     '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
                       borderColor: theme.palette.primary.main,
@@ -795,14 +800,17 @@ const SupportChatBox = () => {
           px: { xs: 1.5, md: 2.5 },
           py: { xs: 1.25, md: 1.75 },
           borderBottom: '1px solid',
-          borderColor: 'divider',
+          borderColor: mode === 'light' ? alpha('#000', 0.08) : alpha('#fff', 0.08),
           display: 'flex',
           alignItems: 'center',
           gap: 1.5,
           flexShrink: 0,
-          bgcolor: 'background.paper',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+          backgroundColor: mode === 'light' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(15, 23, 42, 0.8)',
+          backdropFilter: 'blur(20px)',
+          color: 'text.primary',
+          boxShadow: 'none',
           cursor: isMinimized ? 'pointer' : 'default',
+          zIndex: 1,
         }}
         onClick={isMinimized ? maximizeChat : undefined}
       >
@@ -1081,10 +1089,10 @@ const SupportChatBox = () => {
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 3,
-                      bgcolor: alpha(theme.palette.grey[100], 0.6),
+                      bgcolor: mode === 'light' ? alpha(theme.palette.grey[100], 0.6) : alpha(theme.palette.common.white, 0.05),
                       transition: 'all 0.2s ease',
                       '&:hover': {
-                        bgcolor: alpha(theme.palette.grey[100], 0.8),
+                        bgcolor: mode === 'light' ? alpha(theme.palette.grey[100], 0.8) : alpha(theme.palette.common.white, 0.08),
                       },
                       '&.Mui-focused': {
                         bgcolor: 'background.paper',
@@ -1092,10 +1100,10 @@ const SupportChatBox = () => {
                       },
                     },
                     '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: alpha(theme.palette.grey[300], 0.3),
+                      borderColor: mode === 'light' ? alpha(theme.palette.grey[300], 0.3) : alpha(theme.palette.common.white, 0.1),
                     },
                     '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: alpha(theme.palette.grey[400], 0.5),
+                      borderColor: mode === 'light' ? alpha(theme.palette.grey[400], 0.5) : alpha(theme.palette.common.white, 0.2),
                     },
                     '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
                       borderColor: theme.palette.primary.main,

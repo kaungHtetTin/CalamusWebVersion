@@ -44,6 +44,7 @@ import {
 import VimeoPlayer from '../components/VideoPlayer/VimeoPlayer';
 import CommentItem from '../components/CommentItem/CommentItem';
 import { discussionAPI } from '../services/api';
+import { useThemeMode } from '../context/ThemeContext';
 
 // Format number to K, M format
 const formatCount = (count) => {
@@ -57,10 +58,21 @@ const formatCount = (count) => {
 const CurriculumItem = ({ lesson, isActive, onClick, isLearned }) => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const itemRef = React.useRef(null);
   const isVip = lesson.isVip === true || lesson.isVip === 1;
   const hasAccess = lesson.hasAccess !== false; // Default to true if not specified
   const isLocked = isVip && !hasAccess;
   
+  // Scroll into view when active
+  React.useEffect(() => {
+    if (isActive && itemRef.current) {
+      itemRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    }
+  }, [isActive]);
+
   const handleClick = () => {
     if (isLocked) {
       // Navigate to VIP plan page if lesson is locked
@@ -72,6 +84,7 @@ const CurriculumItem = ({ lesson, isActive, onClick, isLearned }) => {
   
   return (
     <ListItem
+      ref={itemRef}
       onClick={handleClick}
       sx={{
         py: 1,
@@ -151,6 +164,7 @@ export default function LessonPlay() {
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   const { isAuthenticated, user } = useAuth();
   const { drawerOpen, setDrawerOpen } = useDrawer();
+  const { mode } = useThemeMode();
 
   // Close the nav drawer by default on this page
   useEffect(() => {
@@ -193,18 +207,18 @@ export default function LessonPlay() {
 
         // Check if lesson requires VIP access
         if (lessonData.success === false && lessonData.requiresSubscription === true) {
-          setVipAccessError('This lesson requires a VIP subscription. Please subscribe to access this content.');
+          setVipAccessError('ဤသင်ခန်းစာသည် VIP သီးသန့်ဖြစ်ပါသည်။ ဆက်လက်လေ့လာရန် VIP အဖွဲ့ဝင်ဝင်ရောက်ရန် လိုအပ်ပါသည်။');
           setLoading(false);
           return;
         }
 
         const course = courseRes.data || courseRes;
-        const lesson = lessonData.lesson || lessonData;
+        const lesson = lessonData.data?.lesson || lessonData.lesson || lessonData;
 
         setLessonDetail({
           lesson: lesson,
           course: course,
-          curriculum: course.curriculum || [],
+          curriculum: lessonData.data?.curriculum || course.curriculum || [],
         });
 
         // Mark lesson as learned when user views it (for both video and document lessons)
@@ -270,11 +284,11 @@ export default function LessonPlay() {
         }
       } catch (err) {
         console.error('Failed to load lesson detail or course curriculum:', err);
-        // Check if error is due to VIP access
-        if (err.response?.status === 403 || err.response?.data?.requiresSubscription === true) {
-          setVipAccessError('This lesson requires a VIP subscription. Please subscribe to access this content.');
+        // Check if error is due to VIP access (403 or API flag)
+        if (err.status === 403 || err.response?.data?.requiresSubscription === true) {
+          setVipAccessError('ဤသင်ခန်းစာသည် VIP သီးသန့်ဖြစ်ပါသည်။ ဆက်လက်လေ့လာရန် VIP အဖွဲ့ဝင်ဝင်ရောက်ရန် လိုအပ်ပါသည်။');
         } else {
-          setVipAccessError('Failed to load lesson. Please try again.');
+          setVipAccessError(err.message || 'Failed to load lesson. Please try again.');
         }
         setLessonDetail(null);
       } finally {
@@ -640,34 +654,101 @@ export default function LessonPlay() {
     );
   }
 
-  // If VIP access error, show error message with subscribe button
+  // If VIP access error, show beautiful access denied UI
   if (vipAccessError && !lessonDetail) {
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: '#fff', p: { xs: 2, sm: 3 } }}>
-        <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4 }}>
-          <Alert 
-            severity="warning" 
-            action={
-              <Button 
-                color="inherit" 
-                size="small" 
-                onClick={() => navigate('/vip-plan')}
-              >
-                Subscribe Now
-              </Button>
-            }
-            sx={{ mb: 2 }}
+      <Box 
+        sx={{ 
+          minHeight: '100vh', 
+          bgcolor: '#f8f9fa', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          p: 3 
+        }}
+      >
+        <Paper
+          elevation={0}
+          sx={{
+            maxWidth: 500,
+            width: '100%',
+            p: 4,
+            textAlign: 'center',
+            borderRadius: 4,
+            boxShadow: '0 10px 40px rgba(0,0,0,0.04)',
+            border: '1px solid',
+            borderColor: alpha(theme.palette.divider, 0.1),
+            bgcolor: '#fff'
+          }}
+        >
+          <Box
+            sx={{
+              width: 80,
+              height: 80,
+              borderRadius: '50%',
+              bgcolor: alpha(theme.palette.error.main, 0.1),
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mx: 'auto',
+              mb: 3
+            }}
           >
-            {vipAccessError}
-          </Alert>
-          <Button 
-            variant="contained" 
-            onClick={handleBack}
-            sx={{ mt: 2 }}
-          >
-            Back to Course
-          </Button>
-        </Box>
+            <LockIcon sx={{ fontSize: 40, color: 'error.main' }} />
+          </Box>
+          
+          <Typography variant="h5" fontWeight={800} gutterBottom sx={{ color: 'text.primary' }}>
+            VIP Content Locked
+          </Typography>
+          
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 4, lineHeight: 1.6 }}>
+            ဤသင်ခန်းစာသည် VIP သီးသန့်ဖြစ်ပါသည်။ ဆက်လက်လေ့လာရန် VIP အဖွဲ့ဝင်ဝင်ရောက်ရန် လိုအပ်ပါသည်။
+          </Typography>
+          
+          <Stack spacing={2}>
+            <Button
+              variant="contained"
+              fullWidth
+              size="large"
+              onClick={() => navigate('/vip-plan')}
+              sx={{
+                py: 1.5,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 700,
+                fontSize: '1rem',
+                boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
+                '&:hover': {
+                  boxShadow: `0 12px 25px ${alpha(theme.palette.primary.main, 0.4)}`,
+                }
+              }}
+            >
+              VIP အဖွဲ့ဝင်ဝင်မည်
+            </Button>
+            
+            <Button
+              variant="outlined"
+              fullWidth
+              size="large"
+              onClick={handleBack}
+              sx={{
+                py: 1.5,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 600,
+                borderColor: alpha(theme.palette.divider, 0.5),
+                color: 'text.secondary',
+                '&:hover': {
+                  borderColor: 'text.primary',
+                  bgcolor: 'transparent',
+                  color: 'text.primary'
+                }
+              }}
+            >
+              သင်တန်းသို့ ပြန်သွားမည်
+            </Button>
+          </Stack>
+        </Paper>
       </Box>
     );
   }
@@ -918,8 +999,17 @@ export default function LessonPlay() {
                         sx={{
                           '& .MuiOutlinedInput-root': {
                             borderRadius: '20px',
-                            bgcolor: 'grey.100',
+                            bgcolor: mode === 'light' ? 'grey.100' : alpha(theme.palette.common.white, 0.05),
                             '& fieldset': { border: 'none' },
+                            color: 'text.primary',
+                            transition: 'all 0.2s ease',
+                            '&:hover': {
+                              bgcolor: mode === 'light' ? 'grey.200' : alpha(theme.palette.common.white, 0.08),
+                            },
+                            '&.Mui-focused': {
+                              bgcolor: mode === 'light' ? '#fff' : alpha(theme.palette.common.white, 0.1),
+                              boxShadow: mode === 'light' ? '0 0 0 2px rgba(25, 118, 210, 0.2)' : `0 0 0 2px ${alpha(theme.palette.primary.main, 0.3)}`,
+                            }
                           },
                         }}
                       />

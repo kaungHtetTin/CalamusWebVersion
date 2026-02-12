@@ -33,6 +33,9 @@ import { useNavigate } from 'react-router-dom';
 import { notificationAPI, friendsAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import ClearIcon from '@mui/icons-material/Clear';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import { useThemeMode } from '../../context/ThemeContext';
 
 // Hide AppBar on scroll down (mobile only)
 function HideOnScroll({ children }) {
@@ -54,48 +57,59 @@ function HideOnScroll({ children }) {
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
-  borderRadius: 20,
+  borderRadius: 24,
   backgroundColor: alpha(theme.palette.common.black, 0.04),
-  boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-  transition: 'all 0.2s ease',
+  border: '1.5px solid transparent',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  display: 'flex',
+  alignItems: 'center',
+  padding: '1px 6px',
   '&:hover': {
     backgroundColor: alpha(theme.palette.common.black, 0.06),
-    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
   },
   '&:focus-within': {
-    boxShadow: '0 2px 12px rgba(46, 125, 50, 0.15)',
     backgroundColor: '#ffffff',
+    borderColor: theme.palette.primary.main,
+    boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.15)}`,
+    width: '100%',
+    [theme.breakpoints.up('md')]: {
+      width: '40ch',
+    },
   },
   marginRight: theme.spacing(2),
   marginLeft: 0,
   width: '100%',
   [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(3),
+    marginLeft: theme.spacing(2),
     width: 'auto',
   },
 }));
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
+  padding: theme.spacing(0, 1.25),
   height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   color: theme.palette.text.secondary,
+  transition: 'color 0.2s ease',
+  '.Mui-focused &': {
+    color: theme.palette.primary.main,
+  },
+  '& svg': {
+    fontSize: '1.1rem',
+  }
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
+  width: '100%',
   '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    padding: theme.spacing(0.75, 1, 0.75, 0),
+    fontSize: '0.85rem',
+    fontWeight: 500,
     transition: theme.transitions.create('width'),
     width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: '30ch',
-    },
   },
 }));
 
@@ -114,10 +128,12 @@ const formatTimeAgo = (timestamp) => {
 const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLogout }) => {
   const navigate = useNavigate();
   const { isAuthenticated: authIsAuth, user: authUser, loading: authLoading } = useAuth();
+  const { mode, toggleTheme } = useThemeMode();
   const isAuthenticated = authIsAuth ?? propIsAuth ?? false;
   const user = authUser ?? propUser ?? null;
   const [anchorEl, setAnchorEl] = useState(null);
   const [notificationAnchor, setNotificationAnchor] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Notification state
   const [notifications, setNotifications] = useState([]);
@@ -135,6 +151,32 @@ const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLo
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+
+  const handleSearchClear = () => {
+    setSearchQuery('');
+  };
+
+  const handleSearchSubmit = (e) => {
+    if (e.key === 'Enter') {
+      const query = searchQuery.trim();
+      if (query) {
+        navigate(`/explore?q=${encodeURIComponent(query)}`);
+      } else {
+        navigate('/explore');
+      }
+    }
+  };
+
+  // Sync search input with URL query param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q');
+    if (q) {
+      setSearchQuery(q);
+    } else {
+      setSearchQuery('');
+    }
+  }, [window.location.search]);
 
   // Fetch notifications and friend requests (for badge + dropdown)
   const fetchNotifications = useCallback(async () => {
@@ -216,14 +258,31 @@ const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLo
 
   return (
     <HideOnScroll>
-      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-        <Toolbar sx={{ minHeight: { xs: 56, sm: 64 } }}>
+      <AppBar 
+        position="fixed" 
+        elevation={0}
+        sx={{ 
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: mode === 'light' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(15, 23, 42, 0.8)',
+          backdropFilter: 'blur(20px)',
+          borderBottom: '1px solid',
+          borderColor: mode === 'light' ? alpha('#000', 0.08) : alpha('#fff', 0.08),
+          color: 'text.primary'
+        }}
+      >
+        <Toolbar sx={{ minHeight: { xs: 56, sm: 60 }, gap: { xs: 1, sm: 1.5 } }}>
         <IconButton
           edge="start"
           color="inherit"
           aria-label="open drawer"
           onClick={onMenuClick}
-          sx={{ mr: 2 }}
+          sx={{ 
+            mr: { xs: 0, sm: 0.5 },
+            padding: 1,
+            bgcolor: alpha('#000', 0.03),
+            '&:hover': { bgcolor: alpha('#000', 0.06) },
+            '& svg': { fontSize: '1.25rem' }
+          }}
         >
           <MenuIcon />
         </IconButton>
@@ -233,14 +292,17 @@ const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLo
           src="/logo.png"
           alt="Calamus Education"
           sx={{
-            height: { xs: 32, sm: 40 },
-            width: { xs: 32, sm: 40 },
+            height: { xs: 32, sm: 36 },
+            width: 'auto',
             borderRadius: 1,
             cursor: 'pointer',
-            objectFit: 'cover',
+            objectFit: 'contain',
+            display: { xs: 'none', sm: 'block' }
           }}
           onClick={() => navigate('/')}
         />
+
+        <Box sx={{ flexGrow: { xs: 1, md: 0 } }} />
 
         <Search>
           <SearchIconWrapper>
@@ -249,42 +311,89 @@ const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLo
           <StyledInputBase
             placeholder="Search for courses, videos..."
             inputProps={{ 'aria-label': 'search' }}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleSearchSubmit}
           />
+          {searchQuery && (
+            <IconButton size="small" onClick={handleSearchClear} sx={{ mr: 0.5, padding: 0.5 }}>
+              <ClearIcon sx={{ fontSize: '1rem' }} />
+            </IconButton>
+          )}
         </Search>
 
         <Box sx={{ flexGrow: 1 }} />
 
         {isAuthenticated ? (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
             <Button
               variant="contained"
               color="primary"
               size="small"
               onClick={() => navigate('/my-learning')}
-              sx={{ display: { xs: 'none', md: 'flex' } }}
+              sx={{ 
+                display: { xs: 'none', md: 'flex' },
+                borderRadius: '8px',
+                px: 2,
+                py: 0.5,
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                boxShadow: `0 4px 12px ${alpha('#2e7d32', 0.2)}`
+              }}
             >
               My Learning
             </Button>
 
             <IconButton
-              color="inherit"
               onClick={handleNotificationOpen}
               aria-label="notifications"
+              size="small"
+              sx={{ 
+                padding: 1,
+                bgcolor: alpha('#000', 0.03),
+                '&:hover': { bgcolor: alpha('#000', 0.06) }
+              }}
             >
-              <Badge badgeContent={totalNotificationCount} color="secondary" max={99}>
-                <NotificationsIcon />
+              <Badge 
+                badgeContent={totalNotificationCount} 
+                color="secondary" 
+                max={99}
+                sx={{
+                  '& .MuiBadge-badge': {
+                    border: '2px solid white',
+                    fontWeight: 700,
+                    fontSize: '0.65rem',
+                    height: 16,
+                    minWidth: 16
+                  }
+                }}
+              >
+                <NotificationsIcon sx={{ fontSize: '1.25rem' }} />
               </Badge>
             </IconButton>
 
             <IconButton
               edge="end"
               onClick={handleProfileMenuOpen}
-              sx={{ p: 0.5 }}
+              size="small"
+              sx={{ 
+                p: 0.25,
+                border: '2px solid transparent',
+                transition: 'all 0.2s',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  bgcolor: alpha('#2e7d32', 0.04)
+                }
+              }}
             >
               <Avatar
                 alt={user?.name || 'User'}
                 src={user?.image}
-                sx={{ width: 36, height: 36 }}
+                sx={{ 
+                  width: { xs: 32, sm: 34 }, 
+                  height: { xs: 32, sm: 34 },
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+                }}
               />
             </IconButton>
           </Box>
@@ -292,7 +401,16 @@ const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLo
           <Button
             variant="contained"
             color="primary"
+            size="small"
             onClick={() => navigate('/login')}
+            sx={{ 
+              borderRadius: '8px',
+              px: 2.5,
+              py: 0.6,
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              boxShadow: `0 4px 12px ${alpha('#2e7d32', 0.2)}`
+            }}
           >
             Login
           </Button>
@@ -332,11 +450,11 @@ const Navbar = ({ onMenuClick, isAuthenticated: propIsAuth, user: propUser, onLo
             </ListItemIcon>
             View Profile
           </MenuItem>
-          <MenuItem>
+          <MenuItem onClick={toggleTheme}>
             <ListItemIcon>
-              <DarkModeIcon fontSize="small" />
+              {mode === 'dark' ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
             </ListItemIcon>
-            Night Mode
+            {mode === 'dark' ? 'Light Mode' : 'Night Mode'}
           </MenuItem>
           <MenuItem onClick={() => navigate('/settings')}>
             <ListItemIcon>

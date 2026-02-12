@@ -53,14 +53,14 @@ export const DeckCard = ({ deck, languageName, onClick }) => {
         display: 'flex',
         flexDirection: 'column',
         cursor: 'pointer',
-        transition: 'all 0.25s ease',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         borderRadius: 3,
         border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
         bgcolor: 'background.paper',
         '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+          transform: 'translateY(-6px)',
+          boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
           borderColor: alpha(languageInfo.color, 0.3),
         },
       }}

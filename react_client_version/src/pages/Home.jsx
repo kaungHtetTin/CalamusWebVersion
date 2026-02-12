@@ -15,6 +15,9 @@ import {
   alpha,
   Card,
   CardContent,
+  Container,
+  Divider,
+  CircularProgress,
 } from '@mui/material';
 import { 
   PlayCircleOutline as PlayIcon,
@@ -43,38 +46,41 @@ const FeatureCard = ({ icon, title, description }) => (
   <Box
     sx={{
       display: 'flex',
-      alignItems: 'flex-start',
-      gap: 2,
-      p: 2.5,
-      borderRadius: 3,
-      backgroundColor: 'rgba(255, 255, 255, 0.12)',
-      backdropFilter: 'blur(12px)',
-      boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-      transition: 'all 0.25s ease',
+      alignItems: 'center',
+      gap: 2.5,
+      p: 2,
+      borderRadius: 4,
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      backdropFilter: 'blur(20px)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       '&:hover': {
-        transform: 'translateY(-3px)',
-        backgroundColor: 'rgba(255, 255, 255, 0.18)',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+        transform: 'translateX(8px)',
+        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        borderColor: 'rgba(255, 255, 255, 0.25)',
       },
     }}
   >
     <Box
       sx={{
-        p: 1.5,
+        width: 48,
+        height: 48,
         borderRadius: 3,
         backgroundColor: 'rgba(255, 255, 255, 0.2)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        flexShrink: 0,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
       }}
     >
-      {icon}
+      {React.cloneElement(icon, { sx: { fontSize: 24, color: 'white' } })}
     </Box>
     <Box>
-      <Typography variant="subtitle2" fontWeight={600} color="white">
+      <Typography variant="subtitle2" fontWeight={700} color="white" sx={{ mb: 0.25 }}>
         {title}
       </Typography>
-      <Typography variant="caption" color="rgba(255, 255, 255, 0.8)">
+      <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.7)', fontWeight: 500, display: 'block', lineHeight: 1.3 }}>
         {description}
       </Typography>
     </Box>
@@ -84,10 +90,10 @@ const FeatureCard = ({ icon, title, description }) => (
 // Stat item for hero section
 const StatItem = ({ value, label }) => (
   <Box sx={{ textAlign: 'center' }}>
-    <Typography variant="h4" fontWeight={700} color="white">
+    <Typography variant="h4" fontWeight={800} color="white" sx={{ mb: 0.5, letterSpacing: -0.5 }}>
       {value}
     </Typography>
-    <Typography variant="body2" color="rgba(255, 255, 255, 0.8)">
+    <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>
       {label}
     </Typography>
   </Box>
@@ -121,6 +127,7 @@ const avatarColors = ['#1976d2', '#d32f2f', '#ed6c02', '#9c27b0', '#0288d1'];
 
 // Hero Section Component - now accepts live stats
 const HeroSection = ({ stats, loading }) => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const { totalCourses, totalLessons, videoLessons, documentLessons, totalInstructors, totalStudents, avgRating, topInstructors } = stats;
 
@@ -128,256 +135,242 @@ const HeroSection = ({ stats, loading }) => {
     <Box
       sx={{
         position: 'relative',
-        borderRadius: 4,
+        borderRadius: { xs: 0, md: 6 },
         overflow: 'hidden',
-        mb: 5,
-        boxShadow: '0 8px 32px rgba(46, 125, 50, 0.2)',
-        background: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #43a047 100%)',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundImage: `
-            radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 40%),
-            radial-gradient(circle at 40% 40%, rgba(255,255,255,0.05) 0%, transparent 30%)
-          `,
-          pointerEvents: 'none',
-        },
+        mb: 6,
+        mx: { xs: -2, sm: -3, md: 0 }, // Bleed on mobile
+        minHeight: { xs: 'auto', md: 540 },
+        display: 'flex',
+        alignItems: 'center',
+        background: '#1b5e20',
+        backgroundImage: `
+          radial-gradient(circle at 0% 0%, rgba(46, 125, 50, 0.8) 0%, transparent 50%),
+          radial-gradient(circle at 100% 100%, rgba(27, 94, 32, 0.9) 0%, transparent 50%),
+          url("https://www.transparenttextures.com/patterns/cubes.png")
+        `,
       }}
     >
+      {/* Animated Background Shapes */}
       <Box
         sx={{
-          position: 'relative',
-          zIndex: 1,
-          p: { xs: 3, sm: 4, md: 5 },
+          position: 'absolute',
+          top: '10%',
+          right: '5%',
+          width: 300,
+          height: 300,
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%)',
+          filter: 'blur(60px)',
+          animation: 'pulse 8s infinite alternate',
+          '@keyframes pulse': {
+            '0%': { transform: 'scale(1) translate(0, 0)' },
+            '100%': { transform: 'scale(1.2) translate(-20px, 20px)' },
+          },
         }}
-      >
-        {/* Top Badge */}
-        <Chip
-          icon={<StarIcon sx={{ fontSize: 16, color: '#ffc107 !important' }} />}
-          label={avgRating > 0 ? `${avgRating}/5 Average Course Rating` : 'Top Rated Language Platform'}
-          size="small"
-          sx={{
-            mb: 3,
-            backgroundColor: 'rgba(255, 255, 255, 0.18)',
-            color: 'white',
-            fontWeight: 500,
-            boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
-            '& .MuiChip-icon': {
-              color: '#ffc107',
-            },
-          }}
-        />
+      />
 
-        {/* Main Content Grid */}
+      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2, py: { xs: 6, md: 8 } }}>
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { xs: '1fr', md: '1.2fr 1fr' },
-            gap: { xs: 4, md: 6 },
+            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+            gap: { xs: 6, md: 8 },
             alignItems: 'center',
           }}
         >
-          {/* Left Content */}
-          <Box>
+          {/* Left Content: Text & CTA */}
+          <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+            <Stack direction="row" alignItems="center" justifyContent={{ xs: 'center', md: 'flex-start' }} spacing={1} sx={{ mb: 3 }}>
+              <Box sx={{ px: 1.5, py: 0.5, bgcolor: 'rgba(255,255,255,0.15)', borderRadius: 1, backdropFilter: 'blur(10px)' }}>
+                <Typography variant="caption" sx={{ color: 'white', fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase' }}>
+                  Premium Learning
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <StarIcon sx={{ fontSize: 16, color: '#ffc107' }} />
+                <Typography variant="caption" sx={{ color: 'white', fontWeight: 700 }}>
+                  {avgRating || '4.9'}/5.0
+                </Typography>
+              </Box>
+            </Stack>
+
             <Typography
-              variant="h3"
-              fontWeight={800}
-              color="white"
+              variant="h1"
               sx={{
-                mb: 2,
-                fontSize: { xs: '1.75rem', sm: '2.25rem', md: '2.75rem' },
-                lineHeight: 1.2,
+                fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4rem' },
+                fontWeight: 900,
+                color: 'white',
+                lineHeight: 1.1,
+                mb: 3,
+                letterSpacing: -1,
+                textShadow: '0 2px 10px rgba(0,0,0,0.2)',
               }}
             >
-              Learn Languages
-              <Box
-                component="span"
-                sx={{
-                  display: 'block',
-                  background: 'linear-gradient(90deg, #fff 0%, #c8e6c9 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
-              >
-                Anytime, Anywhere
-              </Box>
+              Master Any <br />
+              <Box component="span" sx={{ color: '#81c784' }}>Language</Box> Effortlessly
             </Typography>
 
             <Typography
-              variant="body1"
-              color="rgba(255, 255, 255, 0.9)"
-              sx={{ mb: 4, maxWidth: 480, lineHeight: 1.7 }}
+              variant="h6"
+              sx={{
+                color: 'rgba(255,255,255,0.85)',
+                mb: 5,
+                fontWeight: 400,
+                lineHeight: 1.6,
+                maxWidth: 540,
+                mx: { xs: 'auto', md: 0 },
+                fontSize: { xs: '1rem', md: '1.125rem' },
+              }}
             >
-              {totalStudents > 0
-                ? `Join ${formatCount(totalStudents)} learners already achieving fluency. Explore ${totalCourses}+ courses with ${videoLessons}+ video lessons and ${documentLessons}+ reading materials.`
-                : 'Achieve fluency through our interactive courses, vocabulary training, and expert-led video lessons. Start your language journey today.'}
+              Unlock your potential with expert-led courses, interactive exercises, and a global community of learners. Start your journey to fluency today.
             </Typography>
 
-            {/* CTA Buttons */}
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 4 }}>
+            <Stack 
+              direction={{ xs: 'column', sm: 'row' }} 
+              spacing={2} 
+              justifyContent={{ xs: 'center', md: 'flex-start' }} 
+              sx={{ 
+                mb: 6,
+                px: { xs: 2, sm: 0 } // Added margin for small screens
+              }}
+            >
               <Button
                 variant="contained"
                 size="large"
-                endIcon={<ArrowIcon />}
                 onClick={() => navigate('/explore')}
                 sx={{
-                  backgroundColor: 'white',
+                  bgcolor: 'white',
                   color: 'primary.dark',
                   px: 4,
-                  py: 1.5,
-                  fontWeight: 600,
+                  py: 2,
+                  fontSize: '1rem',
+                  fontWeight: 800,
                   borderRadius: 2,
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
-                  '&:hover': {
-                    backgroundColor: '#f5f5f5',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-                  },
-                  transition: 'all 0.25s ease',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+                  '&:hover': { bgcolor: '#f5f5f5', transform: 'translateY(-2px)' },
+                  transition: 'all 0.3s',
                 }}
               >
-                Explore Courses
+                Get Started Now
               </Button>
               <Button
                 variant="outlined"
                 size="large"
                 startIcon={<PlayIcon />}
-                onClick={() => navigate('/video-channels')}
+                onClick={() => navigate('/my-learning')}
                 sx={{
-                  borderColor: 'rgba(255,255,255,0.5)',
+                  borderColor: 'rgba(255,255,255,0.3)',
                   color: 'white',
-                  px: 3,
-                  py: 1.5,
-                  fontWeight: 600,
+                  px: 4,
+                  py: 2,
+                  fontSize: '1rem',
+                  fontWeight: 700,
                   borderRadius: 2,
-                  '&:hover': {
-                    borderColor: 'white',
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                  },
+                  backdropFilter: 'blur(10px)',
+                  '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' },
                 }}
               >
-                Free Video Lessons
+                Watch Demo
               </Button>
             </Stack>
 
-            {/* Social Proof - live instructor avatars */}
-            <Stack direction="row" spacing={2} alignItems="center">
-              <AvatarGroup max={4} sx={{ '& .MuiAvatar-root': { width: 36, height: 36, border: '2px solid #2e7d32' } }}>
-                {topInstructors.length > 0
-                  ? topInstructors.map((inst, i) => (
-                      <Avatar
-                        key={inst.id}
-                        src={inst.image || undefined}
-                        sx={{ bgcolor: avatarColors[i % avatarColors.length] }}
-                      >
-                        {inst.name?.[0]?.toUpperCase()}
-                      </Avatar>
-                    ))
-                  : avatarColors.map((color, i) => (
-                      <Avatar key={i} sx={{ bgcolor: color }}>{String.fromCharCode(65 + i)}</Avatar>
-                    ))
-                }
-              </AvatarGroup>
+            {/* Trust Badges */}
+            <Stack direction="row" alignItems="center" justifyContent={{ xs: 'center', md: 'flex-start' }} spacing={3}>
               <Box>
-                <Typography variant="body2" color="white" fontWeight={600}>
-                  {totalStudents > 0 ? `${formatCount(totalStudents)} Students Enrolled` : 'Growing Community'}
-                </Typography>
-                <Stack direction="row" spacing={0.5} alignItems="center">
-                  <StarRating rating={avgRating || 4.5} />
-                  <Typography variant="caption" color="rgba(255,255,255,0.8)" sx={{ ml: 0.5 }}>
-                    {avgRating > 0 ? `${avgRating}/5 Rating` : ''}
-                  </Typography>
-                </Stack>
+                <Typography variant="h5" sx={{ color: 'white', fontWeight: 800, mb: 0 }}>{formatCount(totalStudents || 15000)}</Typography>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>Students</Typography>
+              </Box>
+              <Divider orientation="vertical" flexItem sx={{ borderColor: 'rgba(255,255,255,0.1)', height: 40 }} />
+              <Box>
+                <Typography variant="h5" sx={{ color: 'white', fontWeight: 800, mb: 0 }}>{totalCourses || 120}+</Typography>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>Courses</Typography>
+              </Box>
+              <Divider orientation="vertical" flexItem sx={{ borderColor: 'rgba(255,255,255,0.1)', height: 40 }} />
+              <Box>
+                <AvatarGroup max={3} sx={{ '& .MuiAvatar-root': { width: 32, height: 32, fontSize: '0.75rem', border: '2px solid #1b5e20' } }}>
+                  {topInstructors.slice(0, 3).map((inst, i) => (
+                    <Avatar key={i} src={inst.image} />
+                  ))}
+                </AvatarGroup>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600, display: 'block', mt: 0.5 }}>Top Mentors</Typography>
               </Box>
             </Stack>
           </Box>
 
-          {/* Right Content - Features & Stats */}
-          <Box>
-            {/* Feature Cards */}
-            <Stack spacing={2} sx={{ mb: 4 }}>
-              <FeatureCard
-                icon={<TranslateIcon sx={{ color: 'white', fontSize: 24 }} />}
-                title="Dual Language Courses"
-                description={`${totalCourses || 'Many'} courses across English & Korean`}
-              />
-              <FeatureCard
-                icon={<VideoIcon sx={{ color: 'white', fontSize: 24 }} />}
-                title={`${videoLessons || '100'}+ Video Lessons`}
-                description={documentLessons > 0 ? `Plus ${documentLessons}+ documents & reading materials` : 'Learn at your own pace with HD video'}
-              />
-              <FeatureCard
-                icon={<TrophyIcon sx={{ color: 'white', fontSize: 24 }} />}
-                title="Expert Instructors"
-                description={`${totalInstructors || 'Multiple'} certified language teachers`}
-              />
-            </Stack>
-
-            {/* Stats Row - live data */}
+          {/* Right Content: Feature Grid */}
+          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: 2,
-                p: 3,
-                borderRadius: 3,
-                backgroundColor: 'rgba(255, 255, 255, 0.12)',
-                backdropFilter: 'blur(12px)',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                gridTemplateColumns: '1fr 1fr',
+                gap: 3,
+                transform: 'perspective(1000px) rotateY(-10deg) rotateX(5deg)',
               }}
             >
-              {loading ? (
-                <>
-                  {[1, 2, 3].map((i) => (
-                    <Box key={i} sx={{ textAlign: 'center' }}>
-                      <Skeleton variant="text" width={60} height={40} sx={{ mx: 'auto', bgcolor: 'rgba(255,255,255,0.15)' }} />
-                      <Skeleton variant="text" width={50} height={20} sx={{ mx: 'auto', bgcolor: 'rgba(255,255,255,0.1)' }} />
+              <Stack spacing={3}>
+                <FeatureCard
+                  icon={<TranslateIcon />}
+                  title="Native Speakers"
+                  description="Learn from certified native instructors."
+                />
+                <FeatureCard
+                  icon={<VideoIcon />}
+                  title="HD Video"
+                  description="High-quality lessons available 24/7."
+                />
+              </Stack>
+              <Stack spacing={3} sx={{ mt: 6 }}>
+                <FeatureCard
+                  icon={<TrophyIcon />}
+                  title="Certification"
+                  description="Earn recognized certificates upon completion."
+                />
+                <Paper
+                  sx={{
+                    p: 3,
+                    borderRadius: 4,
+                    bgcolor: theme.palette.background.paper,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: theme.palette.mode === 'light' ? '0 20px 40px rgba(0,0,0,0.3)' : '0 20px 40px rgba(0,0,0,0.6)',
+                  }}
+                >
+                  <Box sx={{ position: 'relative', display: 'inline-flex', mb: 2 }}>
+                    <CircularProgress
+                      variant="determinate"
+                      value={75}
+                      size={80}
+                      thickness={5}
+                      sx={{ color: theme.palette.primary.main }}
+                    />
+                    <Box
+                      sx={{
+                        top: 0,
+                        left: 0,
+                        bottom: 0,
+                        right: 0,
+                        position: 'absolute',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Typography variant="h6" component="div" color="text.primary" fontWeight={800}>
+                        75%
+                      </Typography>
                     </Box>
-                  ))}
-                </>
-              ) : (
-                <>
-                  <StatItem value={videoLessons > 0 ? `${videoLessons}` : '—'} label="Videos" />
-                  <StatItem value={documentLessons > 0 ? `${documentLessons}` : '—'} label="Documents" />
-                  <StatItem value={totalStudents > 0 ? formatCount(totalStudents) : '—'} label="Students" />
-                </>
-              )}
+                  </Box>
+                  <Typography variant="subtitle2" fontWeight={800} color="text.primary" align="center">
+                    Average Fluency Increase
+                  </Typography>
+                </Paper>
+              </Stack>
             </Box>
           </Box>
         </Box>
-      </Box>
-
-      {/* Decorative Elements */}
-      <Box
-        sx={{
-          position: 'absolute',
-          top: -100,
-          right: -100,
-          width: 300,
-          height: 300,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
-      />
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: -50,
-          left: -50,
-          width: 200,
-          height: 200,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
-      />
+      </Container>
     </Box>
   );
 };
@@ -848,13 +841,15 @@ const Home = () => {
                     flexShrink: 0,
                     scrollSnapAlign: 'start',
                     p: 2.5,
-                    borderRadius: 0,
+                    borderRadius: 3,
                     border: 'none',
                     bgcolor: 'background.paper',
-                    transition: 'all 0.2s ease',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     cursor: 'pointer',
                     '&:hover': {
-                      bgcolor: alpha(theme.palette.grey[50], 0.5),
+                      transform: 'translateY(-6px)',
+                      boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
+                      bgcolor: theme.palette.mode === 'light' ? alpha(theme.palette.grey[50], 0.5) : alpha(theme.palette.common.white, 0.02),
                     },
                   }}
                   onClick={() => navigate(`/course/${review.courseId}`)}
@@ -1022,13 +1017,14 @@ const Home = () => {
                     p: 2.5,
                     textAlign: 'center',
                     cursor: 'pointer',
-                    boxShadow: '0 1px 8px rgba(0,0,0,0.06)',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
                     border: '1px solid',
                     borderColor: 'divider',
-                    transition: 'all 0.25s ease',
+                    borderRadius: 3,
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
-                      transform: 'translateY(-3px)',
-                      boxShadow: '0 6px 20px rgba(0,0,0,0.1)',
+                      transform: 'translateY(-6px)',
+                      boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
                       borderColor: 'primary.main',
                     },
                   }}
@@ -1121,14 +1117,15 @@ const Home = () => {
                     flexShrink: 0,
                     scrollSnapAlign: 'start',
                     cursor: 'pointer',
-                    boxShadow: '0 1px 8px rgba(0,0,0,0.06)',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
                     border: '1px solid',
                     borderColor: 'divider',
+                    borderRadius: 3,
                     overflow: 'hidden',
-                    transition: 'all 0.25s ease',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
-                      transform: 'translateY(-3px)',
-                      boxShadow: '0 6px 20px rgba(0,0,0,0.1)',
+                      transform: 'translateY(-6px)',
+                      boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
                     },
                   }}
                 >
@@ -1270,11 +1267,13 @@ const Home = () => {
                     borderRadius: 3,
                     overflow: 'hidden',
                     cursor: 'pointer',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-                    transition: 'all 0.25s ease',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                      transform: 'translateY(-6px)',
+                      boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
                     },
                   }}
                 >

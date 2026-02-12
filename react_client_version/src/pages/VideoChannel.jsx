@@ -22,14 +22,12 @@ import {
 } from '@mui/icons-material';
 import { videoChannelAPI } from '../services/api';
 
+import { useThemeMode } from '../context/ThemeContext';
+
 // Channel configuration - maps channel names to app IDs
-// Easy to add more languages in the future
 const CHANNEL_CONFIG = {
   english: { appId: '2', displayName: 'English' },
   korea: { appId: '1', displayName: 'Korean' },
-  // Add more languages here:
-  // japanese: { appId: '3', displayName: 'Japanese' },
-  // chinese: { appId: '4', displayName: 'Chinese' },
 };
 
 // Video Card Component
@@ -43,12 +41,12 @@ const VideoCard = ({ video, channelId, channelName, onClick }) => {
         cursor: 'pointer',
         borderRadius: 2,
         overflow: 'hidden',
-        bgcolor: 'white',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-        transition: 'all 0.25s ease',
+        bgcolor: 'background.paper',
+        boxShadow: theme.palette.mode === 'light' ? '0 2px 12px rgba(0,0,0,0.06)' : '0 4px 20px rgba(0,0,0,0.3)',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': {
-          transform: 'translateY(-5px)',
-          boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
+          transform: 'translateY(-6px)',
+          boxShadow: theme.palette.mode === 'light' ? '0 12px 32px rgba(0,0,0,0.12)' : '0 12px 40px rgba(0,0,0,0.5)',
         },
         '&:hover .play-overlay': {
           opacity: 1,
@@ -60,7 +58,7 @@ const VideoCard = ({ video, channelId, channelName, onClick }) => {
         sx={{
           position: 'relative',
           aspectRatio: '16/9',
-          bgcolor: 'grey.200',
+          bgcolor: theme.palette.mode === 'light' ? 'grey.200' : 'grey.900',
         }}
       >
         {video.thumbnail ? (
@@ -175,16 +173,19 @@ const VideoCard = ({ video, channelId, channelName, onClick }) => {
 };
 
 // Video Card Skeleton
-const VideoCardSkeleton = () => (
-  <Box sx={{ borderRadius: 2, overflow: 'hidden', bgcolor: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-    <Skeleton variant="rectangular" sx={{ aspectRatio: '16/9' }} />
-    <Box sx={{ p: 2 }}>
-      <Skeleton variant="text" width="40%" height={20} />
-      <Skeleton variant="text" width="100%" height={24} />
-      <Skeleton variant="text" width="60%" height={20} />
+const VideoCardSkeleton = () => {
+  const theme = useTheme();
+  return (
+    <Box sx={{ borderRadius: 2, overflow: 'hidden', bgcolor: 'background.paper', boxShadow: theme.palette.mode === 'light' ? '0 2px 12px rgba(0,0,0,0.06)' : '0 4px 20px rgba(0,0,0,0.3)' }}>
+      <Skeleton variant="rectangular" sx={{ aspectRatio: '16/9' }} />
+      <Box sx={{ p: 2 }}>
+        <Skeleton variant="text" width="40%" height={20} />
+        <Skeleton variant="text" width="100%" height={24} />
+        <Skeleton variant="text" width="60%" height={20} />
+      </Box>
     </Box>
-  </Box>
-);
+  );
+};
 
 // Responsive Grid for Videos
 const VideoGrid = ({ children }) => (
@@ -209,6 +210,7 @@ const VideoChannel = () => {
   const { channel } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { mode } = useThemeMode();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const scrollTrigger = useScrollTrigger();
 
@@ -259,7 +261,7 @@ const VideoChannel = () => {
   // Loading state
   if (loading) {
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: '#fafafa' }}>
+      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
         {/* Header Skeleton */}
         <Box sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
           <Stack direction="row" spacing={2} alignItems="center">
@@ -275,7 +277,7 @@ const VideoChannel = () => {
         </Box>
 
         {/* Tabs Skeleton */}
-        <Box sx={{ bgcolor: 'white', borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Box sx={{ bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
           <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
             {/* Mobile: Multiline chips skeleton */}
             <Box sx={{ display: { xs: 'flex', sm: 'none' }, flexWrap: 'wrap', gap: 1, py: 2 }}>
@@ -330,7 +332,7 @@ const VideoChannel = () => {
       <Box
         sx={{
           minHeight: '100vh',
-          bgcolor: '#fafafa',
+          bgcolor: 'background.default',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -353,7 +355,7 @@ const VideoChannel = () => {
   const activeCategory = categories[activeTab] || categories[0];
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#fafafa' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       {/* Page Header */}
       <Box sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
         <Stack direction="row" spacing={2} alignItems="center">
@@ -384,10 +386,10 @@ const VideoChannel = () => {
       <Slide appear={false} direction="down" in={isMobile ? !scrollTrigger : true}>
         <Box
           sx={{
-            bgcolor: 'white',
+            bgcolor: 'background.paper',
             boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
             position: 'sticky',
-            top: { xs: 56, sm: 64 },
+            top: 60, // updated to match new compact navbar height
             zIndex: 10,
           }}
         >

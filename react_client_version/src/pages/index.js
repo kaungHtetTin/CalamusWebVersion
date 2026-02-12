@@ -20,3 +20,5 @@ export { default as VocabLearning } from './VocabLearning';
 export { default as VocabLearn } from './VocabLearn';
 export { default as Chat } from './Chat';
 export { default as Notifications } from './Notifications';
+export { default as Settings } from './Settings';
+export { default as Certificate } from './Certificate';

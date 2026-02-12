@@ -30,6 +30,8 @@ import {
   ArrowBack as BackIcon,
 } from '@mui/icons-material';
 import { additionalLessonsAPI } from '../services/api';
+import { useThemeMode } from '../context/ThemeContext';
+import { alpha } from '@mui/material/styles';
 
 // Format duration
 const formatDuration = (seconds) => {
@@ -41,6 +43,7 @@ const formatDuration = (seconds) => {
 
 // Lesson Item Component
 const LessonItem = ({ lesson, index, onClick }) => {
+  const theme = useTheme();
   const isVideo = lesson.isVideo === 1;
   const isVip = lesson.isVip === 1;
   
@@ -49,17 +52,19 @@ const LessonItem = ({ lesson, index, onClick }) => {
       elevation={0}
       sx={{
         mb: 1,
-        borderRadius: 1.5,
+        borderRadius: 2,
         border: 'none',
-        boxShadow: '0 1px 6px rgba(0,0,0,0.04)',
-        transition: 'all 0.2s ease',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+        bgcolor: 'background.paper',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': {
-          boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-          bgcolor: 'grey.50',
+          transform: 'translateY(-4px)',
+          boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
+          bgcolor: theme.palette.mode === 'light' ? alpha(theme.palette.grey[50], 0.5) : alpha(theme.palette.common.white, 0.02),
         },
       }}
     >
-      <CardActionArea onClick={onClick} sx={{ p: 2 }}>
+      <CardActionArea onClick={onClick} sx={{ p: 1.5 }}>
         <Stack direction="row" alignItems="center" spacing={2}>
           {/* Number */}
           <Typography
@@ -68,7 +73,7 @@ const LessonItem = ({ lesson, index, onClick }) => {
             sx={{ 
               width: 24, 
               textAlign: 'center',
-              fontWeight: 500,
+              fontWeight: 600,
             }}
           >
             {index + 1}
@@ -77,19 +82,20 @@ const LessonItem = ({ lesson, index, onClick }) => {
           {/* Icon */}
           <Box
             sx={{
-              width: 36,
-              height: 36,
-              borderRadius: 1,
-              bgcolor: 'grey.100',
+              width: 40,
+              height: 40,
+              borderRadius: 1.5,
+              bgcolor: alpha(theme.palette.primary.main, 0.1),
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              flexShrink: 0,
             }}
           >
             {isVideo ? (
-              <PlayIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+              <PlayIcon sx={{ fontSize: 20, color: 'primary.main' }} />
             ) : (
-              <DocIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+              <DocIcon sx={{ fontSize: 20, color: 'primary.main' }} />
             )}
           </Box>
           
@@ -143,6 +149,8 @@ const LessonItem = ({ lesson, index, onClick }) => {
 
 // Sidebar Category Item
 const SidebarItem = ({ category, isActive, onClick }) => {
+  const theme = useTheme();
+  
   return (
     <ListItem disablePadding sx={{ mb: 0.5 }}>
       <ListItemButton
@@ -151,32 +159,40 @@ const SidebarItem = ({ category, isActive, onClick }) => {
           borderRadius: 1.5,
           py: 1,
           px: 1.5,
-          bgcolor: isActive ? 'grey.100' : 'transparent',
+          bgcolor: isActive ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
+          color: isActive ? theme.palette.primary.main : 'text.primary',
           transition: 'all 0.15s ease',
           '&:hover': {
-            bgcolor: isActive ? 'grey.100' : 'grey.50',
+            bgcolor: isActive ? alpha(theme.palette.primary.main, 0.15) : alpha(theme.palette.text.primary, 0.04),
           },
+          borderLeft: isActive ? `3px solid ${theme.palette.primary.main}` : '3px solid transparent',
         }}
       >
         <Stack direction="row" alignItems="center" spacing={1.5} sx={{ width: '100%' }}>
           <Avatar
             src={category.image_url}
             variant="rounded"
-            sx={{ width: 32, height: 32, borderRadius: 1 }}
+            sx={{ 
+              width: 32, 
+              height: 32, 
+              borderRadius: 1,
+              border: isActive ? `1px solid ${theme.palette.primary.main}` : 'none'
+            }}
           />
           <Typography
             variant="body2"
             sx={{
               flex: 1,
-              fontWeight: isActive ? 600 : 400,
+              fontWeight: isActive ? 700 : 500,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
+              fontSize: '0.85rem',
             }}
           >
             {category.category_title}
           </Typography>
-          {isActive && <ChevronIcon sx={{ fontSize: 18, color: 'text.secondary' }} />}
+          {isActive && <ChevronIcon sx={{ fontSize: 18, color: 'primary.main' }} />}
         </Stack>
       </ListItemButton>
     </ListItem>
@@ -356,7 +372,8 @@ const LessonList = () => {
                   border: 'none',
                   boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
                   position: 'sticky',
-                  top: 80,
+                  top: 76, // updated to match new compact navbar height
+                  bgcolor: 'background.paper',
                 }}
               >
                 <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2, px: 1 }}>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -31,6 +31,7 @@ import {
 import { videoChannelAPI, discussionAPI } from '../services/api';
 import { useDrawer } from '../context/DrawerContext';
 import { useAuth } from '../context/AuthContext';
+import { useThemeMode } from '../context/ThemeContext';
 import VimeoPlayer from '../components/VideoPlayer/VimeoPlayer';
 import CommentItem from '../components/CommentItem/CommentItem';
 
@@ -43,22 +44,24 @@ const formatCount = (count) => {
 };
 
 // Sidebar Video Item (YouTube style - compact horizontal card)
-const SidebarVideoItem = ({ video, isActive, onClick }) => {
+const SidebarVideoItem = React.forwardRef(({ video, isActive, onClick }, ref) => {
   const theme = useTheme();
 
   return (
     <Box
+      ref={ref}
       onClick={onClick}
       sx={{
         display: 'flex',
         gap: 0.75,
         cursor: 'pointer',
-        p: 0.25,
-        borderRadius: 0.75,
-        bgcolor: isActive ? alpha(theme.palette.primary.main, 0.08) : 'transparent',
-        transition: 'all 0.15s ease',
+        p: 0.5,
+        borderRadius: 1,
+        bgcolor: isActive ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': {
-          bgcolor: isActive ? alpha(theme.palette.primary.main, 0.12) : alpha('#000', 0.04),
+          transform: 'translateX(4px)',
+          bgcolor: theme.palette.mode === 'light' ? alpha(theme.palette.grey[100], 0.8) : alpha(theme.palette.common.white, 0.05),
         },
       }}
     >
@@ -69,9 +72,9 @@ const SidebarVideoItem = ({ video, isActive, onClick }) => {
           width: 120,
           minWidth: 120,
           aspectRatio: '16/9',
-          borderRadius: 0.75,
+          borderRadius: 1,
           overflow: 'hidden',
-          bgcolor: 'grey.200',
+          bgcolor: theme.palette.mode === 'light' ? 'grey.200' : 'grey.900',
         }}
       >
         {video.thumbnail ? (
@@ -156,13 +159,14 @@ const SidebarVideoItem = ({ video, isActive, onClick }) => {
       </Box>
     </Box>
   );
-};
+});
 
 // Main Component
 const WatchVideo = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { mode } = useThemeMode();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   const { drawerOpen, setDrawerOpen } = useDrawer();
   const { isAuthenticated, user } = useAuth();
@@ -186,7 +190,19 @@ const WatchVideo = () => {
   const [commentSubmitting, setCommentSubmitting] = useState(false);
   const [comments, setComments] = useState([]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const activeVideoRef = useRef(null);
 
+  // Scroll active video into view
+  useEffect(() => {
+    if (activeVideoRef.current && !loading) {
+      setTimeout(() => {
+        activeVideoRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }, 500);
+    }
+  }, [id, loading, mobileSidebarOpen]);
   useEffect(() => {
     const fetchData = async () => {
       if (!id) {
@@ -251,7 +267,7 @@ const WatchVideo = () => {
 
     fetchData();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [id, user?.phone]);
+  }, [id, user]);
 
   // Comment tree manipulation helpers
   const updateCommentInTree = (list, commentId, updater) => {
@@ -547,7 +563,7 @@ const WatchVideo = () => {
   // Loading
   if (loading) {
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: '#fff', p: { xs: 0, sm: 2, lg: 3 } }}>
+      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', p: { xs: 0, sm: 2, lg: 3 } }}>
         <Box sx={{ display: 'flex', gap: 3, maxWidth: 1800, mx: 'auto' }}>
           <Box sx={{ flex: 1 }}>
             <Skeleton variant="rectangular" sx={{ width: '100%', aspectRatio: '16/9', borderRadius: { xs: 0, lg: 2 } }} />
@@ -580,7 +596,7 @@ const WatchVideo = () => {
       <Box
         sx={{
           minHeight: '100vh',
-          bgcolor: '#fff',
+          bgcolor: 'background.default',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -600,7 +616,7 @@ const WatchVideo = () => {
   const { video, category, currentIndex, totalVideos, relatedVideos } = data;
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#fff' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       {/* Main Layout Container */}
       <Box
         sx={{
@@ -631,6 +647,7 @@ const WatchVideo = () => {
                 fontSize: { xs: '1rem', sm: '1.125rem' },
                 lineHeight: 1.4,
                 mb: 1.5,
+                color: 'text.primary',
               }}
             >
               {video.title}
@@ -645,7 +662,8 @@ const WatchVideo = () => {
                 alignItems: { xs: 'flex-start', sm: 'center' },
                 gap: 2,
                 pb: 2,
-                boxShadow: '0 1px 0 rgba(0,0,0,0.05)',
+                borderBottom: '1px solid',
+                borderColor: 'divider',
               }}
             >
               {/* Channel Info */}
@@ -661,7 +679,7 @@ const WatchVideo = () => {
                   {category?.title?.charAt(0) || 'C'}
                 </Avatar>
                 <Box>
-                  <Typography fontWeight={600} sx={{ fontSize: '0.9rem' }}>
+                  <Typography fontWeight={600} sx={{ fontSize: '0.9rem', color: 'text.primary' }}>
                     {category?.title}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
@@ -680,11 +698,11 @@ const WatchVideo = () => {
                       minWidth: 'auto',
                       px: 2,
                       py: 0.75,
-                      bgcolor: liked ? alpha(theme.palette.primary.main, 0.1) : alpha('#000', 0.05),
+                      bgcolor: liked ? alpha(theme.palette.primary.main, 0.1) : alpha(theme.palette.text.primary, 0.05),
                       color: liked ? 'primary.main' : 'text.primary',
                       borderRadius: 5,
                       textTransform: 'none',
-                      '&:hover': { bgcolor: alpha('#000', 0.1) },
+                      '&:hover': { bgcolor: alpha(theme.palette.text.primary, 0.1) },
                     }}
                     startIcon={liked ? <LikedIcon /> : <LikeIcon />}
                   >
@@ -701,11 +719,11 @@ const WatchVideo = () => {
                       minWidth: 'auto',
                       px: 2,
                       py: 0.75,
-                      bgcolor: alpha('#000', 0.05),
+                      bgcolor: alpha(theme.palette.text.primary, 0.05),
                       color: 'text.primary',
                       borderRadius: 5,
                       textTransform: 'none',
-                      '&:hover': { bgcolor: alpha('#000', 0.1) },
+                      '&:hover': { bgcolor: alpha(theme.palette.text.primary, 0.1) },
                     }}
                     startIcon={<ShareIcon sx={{ fontSize: 20 }} />}
                   >
@@ -719,8 +737,8 @@ const WatchVideo = () => {
                     <IconButton
                       onClick={() => setMobileSidebarOpen(true)}
                       sx={{
-                        bgcolor: alpha('#000', 0.05),
-                        '&:hover': { bgcolor: alpha('#000', 0.1) },
+                        bgcolor: alpha(theme.palette.text.primary, 0.05),
+                        '&:hover': { bgcolor: alpha(theme.palette.text.primary, 0.1) },
                       }}
                     >
                       <MenuIcon />
@@ -739,11 +757,12 @@ const WatchVideo = () => {
                   mt: 2, 
                   borderRadius: 4,
                   border: 'none',
-                  boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                  boxShadow: theme.palette.mode === 'light' ? '0 2px 12px rgba(0,0,0,0.06)' : '0 4px 20px rgba(0,0,0,0.3)',
                   p: 2,
+                  bgcolor: 'background.paper',
                 }}
               >
-                <Typography variant="h6" fontWeight={600} gutterBottom>
+                <Typography variant="h6" fontWeight={600} gutterBottom color="text.primary">
                   Comments ({comments.length})
                 </Typography>
                 
@@ -764,8 +783,17 @@ const WatchVideo = () => {
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '20px',
-                        bgcolor: 'grey.100',
+                        bgcolor: mode === 'light' ? 'grey.100' : alpha(theme.palette.common.white, 0.05),
                         '& fieldset': { border: 'none' },
+                        color: 'text.primary',
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          bgcolor: mode === 'light' ? 'grey.200' : alpha(theme.palette.common.white, 0.08),
+                        },
+                        '&.Mui-focused': {
+                          bgcolor: mode === 'light' ? '#fff' : alpha(theme.palette.common.white, 0.1),
+                          boxShadow: mode === 'light' ? '0 0 0 2px rgba(25, 118, 210, 0.2)' : `0 0 0 2px ${alpha(theme.palette.primary.main, 0.3)}`,
+                        }
                       },
                     }}
                   />
@@ -822,9 +850,9 @@ const WatchVideo = () => {
               maxWidth: 300,
             }}
           >
-            <Paper sx={{ borderRadius: 2, overflow: 'hidden', bgcolor: 'background.paper' }}>
-              <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'action.hover' }}>
-                <Typography variant="h6" fontWeight={700}>
+            <Paper sx={{ borderRadius: 2, overflow: 'hidden', bgcolor: 'background.paper', boxShadow: theme.palette.mode === 'light' ? '0 2px 12px rgba(0,0,0,0.06)' : '0 4px 20px rgba(0,0,0,0.3)' }}>
+              <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', bgcolor: mode === 'light' ? 'action.hover' : alpha(theme.palette.common.white, 0.05) }}>
+                <Typography variant="h6" fontWeight={700} color="text.primary">
                   Related Videos
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
@@ -835,6 +863,7 @@ const WatchVideo = () => {
                 {relatedVideos.map((relatedVideo) => (
                   <SidebarVideoItem
                     key={relatedVideo.id}
+                    ref={relatedVideo.id === video.id ? activeVideoRef : null}
                     video={relatedVideo}
                     isActive={relatedVideo.id === video.id}
                     onClick={() => handleVideoSelect(relatedVideo.id)}
@@ -852,10 +881,10 @@ const WatchVideo = () => {
           anchor="right"
           open={mobileSidebarOpen}
           onClose={() => setMobileSidebarOpen(false)}
-          PaperProps={{ sx: { width: 300 } }}
+          PaperProps={{ sx: { width: 300, bgcolor: 'background.paper' } }}
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-            <Typography fontWeight={700}>Related Videos</Typography>
+            <Typography fontWeight={700} color="text.primary">Related Videos</Typography>
             <IconButton onClick={() => setMobileSidebarOpen(false)} size="small">
               <CloseIcon />
             </IconButton>
@@ -864,6 +893,7 @@ const WatchVideo = () => {
             {relatedVideos?.map((relatedVideo) => (
               <SidebarVideoItem
                 key={relatedVideo.id}
+                ref={relatedVideo.id === video.id ? activeVideoRef : null}
                 video={relatedVideo}
                 isActive={relatedVideo.id === video.id}
                 onClick={() => {

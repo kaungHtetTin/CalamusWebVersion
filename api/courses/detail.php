@@ -8,7 +8,7 @@
 error_reporting(0);
 ini_set('display_errors', 0);
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type');
@@ -160,9 +160,15 @@ try {
             $formattedLessons = [];
             
             foreach ($dayLessons as $lesson) {
-                // Ensure proper UTF-8 encoding for text fields
-                $lessonTitle = mb_convert_encoding($lesson['lesson_title'] ?? '', 'UTF-8', 'UTF-8');
-                $categoryTitle = mb_convert_encoding($lesson['category_title'] ?? '', 'UTF-8', 'UTF-8');
+                // Ensure proper UTF-8 encoding for Korean/Myanmar text
+                $lessonTitle = $lesson['lesson_title'] ?? '';
+                $categoryTitle = $lesson['category_title'] ?? '';
+                if (!mb_check_encoding($lessonTitle, 'UTF-8')) {
+                    $lessonTitle = mb_convert_encoding($lessonTitle, 'UTF-8', 'auto');
+                }
+                if (!mb_check_encoding($categoryTitle, 'UTF-8')) {
+                    $categoryTitle = mb_convert_encoding($categoryTitle, 'UTF-8', 'auto');
+                }
                 
                 $lessonIsVip = isset($lesson['isVip']) ? (int)$lesson['isVip'] : 0;
                 // Access logic:
@@ -218,11 +224,25 @@ try {
         }
     }
     
+    // Ensure course and instructor text are valid UTF-8 for Korean/Myanmar
+    $courseTitle = $course['title'] ?? '';
+    $courseDescription = $course['description'] ?? '';
+    $teacherName = $teacher['name'] ?? 'Unknown Instructor';
+    if (!mb_check_encoding($courseTitle, 'UTF-8')) {
+        $courseTitle = mb_convert_encoding($courseTitle, 'UTF-8', 'auto');
+    }
+    if (!mb_check_encoding($courseDescription, 'UTF-8')) {
+        $courseDescription = mb_convert_encoding($courseDescription, 'UTF-8', 'auto');
+    }
+    if (!mb_check_encoding($teacherName, 'UTF-8')) {
+        $teacherName = mb_convert_encoding($teacherName, 'UTF-8', 'auto');
+    }
+
     // Format response
     $formattedCourse = [
         'id' => (int)$course['course_id'],
-        'title' => $course['title'],
-        'description' => $course['description'],
+        'title' => $courseTitle,
+        'description' => $courseDescription,
         'duration' => (int)$course['duration'],
         'rating' => (float)$course['rating'],
         'coverUrl' => $course['cover_url'],
@@ -236,7 +256,7 @@ try {
         'enrolledStudents' => (int)$enrolledStudents,
         'instructor' => [
             'id' => (int)$teacher['id'],
-            'name' => $teacher['name'],
+            'name' => $teacherName,
             'profile' => $teacher['profile'],
             'rank' => $teacher['rank'] ?? null,
             'facebook' => $teacher['facebook'] ?? null,
@@ -253,7 +273,10 @@ try {
     
     // Include course VIP status in response
     $formattedCourse['isVip'] = $courseIsVip;
+    // hasAccess means user can view content (either free course or purchased VIP)
     $formattedCourse['hasAccess'] = ($courseIsVip === 0) ? true : $hasVipAccess;
+    // isPurchased: hide buy button when user has purchased (VIP) OR has enrolled in free course (has progress)
+    $formattedCourse['isPurchased'] = $hasVipAccess || ($courseIsVip === 0 && $learnedCount > 0);
     
     echo json_encode([
         'success' => true,

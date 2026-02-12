@@ -18,9 +18,12 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
+  useTheme,
+  alpha,
 } from '@mui/material';
 import { Send as SendIcon, MoreHoriz as MoreIcon, Delete as DeleteIcon, ContentCopy as CopyIcon, Edit as EditIcon, Check as CheckIcon, Close as CloseIcon } from '@mui/icons-material';
 import { formatRelativeTime, formatNumber } from '../PostCard';
+import { useThemeMode } from '../../context/ThemeContext';
 
 const CommentItem = ({
   postId,
@@ -46,6 +49,8 @@ const CommentItem = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(comment.body || '');
   const [updating, setUpdating] = useState(false);
+  const theme = useTheme();
+  const { mode } = useThemeMode();
 
   const isOwner = currentUserId && String(comment.writerId) === String(currentUserId);
   const menuOpen = Boolean(menuAnchor);
@@ -193,12 +198,14 @@ const CommentItem = ({
               <Stack direction="row" alignItems="flex-start" justifyContent="space-between">
                 <Box
                   sx={{
-                    bgcolor: 'grey.100',
+                    bgcolor: mode === 'light' ? 'grey.100' : alpha(theme.palette.common.white, 0.05),
                     borderRadius: '18px',
                     px: 2,
                     py: 1,
                     display: 'inline-block',
                     maxWidth: '100%',
+                    border: '1px solid',
+                    borderColor: mode === 'light' ? 'transparent' : alpha(theme.palette.common.white, 0.1),
                   }}
                 >
                   <Typography variant="subtitle2" fontWeight={600} fontSize={isReply ? 12 : 13} color="text.primary" sx={{ lineHeight: 1.3 }}>
@@ -253,8 +260,15 @@ const CommentItem = ({
                     '& .MuiOutlinedInput-root': {
                       borderRadius: '20px',
                       fontSize: 13,
-                      bgcolor: 'grey.100',
+                      bgcolor: mode === 'light' ? 'grey.100' : alpha(theme.palette.common.white, 0.05),
                       '& fieldset': { border: 'none' },
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        bgcolor: mode === 'light' ? 'grey.200' : alpha(theme.palette.common.white, 0.08),
+                      },
+                      '&.Mui-focused': {
+                        bgcolor: mode === 'light' ? '#fff' : alpha(theme.palette.common.white, 0.1),
+                      }
                     },
                   }}
                 />

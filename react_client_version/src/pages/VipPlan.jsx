@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -30,19 +31,38 @@ import {
   Info as InfoIcon,
   PhoneAndroid as PhoneIcon,
   ViewList as AllIcon,
+  Chat as ChatIcon,
 } from '@mui/icons-material';
 import { vipPlanAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { useSupportChat } from '../context/SupportChatContext';
 
 // Tier icon & color
-const tierConfig = {
-  diamond: { icon: <DiamondIcon />, color: '#00838f', bg: 'linear-gradient(135deg, #e0f7fa, #b2ebf2)' },
-  gold: { icon: <TrophyIcon />, color: '#f57f17', bg: 'linear-gradient(135deg, #fff8e1, #ffe082)' },
-  silver: { icon: <PremiumIcon />, color: '#616161', bg: 'linear-gradient(135deg, #f5f5f5, #e0e0e0)' },
-};
+const getTierConfig = (theme) => ({
+  diamond: { 
+    icon: <DiamondIcon />, 
+    color: theme.palette.mode === 'light' ? '#00838f' : '#4dd0e1', 
+    bg: theme.palette.mode === 'light' ? 'linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%)' : 'linear-gradient(135deg, #006064 0%, #00838f 100%)',
+    accent: theme.palette.mode === 'light' ? '#00838f' : '#4dd0e1'
+  },
+  gold: { 
+    icon: <TrophyIcon />, 
+    color: theme.palette.mode === 'light' ? '#f57f17' : '#ffd54f', 
+    bg: theme.palette.mode === 'light' ? 'linear-gradient(135deg, #fff8e1 0%, #ffe082 100%)' : 'linear-gradient(135deg, #f57f17 0%, #ffb300 100%)',
+    accent: theme.palette.mode === 'light' ? '#f57f17' : '#ffd54f'
+  },
+  silver: { 
+    icon: <PremiumIcon />, 
+    color: theme.palette.mode === 'light' ? '#616161' : '#e0e0e0', 
+    bg: theme.palette.mode === 'light' ? 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)' : 'linear-gradient(135deg, #424242 0%, #616161 100%)',
+    accent: theme.palette.mode === 'light' ? '#616161' : '#e0e0e0'
+  },
+});
 
 // Bundle Plan Card
 const BundlePlanCard = ({ plan, isPopular }) => {
   const theme = useTheme();
+  const tierConfig = getTierConfig(theme);
   const tier = tierConfig[plan.tier] || tierConfig.silver;
 
   return (
@@ -51,48 +71,105 @@ const BundlePlanCard = ({ plan, isPopular }) => {
       sx={{
         position: 'relative',
         overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        bgcolor: theme.palette.background.paper,
         boxShadow: isPopular
-          ? `0 4px 24px ${alpha(theme.palette.primary.main, 0.15)}`
-          : '0 1px 8px rgba(0,0,0,0.06)',
-        border: isPopular ? `2px solid ${theme.palette.primary.main}` : '1px solid',
-        borderColor: isPopular ? 'primary.main' : 'divider',
-        transition: 'all 0.25s ease',
+          ? `0 8px 32px ${alpha(theme.palette.primary.main, theme.palette.mode === 'light' ? 0.12 : 0.4)}`
+          : theme.palette.mode === 'light' ? '0 2px 12px rgba(0,0,0,0.06)' : '0 4px 20px rgba(0,0,0,0.3)',
+        border: '1px solid',
+        borderColor: isPopular ? 'primary.main' : theme.palette.divider,
+        borderRadius: '16px',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': {
-          transform: 'translateY(-3px)',
-          boxShadow: '0 8px 28px rgba(0,0,0,0.1)',
+          transform: 'translateY(-6px)',
+          boxShadow: isPopular 
+            ? `0 12px 40px ${alpha(theme.palette.primary.main, theme.palette.mode === 'light' ? 0.18 : 0.5)}`
+            : theme.palette.mode === 'light' ? '0 8px 24px rgba(0,0,0,0.1)' : '0 8px 32px rgba(0,0,0,0.4)',
         },
       }}
     >
       {isPopular && (
-        <Box sx={{ bgcolor: 'primary.main', color: 'white', textAlign: 'center', py: 0.5, fontSize: '0.7rem', fontWeight: 700, letterSpacing: 1 }}>
-          BEST VALUE
+        <Box 
+          sx={{ 
+            position: 'absolute',
+            top: 12,
+            right: -32,
+            transform: 'rotate(45deg)',
+            bgcolor: 'primary.main', 
+            color: 'white', 
+            width: 120,
+            textAlign: 'center', 
+            py: 0.5, 
+            fontSize: '0.65rem', 
+            fontWeight: 800, 
+            letterSpacing: 0.5,
+            zIndex: 2,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}
+        >
+          POPULAR
         </Box>
       )}
 
-      <Box sx={{ background: tier.bg, p: 2.5, textAlign: 'center' }}>
-        <Avatar sx={{ width: 44, height: 44, mx: 'auto', mb: 1, bgcolor: alpha('#000', 0.06), color: tier.color }}>
-          {tier.icon}
+      <Box sx={{ background: tier.bg, p: 3, textAlign: 'center', position: 'relative' }}>
+        <Avatar 
+          sx={{ 
+            width: 56, 
+            height: 56, 
+            mx: 'auto', 
+            mb: 1.5, 
+            bgcolor: theme.palette.mode === 'light' ? 'white' : alpha('#fff', 0.1), 
+            color: tier.color,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+          }}
+        >
+          {React.cloneElement(tier.icon, { fontSize: 'medium' })}
         </Avatar>
-        <Typography variant="subtitle1" fontWeight={700}>{plan.name}</Typography>
-        <Typography variant="caption" color="text.secondary">{plan.remark}</Typography>
+        <Typography variant="h6" fontWeight={800} sx={{ color: theme.palette.mode === 'light' ? tier.accent : 'white', mb: 0.5 }}>
+          {plan.name}
+        </Typography>
+        <Typography variant="caption" sx={{ color: theme.palette.mode === 'light' ? alpha(tier.accent, 0.8) : alpha('#fff', 0.7), fontWeight: 600, display: 'block', minHeight: 18 }}>
+          {plan.remark}
+        </Typography>
       </Box>
 
-      <Box sx={{ p: 2.5, textAlign: 'center' }}>
-        <Typography variant="h5" fontWeight={800} color="primary.main">{plan.priceLabel}</Typography>
-        {plan.savings && (
-          <Chip icon={<GiftIcon sx={{ fontSize: 14 }} />} label={plan.savings} size="small" color="success" variant="outlined" sx={{ mt: 1, fontSize: '0.7rem' }} />
-        )}
+      <Box sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column', textAlign: 'center' }}>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="h4" fontWeight={800} color="text.primary">
+            {plan.priceLabel}
+          </Typography>
+          {plan.savings && (
+            <Chip 
+              label={plan.savings} 
+              size="small" 
+              sx={{ 
+                mt: 1, 
+                fontWeight: 700, 
+                bgcolor: alpha(theme.palette.success.main, 0.1),
+                color: theme.palette.mode === 'light' ? 'success.dark' : 'success.light',
+                border: 'none',
+                height: 24
+              }} 
+            />
+          )}
+        </Box>
 
-        <Stack spacing={0.75} sx={{ mt: 2, textAlign: 'left' }}>
+        <Divider sx={{ mb: 2.5, opacity: 0.6 }} />
+
+        <Stack spacing={1.5} sx={{ mb: 3, textAlign: 'left', flexGrow: 1 }}>
           {[
-            { icon: <CheckIcon sx={{ fontSize: 16, color: 'success.main' }} />, text: 'All included courses' },
-            plan.blueMark && { icon: <BlueMarkIcon sx={{ fontSize: 16, color: 'info.main' }} />, text: 'Blue Mark verification' },
-            { icon: <CheckIcon sx={{ fontSize: 16, color: 'success.main' }} />, text: 'Additional lessons & features' },
-            { icon: <CheckIcon sx={{ fontSize: 16, color: 'success.main' }} />, text: 'Lifetime access' },
+            { icon: <CheckIcon sx={{ fontSize: 18, color: 'success.main' }} />, text: 'All included courses' },
+            plan.blueMark && { icon: <BlueMarkIcon sx={{ fontSize: 18, color: 'info.main' }} />, text: 'Blue Mark verification' },
+            { icon: <CheckIcon sx={{ fontSize: 18, color: 'success.main' }} />, text: 'Additional lessons & features' },
+            { icon: <CheckIcon sx={{ fontSize: 18, color: 'success.main' }} />, text: 'Lifetime access' },
           ].filter(Boolean).map((item, i) => (
-            <Stack key={i} direction="row" alignItems="center" spacing={0.75}>
-              {item.icon}
-              <Typography variant="body2" fontSize="0.8rem">{item.text}</Typography>
+            <Stack key={i} direction="row" alignItems="flex-start" spacing={1.25}>
+              <Box sx={{ mt: 0.25 }}>{item.icon}</Box>
+              <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500, lineHeight: 1.4 }}>
+                {item.text}
+              </Typography>
             </Stack>
           ))}
         </Stack>
@@ -100,11 +177,19 @@ const BundlePlanCard = ({ plan, isPopular }) => {
         <Button
           variant={isPopular ? 'contained' : 'outlined'}
           fullWidth
-          size="medium"
+          size="large"
           endIcon={<ArrowIcon />}
-          sx={{ mt: 2, fontWeight: 600 }}
+          sx={{ 
+            py: 1.2,
+            borderRadius: '12px',
+            fontWeight: 700,
+            boxShadow: isPopular ? `0 4px 14px ${alpha(theme.palette.primary.main, 0.3)}` : 'none',
+            '&:hover': {
+              boxShadow: isPopular ? `0 6px 20px ${alpha(theme.palette.primary.main, 0.4)}` : 'none',
+            }
+          }}
         >
-          Choose Plan
+          Get Started
         </Button>
       </Box>
     </Paper>
@@ -153,11 +238,16 @@ const PaymentMethodCard = ({ method, onCopy, copied }) => {
       elevation={0}
       sx={{
         p: 2,
-        boxShadow: '0 1px 8px rgba(0,0,0,0.05)',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
         border: '1px solid',
         borderColor: 'divider',
-        '&:hover': { borderColor: 'primary.main', boxShadow: `0 2px 12px ${alpha(theme.palette.primary.main, 0.1)}` },
-        transition: 'all 0.2s',
+        borderRadius: 3,
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        '&:hover': { 
+          transform: 'translateY(-6px)',
+          borderColor: 'primary.main', 
+          boxShadow: '0 12px 32px rgba(0,0,0,0.12)' 
+        },
       }}
     >
       <Stack direction="row" alignItems="center" spacing={1.5}>
@@ -286,7 +376,10 @@ const VipPlanSkeleton = () => (
 
 const VipPlan = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { user, isAuthenticated } = useAuth();
+  const { openChat } = useSupportChat();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -314,6 +407,14 @@ const VipPlan = () => {
       setCopied(phone);
       setTimeout(() => setCopied(null), 2000);
     });
+  };
+
+  const handleSupportChat = (major) => {
+    if (!isAuthenticated || !user?.phone) {
+      navigate('/login');
+      return;
+    }
+    openChat(major);
   };
 
   // Build tab list: All + each language
@@ -469,6 +570,7 @@ const VipPlan = () => {
           </Box>
         </Box>
 
+
         {/* Payment Instructions */}
         <Paper
           elevation={0}
@@ -489,6 +591,56 @@ const VipPlan = () => {
             {data.paymentInstructions.description}
           </Typography>
         </Paper>
+
+              {/* Admin Chat Support */}
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>
+           Admin Team ကို ဆက်သွယ်ရန်
+          </Typography>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<ChatIcon />}
+              onClick={() => handleSupportChat('english')}
+              sx={{
+                flex: 1,
+                py: 1.25,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 600,
+                borderColor: alpha(theme.palette.primary.main, 0.3),
+                '&:hover': {
+                  borderColor: theme.palette.primary.main,
+                  bgcolor: alpha(theme.palette.primary.main, 0.04),
+                },
+              }}
+            >
+              Easy English Support
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<ChatIcon />}
+              onClick={() => handleSupportChat('korea')}
+              sx={{
+                flex: 1,
+                py: 1.25,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 600,
+                borderColor: alpha(theme.palette.primary.main, 0.3),
+                '&:hover': {
+                  borderColor: theme.palette.primary.main,
+                  bgcolor: alpha(theme.palette.primary.main, 0.04),
+                },
+              }}
+            >
+              Easy Korean Support
+            </Button>
+          </Stack>
+        </Box>
+
       </Container>
     </Box>
   );

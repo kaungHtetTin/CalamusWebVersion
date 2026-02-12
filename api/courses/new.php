@@ -4,7 +4,7 @@
  * Returns latest 5 courses ordered by course_id DESC
  */
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type');
@@ -26,14 +26,18 @@ try {
         $courses = [];
     }
     
-    // Format response with additional data
-    $formattedCourses = array_map(function($course) use ($Course) {
+    $ensureUtf8 = function($str) {
+        if ($str === null || $str === '') return (string)$str;
+        if (!mb_check_encoding($str, 'UTF-8')) return mb_convert_encoding($str, 'UTF-8', 'auto');
+        return $str;
+    };
+    $formattedCourses = array_map(function($course) use ($Course, $ensureUtf8) {
         $enrolledStudents = $Course->getEnrollStudents($course['course_id']);
         
         return [
             'id' => (int)$course['course_id'],
-            'title' => $course['title'],
-            'description' => $course['description'],
+            'title' => $ensureUtf8($course['title'] ?? ''),
+            'description' => $ensureUtf8($course['description'] ?? ''),
             'duration' => (int)$course['duration'],
             'rating' => (float)$course['rating'],
             'coverUrl' => $course['cover_url'],
@@ -42,7 +46,7 @@ try {
             'fee' => (int)$course['fee'],
             'major' => $course['major'],
             'lessonsCount' => (int)$course['lessons_count'],
-            'instructor' => $course['teacher_name'],
+            'instructor' => $ensureUtf8($course['teacher_name'] ?? ''),
             'instructorId' => (int)$course['teacher_id'],
             'instructorImage' => $course['teacher_profile'] ?? null,
             'enrolledStudents' => (int)$enrolledStudents

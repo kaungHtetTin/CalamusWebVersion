@@ -1,11 +1,5 @@
-I think we should manage different approach for admin support chatting.
-In our app, we globally use english for conversation by default.
-But for admin chat support, we need to manage for individual language.
-So let manage normal friendship chat and admin support chat separately
-for friendship chat just skip the conservation like 
-whose friend id is 10000, in the client side.
-
-For admin chat support.
-when the user click the chat link from support section in the 
-navigation drawer, just show the floating chatbox dialog 
-like the facebook messenger web version. 
+In dicussion page, we have post array.
+When we click a post comment icon,
+it show the comment dialog box.
+That comment dialog box should be the same 
+comment dialog box to post detail page or watch video page

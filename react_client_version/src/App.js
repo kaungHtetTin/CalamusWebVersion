@@ -1,17 +1,17 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
-import theme from './theme/theme';
+import { ThemeModeProvider } from './context/ThemeContext';
 import { Layout } from './components/Layout';
 import { DrawerProvider } from './context/DrawerContext';
 import { AuthProvider } from './context/AuthContext';
 import { SupportChatProvider } from './context/SupportChatContext';
 import SupportChatBox from './components/SupportChatBox/SupportChatBox';
-import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList, AdditionalLessonPlay, VipPlan, Login, Profile, EditProfile, MyLearning, LessonPlay, VocabLearning, VocabLearn, Chat, Notifications } from './pages';
+import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList, AdditionalLessonPlay, VipPlan, Login, Profile, EditProfile, MyLearning, LessonPlay, VocabLearning, VocabLearn, Chat, Notifications, Settings, Certificate } from './pages';
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeModeProvider>
       <CssBaseline />
       <Router>
         <AuthProvider>
@@ -31,6 +31,7 @@ function App() {
                       <Route path="/" element={<Home />} />
                       <Route path="/instructor/:id" element={<InstructorProfile />} />
                       <Route path="/course/:id" element={<CourseDetail />} />
+                      <Route path="/certificate" element={<Certificate />} />
                       <Route path="/course/:courseId/lesson/:lessonId" element={<LessonPlay />} />
                       <Route path="/explore" element={<Explore />} />
                       <Route path="/vocab-learning" element={<VocabLearning />} />
@@ -45,7 +46,7 @@ function App() {
                       <Route path="/post/:postId" element={<PostDetail />} />
                       <Route path="/songs/:category" element={<SongWithLyrics />} />
                       <Route path="/admin-team/:team" element={<PlaceholderPage title="Admin Team" />} />
-                      <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
+                      <Route path="/settings" element={<Settings />} />
                       <Route path="/vip-plan" element={<VipPlan />} />
                       <Route path="/about" element={<PlaceholderPage title="About Us" />} />
                       <Route path="/contact" element={<PlaceholderPage title="Contact Us" />} />
@@ -65,7 +66,7 @@ function App() {
           </SupportChatProvider>
         </AuthProvider>
       </Router>
-    </ThemeProvider>
+    </ThemeModeProvider>
   );
 }
 

@@ -11,7 +11,6 @@ import {
   Box,
   Typography,
   Avatar,
-  Toolbar,
   useTheme,
   alpha,
   Badge,
@@ -125,13 +124,19 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const [supportUnreadCounts, setSupportUnreadCounts] = useState({ english: 0, korea: 0 });
   
+  // Sidebar constant colors (Always Dark)
+  const sidebarBg = '#1a1a2e';
+  const sidebarText = '#ffffff';
+  const sidebarTextSecondary = alpha('#ffffff', 0.7);
+  const sidebarActiveBg = alpha(theme.palette.primary.main, 0.15);
+  const sidebarHoverBg = alpha('#ffffff', 0.08);
+
   // Initialize all menus as expanded by default
   const [expandedMenus, setExpandedMenus] = useState(() => {
     const initial = {};
     subMenuItems.forEach((item) => {
       initial[item.text] = true;
     });
-    // Add Support section to expanded menus
     initial['Support'] = true;
     return initial;
   });
@@ -144,24 +149,22 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
   };
 
   const handleNavigation = (path) => {
+    if (path === '/logout') {
+      navigate('/');
+      return;
+    }
     navigate(path);
-    // Only close drawer on mobile (temporary variant)
     if (variant === 'temporary') {
       onClose();
     }
   };
 
-  // Handle admin team/support chat - open floating chatbox
   const handleSupportChat = (major) => {
     if (!isAuthenticated || !user?.phone) {
       navigate('/login');
       return;
     }
-
-    // Open floating support chatbox instead of navigating
     openChat(major);
-    
-    // Close drawer on mobile
     if (variant === 'temporary') {
       onClose();
     }
@@ -174,7 +177,6 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
     return location.pathname.startsWith(path);
   };
 
-  // Fetch unread message count for friendship chats
   useEffect(() => {
     if (!isAuthenticated || !user?.phone) {
       setUnreadMessageCount(0);
@@ -186,19 +188,10 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
         const userId = Number(user.phone);
         const result = await chatAPI.getConversations(userId, 'english');
         if (result && result.data && Array.isArray(result.data)) {
-          // Sum all unread_count from conversations (excluding admin support conversations)
           const totalUnread = result.data.reduce((sum, conv) => {
-            // Exclude conversations with support user (ID 10000)
-            // Check both string and number comparison to handle type differences
             const friendPhone = conv.friend?.phone;
             const friendPhoneNum = Number(friendPhone);
-            
-            // Skip admin support conversations (user ID 10000)
-            if (friendPhoneNum === 10000) {
-              return sum; // Skip admin support conversations
-            }
-            
-            // Only count friendship conversations
+            if (friendPhoneNum === 10000) return sum; 
             return sum + (Number(conv.unread_count) || 0);
           }, 0);
           setUnreadMessageCount(totalUnread);
@@ -210,12 +203,10 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
     };
 
     fetchUnreadCount();
-    // Poll every 10 seconds for new messages
     const interval = setInterval(fetchUnreadCount, 10000);
     return () => clearInterval(interval);
   }, [isAuthenticated, user?.phone]);
 
-  // Fetch unread message count for admin support chats
   useEffect(() => {
     if (!isAuthenticated || !user?.phone) {
       setSupportUnreadCounts({ english: 0, korea: 0 });
@@ -228,12 +219,10 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
         const majors = ['english', 'korea'];
         const counts = { english: 0, korea: 0 };
 
-        // Fetch unread counts for each major
         for (const major of majors) {
           try {
             const result = await chatAPI.getConversations(userId, major);
             if (result && result.data && Array.isArray(result.data)) {
-              // Find conversation with support user (ID 10000)
               const supportConv = result.data.find((conv) => {
                 const friendPhone = conv.friend?.phone;
                 const friendPhoneNum = Number(friendPhone);
@@ -250,7 +239,6 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
             counts[major] = 0;
           }
         }
-
         setSupportUnreadCounts(counts);
       } catch (err) {
         console.error('Failed to fetch support unread counts:', err);
@@ -259,7 +247,6 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
     };
 
     fetchSupportUnreadCounts();
-    // Poll every 10 seconds for new messages
     const interval = setInterval(fetchSupportUnreadCounts, 10000);
     return () => clearInterval(interval);
   }, [isAuthenticated, user?.phone]);
@@ -270,43 +257,10 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
         display: 'flex', 
         flexDirection: 'column', 
         height: '100%',
-        bgcolor: '#1a1a2e', // Dark background like Firebase Console
-        color: '#ffffff',
+        bgcolor: sidebarBg,
+        color: sidebarText,
       }}
     >
-      {/* Header Section - Logo/Brand */}
-      <Box
-        sx={{
-          px: 2,
-          py: 1,
-          borderBottom: `1px solid ${alpha('#ffffff', 0.1)}`,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1.5,
-        }}
-      >
-        <Box
-          sx={{
-            width: 32,
-            height: 32,
-            borderRadius: 1,
-            bgcolor: theme.palette.primary.main,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: '1rem',
-          }}
-        >
-          C
-        </Box>
-        <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#ffffff', fontSize: '0.95rem' }}>
-          Calamus
-        </Typography>
-      </Box>
-
-      {/* User Profile Section (if authenticated) */}
       {isAuthenticated && user && (
         <Box
           sx={{
@@ -362,14 +316,12 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
         </Box>
       )}
 
-      {/* Main Navigation - Scrollable */}
       <Box 
         sx={{ 
           flex: 1, 
           overflowY: 'auto', 
           overflowX: 'hidden', 
           py: 0.25,
-          // Custom scrollbar styling for dark theme
           scrollbarWidth: 'thin',
           scrollbarColor: `${alpha('#ffffff', 0.3)} transparent`,
           '&::-webkit-scrollbar': {
@@ -387,7 +339,6 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
           },
         }}
       >
-        {/* Main Menu Items */}
         <List sx={{ px: 1, py: 0 }}>
           {mainMenuItems.map((item) => {
             const active = isActive(item.path);
@@ -403,12 +354,12 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
                     py: 0.75,
                     px: 1.5,
                     minHeight: 36,
-                    bgcolor: active ? alpha(theme.palette.primary.main, 0.15) : 'transparent',
-                    color: active ? theme.palette.primary.light : alpha('#ffffff', 0.9),
+                    bgcolor: active ? sidebarActiveBg : 'transparent',
+                    color: active ? theme.palette.primary.light : sidebarText,
                     '&:hover': {
                       bgcolor: active 
                         ? alpha(theme.palette.primary.main, 0.2) 
-                        : alpha('#ffffff', 0.08),
+                        : sidebarHoverBg,
                     },
                     transition: 'all 0.2s ease',
                     borderLeft: active ? `3px solid ${theme.palette.primary.main}` : '3px solid transparent',
@@ -416,7 +367,7 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
                 >
                   <ListItemIcon
                     sx={{
-                      color: active ? theme.palette.primary.light : alpha('#ffffff', 0.7),
+                      color: active ? theme.palette.primary.light : sidebarTextSecondary,
                       minWidth: 36,
                       '& svg': {
                         fontSize: '1.1rem',
@@ -458,12 +409,11 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
           })}
         </List>
 
-        {/* Section Divider */}
         <Box sx={{ px: 2, py: 0.75 }}>
           <Typography
             variant="caption"
             sx={{
-              color: alpha('#ffffff', 0.5),
+              color: sidebarTextSecondary,
               fontWeight: 600,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -474,7 +424,6 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
           </Typography>
         </Box>
 
-        {/* Expandable Sub Menus */}
         <List sx={{ px: 1, py: 0 }}>
           {subMenuItems.map((item) => {
             const isExpanded = expandedMenus[item.text];
@@ -493,9 +442,9 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
                       bgcolor: isExpanded || hasActiveChild 
                         ? alpha(theme.palette.primary.main, 0.1) 
                         : 'transparent',
-                      color: alpha('#ffffff', 0.9),
+                      color: sidebarText,
                       '&:hover': {
-                        bgcolor: alpha('#ffffff', 0.08),
+                        bgcolor: sidebarHoverBg,
                       },
                       transition: 'all 0.2s ease',
                     }}
@@ -504,7 +453,7 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
                       sx={{
                         color: hasActiveChild 
                           ? theme.palette.primary.light 
-                          : alpha('#ffffff', 0.7),
+                          : sidebarTextSecondary,
                         minWidth: 36,
                         '& svg': {
                           fontSize: '1.1rem',
@@ -544,12 +493,8 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
                             px: 1.5,
                             pl: 4,
                             minHeight: 32,
-                            bgcolor: active 
-                              ? alpha(theme.palette.primary.main, 0.15) 
-                              : 'transparent',
-                            color: active 
-                              ? theme.palette.primary.light 
-                              : alpha('#ffffff', 0.8),
+                            bgcolor: active ? sidebarActiveBg : 'transparent',
+                            color: active ? theme.palette.primary.light : alpha('#ffffff', 0.8),
                             '&:hover': {
                               bgcolor: active 
                                 ? alpha(theme.palette.primary.main, 0.2) 
@@ -578,12 +523,11 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
           })}
         </List>
 
-        {/* Support Section - Collapsible like other sections */}
         <Box sx={{ px: 2, py: 0.75, mt: 1 }}>
           <Typography
             variant="caption"
             sx={{
-              color: alpha('#ffffff', 0.5),
+              color: sidebarTextSecondary,
               fontWeight: 600,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
@@ -606,16 +550,16 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
                   bgcolor: expandedMenus['Support']
                     ? alpha(theme.palette.primary.main, 0.1)
                     : 'transparent',
-                  color: alpha('#ffffff', 0.9),
+                  color: sidebarText,
                   '&:hover': {
-                    bgcolor: alpha('#ffffff', 0.08),
+                    bgcolor: sidebarHoverBg,
                   },
                   transition: 'all 0.2s ease',
                 }}
               >
                 <ListItemIcon
                   sx={{
-                    color: alpha('#ffffff', 0.7),
+                    color: sidebarTextSecondary,
                     minWidth: 36,
                     '& svg': {
                       fontSize: '1.1rem',
@@ -745,7 +689,6 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
           </React.Fragment>
         </List>
 
-        {/* Bottom Section - Settings & Actions (inside same scroll) */}
         <Box
           sx={{
             borderTop: `1px solid ${alpha('#ffffff', 0.1)}`,
@@ -765,16 +708,12 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
                       py: 0.75,
                       px: 1.5,
                       minHeight: 36,
-                      bgcolor: active 
-                        ? alpha(theme.palette.primary.main, 0.15) 
-                        : 'transparent',
-                      color: active 
-                        ? theme.palette.primary.light 
-                        : alpha('#ffffff', 0.9),
+                      bgcolor: active ? sidebarActiveBg : 'transparent',
+                      color: active ? theme.palette.primary.light : sidebarText,
                       '&:hover': {
                         bgcolor: active 
                           ? alpha(theme.palette.primary.main, 0.2) 
-                          : alpha('#ffffff', 0.08),
+                          : sidebarHoverBg,
                       },
                       transition: 'all 0.2s ease',
                       borderLeft: active 
@@ -784,9 +723,7 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
                   >
                     <ListItemIcon
                       sx={{
-                        color: active 
-                          ? theme.palette.primary.light 
-                          : alpha('#ffffff', 0.7),
+                        color: active ? theme.palette.primary.light : sidebarTextSecondary,
                         minWidth: 36,
                         '& svg': {
                           fontSize: '1.1rem',
@@ -808,7 +745,6 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
             })}
           </List>
 
-          {/* Footer Links */}
           <Box sx={{ px: 2, py: 0.75 }}>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 0.75 }}>
               {footerLinks.map((link) => (
@@ -817,7 +753,7 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
                   variant="caption"
                   component="span"
                   sx={{
-                    color: alpha('#ffffff', 0.6),
+                    color: sidebarTextSecondary,
                     cursor: 'pointer',
                     fontSize: '0.7rem',
                     '&:hover': {
@@ -847,7 +783,6 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
     </Box>
   );
 
-  // For persistent drawer, we don't want backdrop
   if (variant === 'persistent') {
     return (
       <Drawer
@@ -871,11 +806,12 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
             borderRight: `1px solid ${alpha('#ffffff', 0.1)}`,
             boxShadow: 'none',
             position: 'fixed',
-            bgcolor: '#1a1a2e',
-            // Hide scrollbar but keep scrolling functionality
-            scrollbarWidth: 'none', // Firefox
+            top: { xs: '56px', sm: '60px' },
+            height: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 60px)' },
+            bgcolor: sidebarBg,
+            scrollbarWidth: 'none',
             '&::-webkit-scrollbar': {
-              display: 'none', // Chrome, Safari, Edge
+              display: 'none',
             },
           },
         }}
@@ -885,7 +821,6 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
     );
   }
 
-  // For temporary drawer (mobile), use modal with backdrop
   return (
     <Drawer
       variant="temporary"
@@ -899,16 +834,17 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
           border: 'none',
           borderRight: `1px solid ${alpha('#ffffff', 0.1)}`,
           boxShadow: '4px 0 32px rgba(0,0,0,0.3)',
-          bgcolor: '#1a1a2e',
-          // Hide scrollbar but keep scrolling functionality
-          scrollbarWidth: 'none', // Firefox
+          bgcolor: sidebarBg,
+          top: { xs: '56px', sm: '60px' },
+          height: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 60px)' },
+          scrollbarWidth: 'none',
           '&::-webkit-scrollbar': {
-            display: 'none', // Chrome, Safari, Edge
+            display: 'none',
           },
         },
       }}
       ModalProps={{
-        keepMounted: true, // Better open performance on mobile
+        keepMounted: true, 
       }}
     >
       {drawer}

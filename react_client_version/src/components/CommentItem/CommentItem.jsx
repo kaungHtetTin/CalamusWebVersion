@@ -268,6 +268,7 @@ const CommentItem = ({
                       },
                       '&.Mui-focused': {
                         bgcolor: mode === 'light' ? '#fff' : alpha(theme.palette.common.white, 0.1),
+                        boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.3)}`,
                       }
                     },
                   }}

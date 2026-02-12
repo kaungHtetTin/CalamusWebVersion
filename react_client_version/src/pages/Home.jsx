@@ -844,12 +844,13 @@ const Home = () => {
                     borderRadius: 3,
                     border: 'none',
                     bgcolor: 'background.paper',
+                    boxShadow: theme.palette.mode === 'light' ? '0 2px 8px rgba(0,0,0,0.06)' : '0 4px 16px rgba(0,0,0,0.25)',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     cursor: 'pointer',
                     '&:hover': {
                       transform: 'translateY(-6px)',
-                      boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
-                      bgcolor: theme.palette.mode === 'light' ? alpha(theme.palette.grey[50], 0.5) : alpha(theme.palette.common.white, 0.02),
+                      boxShadow: theme.palette.mode === 'light' ? '0 12px 32px rgba(0,0,0,0.12)' : '0 12px 32px rgba(0,0,0,0.4)',
+                      bgcolor: theme.palette.mode === 'light' ? alpha(theme.palette.grey[50], 0.5) : alpha(theme.palette.common.white, 0.05),
                     },
                   }}
                   onClick={() => navigate(`/course/${review.courseId}`)}
@@ -879,7 +880,7 @@ const Home = () => {
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
                             fontSize: '0.875rem',
-                            color: '#1c1d1f',
+                            color: 'text.primary',
                           }}
                         >
                           {review.learnerName}
@@ -897,7 +898,7 @@ const Home = () => {
                               color: '#f3ca8c',
                             },
                             '& .MuiRating-iconEmpty': {
-                              color: '#e4e4e4',
+                              color: theme.palette.mode === 'light' ? '#e4e4e4' : alpha(theme.palette.common.white, 0.25),
                             },
                           }}
                         />
@@ -906,7 +907,7 @@ const Home = () => {
                           sx={{
                             fontSize: '0.75rem',
                             fontWeight: 700,
-                            color: '#1c1d1f',
+                            color: 'text.primary',
                           }}
                         >
                           {review.star}.0
@@ -916,7 +917,7 @@ const Home = () => {
                         variant="caption"
                         sx={{
                           fontSize: '0.75rem',
-                          color: '#6a6f73',
+                          color: 'text.secondary',
                           display: 'block',
                         }}
                       >
@@ -949,7 +950,7 @@ const Home = () => {
                   <Typography
                     variant="body2"
                     sx={{
-                      color: '#1c1d1f',
+                      color: 'text.primary',
                       display: '-webkit-box',
                       WebkitLineClamp: 3,
                       WebkitBoxOrient: 'vertical',

@@ -36,6 +36,7 @@ import {
   ChevronRight as ChevronRightIcon,
   Chat as ChatIcon,
   Support as SupportIcon,
+  LocalLibrary as LocalLibraryIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -425,6 +426,40 @@ const Sidebar = ({ open, onClose, variant = 'persistent' }) => {
         </Box>
 
         <List sx={{ px: 1, py: 0 }}>
+          <ListItem disablePadding sx={{ mb: 0.25 }}>
+            <ListItemButton
+              onClick={() => handleNavigation('/mini-library')}
+              sx={{
+                borderRadius: 1,
+                py: 0.75,
+                px: 1.5,
+                minHeight: 36,
+                bgcolor: isActive('/mini-library') ? sidebarActiveBg : 'transparent',
+                color: sidebarText,
+                '&:hover': {
+                  bgcolor: sidebarHoverBg,
+                },
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  color: isActive('/mini-library') ? theme.palette.primary.light : sidebarTextSecondary,
+                  minWidth: 36,
+                  '& svg': { fontSize: '1.1rem' },
+                }}
+              >
+                <LocalLibraryIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Mini Library"
+                primaryTypographyProps={{
+                  fontSize: '0.8125rem',
+                  fontWeight: isActive('/mini-library') ? 600 : 500,
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
           {subMenuItems.map((item) => {
             const isExpanded = expandedMenus[item.text];
             const hasActiveChild = item.children.some((child) => isActive(child.path));

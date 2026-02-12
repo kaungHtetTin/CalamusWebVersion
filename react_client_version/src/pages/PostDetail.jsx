@@ -651,7 +651,7 @@ const PostDetail = () => {
                   },
                   '&.Mui-focused': {
                     bgcolor: mode === 'light' ? '#fff' : alpha(theme.palette.common.white, 0.1),
-                    boxShadow: mode === 'light' ? '0 0 0 2px rgba(25, 118, 210, 0.2)' : `0 0 0 2px ${alpha(theme.palette.primary.main, 0.3)}`,
+                    boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.3)}`,
                   }
                 },
               }}

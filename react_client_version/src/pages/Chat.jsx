@@ -42,11 +42,14 @@ import {
   MoreVert as MoreVertIcon,
   Delete as DeleteIcon,
   Block as BlockIcon,
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
   Visibility as VisibilityIcon,
   Done as DoneIcon,
   DoneAll as DoneAllIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
+import { useThemeMode } from '../context/ThemeContext';
 import { friendsAPI, chatAPI, notificationAPI } from '../services/api';
 
 const FRIENDS_PAGE_SIZE = 20;
@@ -62,6 +65,7 @@ const Chat = () => {
   const majorParam = searchParams.get('major');
   const navigate = useNavigate();
   const theme = useTheme();
+  const { mode, toggleTheme } = useThemeMode();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   const { isAuthenticated, loading: authLoading, user: authUser, logout } = useAuth();
 
@@ -804,23 +808,23 @@ const Chat = () => {
         overflow: 'hidden',
       }}
     >
-      {/* Header: on mobile, left = conversations drawer, center = title, right = friends drawer */}
+      {/* Header — same design as main app Navbar */}
       <Paper
         elevation={0}
         sx={{
-          px: { xs: 1.5, md: 3 },
-          py: { xs: 1.25, md: 1.75 },
+          px: { xs: 1.5, sm: 2, md: 3 },
+          minHeight: { xs: 56, sm: 60 },
           borderRadius: 0,
           borderBottom: '1px solid',
-          borderColor: 'divider',
+          borderColor: mode === 'light' ? alpha('#000', 0.08) : alpha('#fff', 0.08),
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           position: 'relative',
           zIndex: 1301,
-          bgcolor: 'background.paper',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-          transition: 'all 0.2s ease',
+          backgroundColor: mode === 'light' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(15, 23, 42, 0.8)',
+          backdropFilter: 'blur(20px)',
+          color: 'text.primary',
         }}
       >
         {!isDesktop ? (
@@ -829,13 +833,11 @@ const Chat = () => {
               data-testid="chat-open-conversations"
               onClick={() => setMobileConversationsDrawerOpen(true)}
               sx={{ 
-                bgcolor: alpha(theme.palette.primary.main, 0.08), 
-                '&:hover': { 
-                  bgcolor: alpha(theme.palette.primary.main, 0.15),
-                  transform: 'scale(1.05)',
-                },
-                transition: 'all 0.2s ease',
-                borderRadius: 1.5,
+                mr: { xs: 0, sm: 0.5 },
+                padding: 1,
+                bgcolor: alpha(theme.palette.text.primary, 0.05),
+                '&:hover': { bgcolor: alpha(theme.palette.text.primary, 0.1) },
+                '& svg': { fontSize: '1.25rem' },
               }}
               aria-label="Open conversations"
             >
@@ -847,16 +849,12 @@ const Chat = () => {
               alt="Calamus Education"
               onClick={() => navigate('/')}
               sx={{
-                height: { xs: 32, md: 36 },
-                width: { xs: 32, md: 36 },
-                borderRadius: 1.5,
+                height: { xs: 32, sm: 36 },
+                width: 'auto',
+                borderRadius: 1,
                 cursor: 'pointer',
-                objectFit: 'cover',
+                objectFit: 'contain',
                 mx: 1,
-                transition: 'transform 0.2s ease',
-                '&:hover': {
-                  transform: 'scale(1.05)',
-                },
               }}
             />
             <Typography 
@@ -867,7 +865,7 @@ const Chat = () => {
                 alignItems: 'center', 
                 gap: 1.5, 
                 flex: 1,
-                fontSize: { xs: '1rem', md: '1.25rem' },
+                fontSize: { xs: '0.95rem', sm: '1.1rem' },
               }}
             >
               <ChatIcon color="primary" sx={{ fontSize: { xs: 20, md: 24 } }} />
@@ -879,37 +877,32 @@ const Chat = () => {
                   color="inherit"
                   onClick={handleNotificationOpen}
                   aria-label="notifications"
+                  size="small"
                   sx={{ 
-                    mr: 1,
-                    transition: 'transform 0.2s ease',
-                    '&:hover': {
-                      transform: 'scale(1.1)',
-                      bgcolor: alpha(theme.palette.action.hover, 0.1),
-                    },
+                    mr: 0.5,
+                    padding: 1,
+                    bgcolor: alpha(theme.palette.text.primary, 0.05),
+                    '&:hover': { bgcolor: alpha(theme.palette.text.primary, 0.1) },
                   }}
                 >
-                  <Badge badgeContent={unreadCount} color="secondary" max={99}>
-                    <NotificationsIcon />
+                  <Badge badgeContent={unreadCount} color="secondary" max={99} sx={{ '& .MuiBadge-badge': { border: '2px solid', borderColor: 'background.paper', fontWeight: 700, fontSize: '0.65rem' } }}>
+                    <NotificationsIcon sx={{ fontSize: '1.25rem' }} />
                   </Badge>
                 </IconButton>
                 <IconButton
                   onClick={handleProfileMenuOpen}
+                  size="small"
                   sx={{ 
-                    p: 0.5,
-                    transition: 'transform 0.2s ease',
-                    '&:hover': {
-                      transform: 'scale(1.05)',
-                    },
+                    p: 0.25,
+                    border: '2px solid transparent',
+                    transition: 'all 0.2s',
+                    '&:hover': { borderColor: 'primary.main', bgcolor: alpha(theme.palette.primary.main, 0.08) },
                   }}
                 >
                   <Avatar
                     alt={authUser?.name || 'User'}
                     src={authUser?.image}
-                    sx={{ 
-                      width: 32, 
-                      height: 32,
-                      border: `2px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-                    }}
+                    sx={{ width: { xs: 32, sm: 34 }, height: { xs: 32, sm: 34 }, boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}
                   />
                 </IconButton>
               </>
@@ -918,14 +911,11 @@ const Chat = () => {
               data-testid="chat-open-friends"
               onClick={() => setMobileFriendsDrawerOpen(true)}
               sx={{ 
-                bgcolor: alpha(theme.palette.primary.main, 0.08), 
-                '&:hover': { 
-                  bgcolor: alpha(theme.palette.primary.main, 0.15),
-                  transform: 'scale(1.05)',
-                },
                 ml: 1,
-                transition: 'all 0.2s ease',
-                borderRadius: 1.5,
+                padding: 1,
+                bgcolor: alpha(theme.palette.text.primary, 0.05),
+                '&:hover': { bgcolor: alpha(theme.palette.text.primary, 0.1) },
+                '& svg': { fontSize: '1.25rem' },
               }}
               aria-label="Open friends list"
             >
@@ -940,15 +930,15 @@ const Chat = () => {
               alt="Calamus Education"
               onClick={() => navigate('/')}
               sx={{
-                height: 40,
-                width: 40,
+                height: { xs: 32, sm: 36 },
+                width: 'auto',
                 borderRadius: 1,
                 cursor: 'pointer',
-                objectFit: 'cover',
+                objectFit: 'contain',
                 mr: 2,
               }}
             />
-            <Typography variant="h6" fontWeight={700} sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+            <Typography variant="h6" fontWeight={700} sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1, fontSize: '1.1rem' }}>
               <ChatIcon color="primary" />
               Chat
             </Typography>
@@ -960,17 +950,15 @@ const Chat = () => {
                   size="small"
                   onClick={() => navigate('/my-learning')}
                   sx={{ 
+                    display: { xs: 'none', md: 'flex' },
                     mr: 1,
-                    borderRadius: 2,
-                    textTransform: 'none',
-                    fontWeight: 600,
+                    borderRadius: '8px',
                     px: 2,
-                    boxShadow: '0 2px 8px rgba(46, 125, 50, 0.25)',
-                    '&:hover': {
-                      boxShadow: '0 4px 12px rgba(46, 125, 50, 0.35)',
-                      transform: 'translateY(-1px)',
-                    },
-                    transition: 'all 0.2s ease',
+                    py: 0.5,
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    textTransform: 'none',
+                    boxShadow: `0 4px 12px ${alpha('#2e7d32', 0.2)}`,
                   }}
                 >
                   My Learning
@@ -979,20 +967,27 @@ const Chat = () => {
                   color="inherit"
                   onClick={handleNotificationOpen}
                   aria-label="notifications"
-                  sx={{ mr: 1 }}
+                  size="small"
+                  sx={{ padding: 1, bgcolor: alpha(theme.palette.text.primary, 0.05), '&:hover': { bgcolor: alpha(theme.palette.text.primary, 0.1) } }}
                 >
-                  <Badge badgeContent={unreadCount} color="secondary" max={99}>
-                    <NotificationsIcon />
+                  <Badge badgeContent={unreadCount} color="secondary" max={99} sx={{ '& .MuiBadge-badge': { border: '2px solid', borderColor: 'background.paper', fontWeight: 700, fontSize: '0.65rem' } }}>
+                    <NotificationsIcon sx={{ fontSize: '1.25rem' }} />
                   </Badge>
                 </IconButton>
                 <IconButton
                   onClick={handleProfileMenuOpen}
-                  sx={{ p: 0.5 }}
+                  size="small"
+                  sx={{ 
+                    p: 0.25,
+                    border: '2px solid transparent',
+                    transition: 'all 0.2s',
+                    '&:hover': { borderColor: 'primary.main', bgcolor: alpha(theme.palette.primary.main, 0.08) },
+                  }}
                 >
                   <Avatar
                     alt={authUser?.name || 'User'}
                     src={authUser?.image}
-                    sx={{ width: 36, height: 36 }}
+                    sx={{ width: { xs: 32, sm: 34 }, height: { xs: 32, sm: 34 }, boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}
                   />
                 </IconButton>
               </>
@@ -1089,6 +1084,12 @@ const Chat = () => {
             <AccountCircleIcon fontSize="small" />
           </ListItemIcon>
           View Profile
+        </MenuItem>
+        <MenuItem onClick={toggleTheme}>
+          <ListItemIcon>
+            {mode === 'dark' ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
+          </ListItemIcon>
+          {mode === 'dark' ? 'Light Mode' : 'Night Mode'}
         </MenuItem>
         <MenuItem onClick={() => navigate('/settings')}>
           <ListItemIcon>
@@ -1221,7 +1222,7 @@ const Chat = () => {
                               sx={{
                                 width: 44,
                                 height: 44,
-                                border: hasUnread ? `2px solid ${theme.palette.primary.main}` : `2px solid ${alpha(theme.palette.grey[300], 0.5)}`,
+                                border: hasUnread ? `2px solid ${theme.palette.primary.main}` : (mode === 'light' ? `2px solid ${alpha(theme.palette.grey[300], 0.5)}` : `2px solid ${alpha(theme.palette.common.white, 0.2)}`),
                                 transition: 'all 0.2s ease',
                               }}
                             >
@@ -1569,21 +1570,22 @@ const Chat = () => {
                       sx={{
                         '& .MuiOutlinedInput-root': { 
                           borderRadius: 3, 
-                          bgcolor: alpha(theme.palette.grey[100], 0.6),
+                          bgcolor: mode === 'light' ? alpha(theme.palette.grey[100], 0.6) : alpha(theme.palette.common.white, 0.05),
+                          color: 'text.primary',
                           transition: 'all 0.2s ease',
                           '&:hover': {
-                            bgcolor: alpha(theme.palette.grey[100], 0.8),
+                            bgcolor: mode === 'light' ? alpha(theme.palette.grey[100], 0.8) : alpha(theme.palette.common.white, 0.08),
                           },
                           '&.Mui-focused': {
                             bgcolor: 'background.paper',
-                            boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.2)}`,
+                            boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.3)}`,
                           },
                         },
                         '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: alpha(theme.palette.grey[300], 0.3),
+                          borderColor: mode === 'light' ? alpha(theme.palette.grey[300], 0.3) : alpha(theme.palette.common.white, 0.15),
                         },
                         '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: alpha(theme.palette.grey[400], 0.5),
+                          borderColor: mode === 'light' ? alpha(theme.palette.grey[400], 0.5) : alpha(theme.palette.common.white, 0.25),
                         },
                         '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
                           borderColor: theme.palette.primary.main,

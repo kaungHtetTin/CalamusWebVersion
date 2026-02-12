@@ -19,6 +19,8 @@ import {
   Chip,
   Collapse,
   Fade,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   PlayArrow as PlayIcon,
@@ -38,6 +40,8 @@ import {
   Close as CloseIcon,
 } from '@mui/icons-material';
 import { songAPI } from '../services/api';
+import { useThemeMode } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 
 // Category config
 const CATEGORY_CONFIG = {
@@ -89,9 +93,9 @@ const SongCard = ({ song, isActive, onClick, size = 'medium' }) => {
           borderRadius: 2,
           overflow: 'hidden',
           aspectRatio: '1/1',
-          boxShadow: isActive 
-            ? `0 8px 24px ${alpha(theme.palette.primary.main, 0.4)}` 
-            : '0 4px 12px rgba(0,0,0,0.1)',
+          boxShadow: isActive
+            ? `0 8px 24px ${alpha(theme.palette.primary.main, 0.4)}`
+            : theme.palette.mode === 'light' ? '0 4px 12px rgba(0,0,0,0.1)' : '0 4px 16px rgba(0,0,0,0.3)',
           border: isActive ? `3px solid ${theme.palette.primary.main}` : 'none',
         }}
       >
@@ -176,7 +180,7 @@ const SongCard = ({ song, isActive, onClick, size = 'medium' }) => {
 // Song List Item Component
 const SongListItem = ({ song, isActive, onClick, index }) => {
   const theme = useTheme();
-  
+
   return (
     <Box
       onClick={onClick}
@@ -187,12 +191,12 @@ const SongListItem = ({ song, isActive, onClick, index }) => {
         p: 1.5,
         borderRadius: 2,
         cursor: 'pointer',
-        bgcolor: isActive ? alpha(theme.palette.primary.main, 0.08) : 'transparent',
+        bgcolor: isActive ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
         transition: 'all 0.2s ease',
         '&:hover': {
-          bgcolor: isActive 
-            ? alpha(theme.palette.primary.main, 0.12) 
-            : 'grey.50',
+          bgcolor: isActive
+            ? alpha(theme.palette.primary.main, 0.15)
+            : theme.palette.mode === 'light' ? 'grey.50' : alpha(theme.palette.common.white, 0.05),
         },
       }}
     >
@@ -247,6 +251,8 @@ const SongListItem = ({ song, isActive, onClick, index }) => {
 
 // Artist Card Component
 const ArtistCard = ({ artist, onClick }) => {
+  const theme = useTheme();
+
   return (
     <Box
       onClick={onClick}
@@ -260,7 +266,7 @@ const ArtistCard = ({ artist, onClick }) => {
         transition: 'all 0.2s ease',
         '&:hover': {
           transform: 'scale(1.05)',
-          bgcolor: 'action.hover',
+          bgcolor: theme.palette.mode === 'light' ? 'action.hover' : alpha(theme.palette.common.white, 0.05),
         },
       }}
     >
@@ -290,6 +296,8 @@ const NowPlayingSection = ({
   onNext, 
   onSeek,
   onDownload,
+  onLike,
+  liked = false,
   expanded,
   onToggleExpand,
 }) => {
@@ -302,11 +310,11 @@ const NowPlayingSection = ({
     <Paper
       elevation={0}
       sx={{
-        bgcolor: alpha(theme.palette.primary.main, 0.03),
+        bgcolor: theme.palette.mode === 'light' ? alpha(theme.palette.primary.main, 0.03) : alpha(theme.palette.primary.main, 0.08),
         borderRadius: 3,
         overflow: 'hidden',
         border: 'none',
-        boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.1)}`,
+        boxShadow: theme.palette.mode === 'light' ? `0 4px 20px ${alpha(theme.palette.primary.main, 0.1)}` : '0 4px 24px rgba(0,0,0,0.3)',
       }}
     >
       {/* Main Player Area */}
@@ -402,8 +410,8 @@ const NowPlayingSection = ({
                 <NextIcon />
               </IconButton>
               <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-              <IconButton size="small">
-                <LikeIcon />
+              <IconButton size="small" onClick={onLike} sx={{ color: liked ? 'error.main' : undefined }}>
+                {liked ? <LikedIcon /> : <LikeIcon />}
               </IconButton>
               <IconButton size="small" onClick={onDownload}>
                 <DownloadIcon />
@@ -497,13 +505,16 @@ const MiniPlayer = ({
           zIndex: 1200,
           borderRadius: '16px 16px 0 0',
           overflow: 'hidden',
+          bgcolor: 'background.paper',
+          borderTop: '1px solid',
+          borderColor: 'divider',
         }}
       >
         {/* Progress indicator */}
         <Box
           sx={{
             height: 3,
-            bgcolor: 'grey.200',
+            bgcolor: theme.palette.mode === 'light' ? 'grey.200' : alpha(theme.palette.common.white, 0.1),
           }}
         >
           <Box
@@ -562,6 +573,8 @@ const MiniPlayer = ({
 const SongWithLyrics = () => {
   const { category = 'english' } = useParams();
   const theme = useTheme();
+  const { mode } = useThemeMode();
+  const { user, isAuthenticated } = useAuth();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   
   const audioRef = useRef(new Audio());
@@ -590,6 +603,7 @@ const SongWithLyrics = () => {
   const [selectedArtist, setSelectedArtist] = useState(null);
   const [artistSongs, setArtistSongs] = useState([]);
   const [loadingArtist, setLoadingArtist] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
   
   const categoryConfig = CATEGORY_CONFIG[category] || CATEGORY_CONFIG.english;
   
@@ -600,7 +614,7 @@ const SongWithLyrics = () => {
     setLoadingArtist(true);
     
     try {
-      const response = await songAPI.getByArtist(category, artistName);
+      const response = await songAPI.getByArtist(category, artistName, user?.phone || null);
       if (response.success && response.data.songs) {
         setArtistSongs(response.data.songs);
       } else {
@@ -639,7 +653,7 @@ const SongWithLyrics = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await songAPI.get(category, 1);
+        const response = await songAPI.get(category, 1, user?.phone || null);
         setData(response.data);
         setAllSongs(response.data.songs || []);
         setHasMore(response.data.pagination?.hasMore || false);
@@ -667,7 +681,7 @@ const SongWithLyrics = () => {
       audioRef.current.pause();
       audioRef.current.src = '';
     };
-  }, [category]);
+  }, [category, user?.phone]);
 
   // Load more songs
   const loadMore = useCallback(async () => {
@@ -676,7 +690,7 @@ const SongWithLyrics = () => {
     try {
       setLoadingMore(true);
       const nextPage = page + 1;
-      const response = await songAPI.get(category, nextPage);
+      const response = await songAPI.get(category, nextPage, user?.phone || null);
       
       setAllSongs(prev => [...prev, ...(response.data.songs || [])]);
       setHasMore(response.data.pagination?.hasMore || false);
@@ -686,7 +700,7 @@ const SongWithLyrics = () => {
     } finally {
       setLoadingMore(false);
     }
-  }, [category, page, loadingMore, hasMore]);
+  }, [category, page, loadingMore, hasMore, user?.phone]);
 
   // Fetch lyrics when song changes
   useEffect(() => {
@@ -790,16 +804,66 @@ const SongWithLyrics = () => {
     nowPlayingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const handleDownload = () => {
-    if (currentSong?.audioUrl) {
-      window.open(currentSong.audioUrl, '_blank');
+  // Update song in a list by id (merge updates into the matching song)
+  const updateSongInList = useCallback((list, songId, updates) => {
+    if (!Array.isArray(list)) return list;
+    return list.map((s) =>
+      String(s.id) === String(songId) ? { ...s, ...updates } : s
+    );
+  }, []);
+
+  const handleLike = useCallback(async () => {
+    if (!currentSong?.id) return;
+    if (!isAuthenticated || !user?.phone) {
+      setSnackbar({ open: true, message: 'Please log in to like songs', severity: 'info' });
+      return;
     }
-  };
+    try {
+      const res = await songAPI.like(currentSong.id);
+      if (!res?.success) return;
+      const { liked: newLiked, likeCount } = res;
+      setCurrentSong((prev) => (prev ? { ...prev, liked: newLiked, likeCount } : null));
+      setAllSongs((prev) => updateSongInList(prev, currentSong.id, { liked: newLiked, likeCount }));
+      setData((prev) => {
+        if (!prev?.popularSongs) return prev;
+        return {
+          ...prev,
+          popularSongs: updateSongInList(prev.popularSongs, currentSong.id, { liked: newLiked, likeCount }),
+        };
+      });
+      setArtistSongs((prev) => updateSongInList(prev, currentSong.id, { liked: newLiked, likeCount }));
+    } catch (err) {
+      console.error('Like failed:', err);
+    }
+  }, [currentSong?.id, isAuthenticated, user?.phone, updateSongInList]);
+
+  const handleDownload = useCallback(async () => {
+    if (!currentSong?.id || !currentSong?.audioUrl) return;
+    try {
+      const res = await songAPI.download(currentSong.id);
+      if (res?.success && typeof res.downloadCount === 'number') {
+        const downloadCount = res.downloadCount;
+        setCurrentSong((prev) => (prev ? { ...prev, downloadCount } : null));
+        setAllSongs((prev) => updateSongInList(prev, currentSong.id, { downloadCount }));
+        setData((prev) => {
+          if (!prev?.popularSongs) return prev;
+          return {
+            ...prev,
+            popularSongs: updateSongInList(prev.popularSongs, currentSong.id, { downloadCount }),
+          };
+        });
+        setArtistSongs((prev) => updateSongInList(prev, currentSong.id, { downloadCount }));
+      }
+    } catch (err) {
+      console.error('Download count update failed:', err);
+    }
+    window.open(currentSong.audioUrl, '_blank');
+  }, [currentSong?.id, currentSong?.audioUrl, updateSongInList]);
 
   // Loading state
   if (loading) {
     return (
-      <Box sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 }, width: '100%', boxSizing: 'border-box' }}>
+      <Box sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 }, width: '100%', boxSizing: 'border-box', bgcolor: 'background.default' }}>
         <Skeleton variant="rounded" height={300} sx={{ mb: 3 }} />
         <Stack direction="row" spacing={2} sx={{ mb: 3, overflowX: 'hidden' }}>
           {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -826,9 +890,10 @@ const SongWithLyrics = () => {
           justifyContent: 'center',
           flexDirection: 'column',
           gap: 2,
+          bgcolor: 'background.default',
         }}
       >
-        <MusicIcon sx={{ fontSize: 80, color: 'grey.300' }} />
+        <MusicIcon sx={{ fontSize: 80, color: 'text.secondary' }} />
         <Typography variant="h5" fontWeight={600}>
           {error}
         </Typography>
@@ -846,7 +911,7 @@ const SongWithLyrics = () => {
   const displayAllSongs = selectedArtist ? artistSongs : allSongs;
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#fafafa', pb: showMiniPlayer ? 10 : 4, width: '100%', overflowX: 'hidden' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', pb: showMiniPlayer ? 10 : 4, width: '100%', overflowX: 'hidden' }}>
       {/* Page Header */}
       <Box sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
         <Stack 
@@ -883,20 +948,22 @@ const SongWithLyrics = () => {
             onNext={handleNext}
             onSeek={handleSeek}
             onDownload={handleDownload}
+            liked={currentSong?.liked ?? false}
+            onLike={handleLike}
             expanded={lyricsExpanded}
             onToggleExpand={() => setLyricsExpanded(!lyricsExpanded)}
           />
         </Box>
 
         {/* Content Tabs */}
-        <Paper sx={{ borderRadius: 2, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,0.06)' }}>
+        <Paper sx={{ borderRadius: 2, overflow: 'hidden', bgcolor: 'background.paper', boxShadow: mode === 'light' ? '0 2px 16px rgba(0,0,0,0.06)' : '0 4px 20px rgba(0,0,0,0.3)' }}>
           <Tabs
             value={activeTab}
             onChange={(_, v) => setActiveTab(v)}
             variant={isDesktop ? 'standard' : 'fullWidth'}
             sx={{
               bgcolor: 'background.paper',
-              boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+              boxShadow: mode === 'light' ? '0 1px 4px rgba(0,0,0,0.04)' : '0 1px 4px rgba(0,0,0,0.2)',
               '& .MuiTab-root': {
                 minHeight: 56,
                 textTransform: 'none',
@@ -1091,6 +1158,17 @@ const SongWithLyrics = () => {
         onNext={handleNext}
         visible={showMiniPlayer && !isDesktop}
       />
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar((s) => ({ ...s, open: false }))} severity={snackbar.severity}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

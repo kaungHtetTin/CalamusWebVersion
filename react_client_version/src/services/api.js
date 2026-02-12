@@ -264,21 +264,43 @@ export const songAPI = {
    * Get songs with popular songs, all songs, and artists
    * @param {string} category - Category (english/korea)
    * @param {number} page - Page number for pagination
+   * @param {string} userId - Optional user ID for liked state
    */
-  get: (category = 'english', page = 1) => fetchAPI(`/songs/get.php?category=${category}&page=${page}`),
-  
+  get: (category = 'english', page = 1, userId = null) => {
+    let url = `/songs/get.php?category=${category}&page=${page}`;
+    if (userId) url += `&userId=${encodeURIComponent(userId)}`;
+    return fetchAPI(url);
+  },
+
   /**
    * Get lyrics for a song
    * @param {string} url - Song URL identifier
    */
   getLyrics: (url) => fetchAPI(`/songs/lyrics.php?url=${url}`),
-  
+
   /**
    * Get songs by artist
    * @param {string} category - Category (english/korea)
    * @param {string} artist - Artist name
+   * @param {string} userId - Optional user ID for liked state
    */
-  getByArtist: (category, artist) => fetchAPI(`/songs/by-artist.php?category=${category}&artist=${encodeURIComponent(artist)}`),
+  getByArtist: (category, artist, userId = null) => {
+    let url = `/songs/by-artist.php?category=${category}&artist=${encodeURIComponent(artist)}`;
+    if (userId) url += `&userId=${encodeURIComponent(userId)}`;
+    return fetchAPI(url);
+  },
+
+  /**
+   * Toggle like for a song (requires auth). Returns { liked, likeCount }.
+   * @param {number} songId - Song id (songs.id)
+   */
+  like: (songId) => postAPI('/songs/like.php', { songId }),
+
+  /**
+   * Increment download count for a song. Returns { downloadCount }.
+   * @param {number} songId - Song id (songs.id)
+   */
+  download: (songId) => postAPI('/songs/download.php', { songId }),
 };
 
 /**

@@ -35,36 +35,49 @@ try {
     }
     
     $DB = new Database();
-    
-    // Base URL for media files
-    $baseUrl = 'https://www.calamuseducation.com/uploads/songs';
-    
-    // Escape artist name for SQL using mysqli
-    $conn = mysqli_connect('localhost', 'root', '', 'calamus_db');
+    $conn = $DB->connect();
     $artistEscaped = mysqli_real_escape_string($conn, $artist);
     $categoryEscaped = mysqli_real_escape_string($conn, $category);
-    mysqli_close($conn);
+    $userId = isset($_GET['userId']) ? trim($_GET['userId']) : '';
+    $userIdEscaped = $userId !== '' ? mysqli_real_escape_string($conn, $userId) : '';
+    $likeJoin = '';
+    $likeSelect = '';
+    if ($userIdEscaped !== '') {
+        $likeJoin = " LEFT JOIN song_likes sl ON sl.song_id = s.id AND sl.user_id = '$userIdEscaped' ";
+        $likeSelect = ", (sl.id IS NOT NULL) as user_liked ";
+    }
     
-    // Get all songs by this artist (ordered by popularity)
-    $songsQuery = "SELECT * FROM songs WHERE type='$categoryEscaped' AND artist='$artistEscaped' ORDER BY like_count DESC";
-    $songsResult = $DB->read($songsQuery);
+    $baseUrl = 'https://www.calamuseducation.com/uploads/songs';
+    $formatSong = function($song) use ($baseUrl) {
+        $row = [
+            'id' => (int)$song['id'],
+            'songId' => $song['song_id'],
+            'title' => mb_convert_encoding($song['title'] ?? '', 'UTF-8', 'UTF-8'),
+            'artist' => mb_convert_encoding($song['artist'] ?? '', 'UTF-8', 'UTF-8'),
+            'url' => $song['url'] ?? '',
+            'likeCount' => (int)($song['like_count'] ?? 0),
+            'downloadCount' => (int)($song['download_count'] ?? 0),
+            'audioUrl' => "$baseUrl/audio/{$song['url']}.mp3",
+            'imageUrl' => "$baseUrl/web/{$song['url']}.png",
+            'thumbnailUrl' => "$baseUrl/image/{$song['url']}.png",
+            'lyricsUrl' => "$baseUrl/lyrics/{$song['url']}.txt",
+        ];
+        if (isset($song['user_liked'])) {
+            $row['liked'] = (bool)$song['user_liked'];
+        }
+        return $row;
+    };
+    
+    $songsQuery = "SELECT s.* $likeSelect FROM songs s $likeJoin WHERE s.type='$categoryEscaped' AND s.artist='$artistEscaped' ORDER BY s.like_count DESC";
+    $songsResult = @$DB->read($songsQuery);
+    if ($songsResult === false && $userIdEscaped !== '') {
+        $songsResult = $DB->read("SELECT * FROM songs WHERE type='$categoryEscaped' AND artist='$artistEscaped' ORDER BY like_count DESC");
+    }
     
     $songs = [];
     if ($songsResult && is_array($songsResult)) {
         foreach ($songsResult as $song) {
-            $songs[] = [
-                'id' => (int)$song['id'],
-                'songId' => $song['song_id'],
-                'title' => mb_convert_encoding($song['title'] ?? '', 'UTF-8', 'UTF-8'),
-                'artist' => mb_convert_encoding($song['artist'] ?? '', 'UTF-8', 'UTF-8'),
-                'url' => $song['url'] ?? '',
-                'likeCount' => (int)($song['like_count'] ?? 0),
-                'downloadCount' => (int)($song['download_count'] ?? 0),
-                'audioUrl' => "$baseUrl/audio/{$song['url']}.mp3",
-                'imageUrl' => "$baseUrl/web/{$song['url']}.png",
-                'thumbnailUrl' => "$baseUrl/image/{$song['url']}.png",
-                'lyricsUrl' => "$baseUrl/lyrics/{$song['url']}.txt",
-            ];
+            $songs[] = $formatSong($song);
         }
     }
     

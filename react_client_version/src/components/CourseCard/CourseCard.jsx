@@ -14,6 +14,7 @@ import {
   Rating,
   ButtonBase,
   LinearProgress,
+  useTheme,
 } from '@mui/material';
 import {
   School as SchoolIcon,
@@ -26,6 +27,7 @@ import {
 // Professional Course Card Component
 export const CourseCard = ({ course, onBookmark, progress }) => {
   const navigate = useNavigate();
+  const theme = useTheme();
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   const handleBookmark = (e) => {
@@ -78,10 +80,10 @@ export const CourseCard = ({ course, onBookmark, progress }) => {
         borderRadius: 3,
         overflow: 'hidden',
         border: 'none',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+        boxShadow: theme.palette.mode === 'light' ? '0 2px 12px rgba(0,0,0,0.06)' : '0 4px 16px rgba(0,0,0,0.25)',
         '&:hover': {
           transform: 'translateY(-6px)',
-          boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
+          boxShadow: theme.palette.mode === 'light' ? '0 12px 32px rgba(0,0,0,0.12)' : '0 12px 32px rgba(0,0,0,0.4)',
         },
       }}
     >
@@ -113,12 +115,12 @@ export const CourseCard = ({ course, onBookmark, progress }) => {
             position: 'absolute',
             top: 12,
             left: 12,
-            backgroundColor: 'rgba(255,255,255,0.95)',
-            color: categoryInfo.color,
+            backgroundColor: theme.palette.mode === 'light' ? 'rgba(255,255,255,0.95)' : 'rgba(15, 23, 42, 0.9)',
+            color: theme.palette.mode === 'light' ? categoryInfo.color : '#e2e8f0',
             fontWeight: 600,
             fontSize: '0.7rem',
             height: 24,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            boxShadow: theme.palette.mode === 'light' ? '0 2px 8px rgba(0,0,0,0.1)' : '0 2px 8px rgba(0,0,0,0.3)',
           }}
         />
 
@@ -129,11 +131,12 @@ export const CourseCard = ({ course, onBookmark, progress }) => {
             position: 'absolute',
             top: 8,
             right: 8,
-            backgroundColor: 'rgba(255,255,255,0.95)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            backgroundColor: theme.palette.mode === 'light' ? 'rgba(255,255,255,0.95)' : 'rgba(15, 23, 42, 0.9)',
+            color: theme.palette.mode === 'light' ? 'text.primary' : '#e2e8f0',
+            boxShadow: theme.palette.mode === 'light' ? '0 2px 8px rgba(0,0,0,0.1)' : '0 2px 8px rgba(0,0,0,0.3)',
             '&:hover': {
-              backgroundColor: 'rgba(255,255,255,1)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              backgroundColor: theme.palette.mode === 'light' ? 'rgba(255,255,255,1)' : 'rgba(30, 41, 59, 0.95)',
+              boxShadow: theme.palette.mode === 'light' ? '0 4px 12px rgba(0,0,0,0.15)' : '0 4px 12px rgba(0,0,0,0.4)',
             },
           }}
           size="small"

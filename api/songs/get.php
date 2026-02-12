@@ -24,57 +24,70 @@ require_once '../../classes/connect.php';
 try {
     $category = isset($_GET['category']) ? $_GET['category'] : 'english';
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $userId = isset($_GET['userId']) ? trim($_GET['userId']) : '';
     $limit = 20;
     $offset = ($page - 1) * $limit;
     
     $DB = new Database();
+    $conn = $DB->connect();
+    $userIdEscaped = $userId !== '' ? mysqli_real_escape_string($conn, $userId) : '';
+    $likeJoin = '';
+    $likeSelect = '';
+    if ($userIdEscaped !== '') {
+        $likeJoin = " LEFT JOIN song_likes sl ON sl.song_id = s.id AND sl.user_id = '$userIdEscaped' ";
+        $likeSelect = ", (sl.id IS NOT NULL) as user_liked ";
+    }
     
     // Base URL for media files
     $baseUrl = 'https://www.calamuseducation.com/uploads/songs';
     
+    $formatSong = function($song) use ($baseUrl, $userIdEscaped) {
+        $row = [
+            'id' => (int)$song['id'],
+            'songId' => $song['song_id'],
+            'title' => mb_convert_encoding($song['title'] ?? '', 'UTF-8', 'UTF-8'),
+            'artist' => mb_convert_encoding($song['artist'] ?? '', 'UTF-8', 'UTF-8'),
+            'url' => $song['url'] ?? '',
+            'likeCount' => (int)($song['like_count'] ?? 0),
+            'downloadCount' => (int)($song['download_count'] ?? 0),
+            'audioUrl' => "$baseUrl/audio/{$song['url']}.mp3",
+            'imageUrl' => "$baseUrl/web/{$song['url']}.png",
+            'thumbnailUrl' => "$baseUrl/image/{$song['url']}.png",
+            'lyricsUrl' => "$baseUrl/lyrics/{$song['url']}.txt",
+        ];
+        if (isset($song['user_liked'])) {
+            $row['liked'] = (bool)$song['user_liked'];
+        }
+        return $row;
+    };
+    
     // Get popular songs (top 20 by like count)
-    $popularQuery = "SELECT * FROM songs WHERE type='$category' ORDER BY like_count DESC LIMIT 20";
-    $popularResult = $DB->read($popularQuery);
+    $popularQuery = "SELECT s.* $likeSelect FROM songs s $likeJoin WHERE s.type='$category' ORDER BY s.like_count DESC LIMIT 20";
+    $popularResult = @$DB->read($popularQuery);
+    if ($popularResult === false && $userIdEscaped !== '') {
+        $popularQuery = "SELECT * FROM songs WHERE type='$category' ORDER BY like_count DESC LIMIT 20";
+        $popularResult = $DB->read($popularQuery);
+    }
     
     $popularSongs = [];
     if ($popularResult && is_array($popularResult)) {
         foreach ($popularResult as $song) {
-            $popularSongs[] = [
-                'id' => (int)$song['id'],
-                'songId' => $song['song_id'],
-                'title' => mb_convert_encoding($song['title'] ?? '', 'UTF-8', 'UTF-8'),
-                'artist' => mb_convert_encoding($song['artist'] ?? '', 'UTF-8', 'UTF-8'),
-                'url' => $song['url'] ?? '',
-                'likeCount' => (int)($song['like_count'] ?? 0),
-                'downloadCount' => (int)($song['download_count'] ?? 0),
-                'audioUrl' => "$baseUrl/audio/{$song['url']}.mp3",
-                'imageUrl' => "$baseUrl/web/{$song['url']}.png",
-                'thumbnailUrl' => "$baseUrl/image/{$song['url']}.png",
-                'lyricsUrl' => "$baseUrl/lyrics/{$song['url']}.txt",
-            ];
+            $popularSongs[] = $formatSong($song);
         }
     }
     
     // Get all songs with pagination
-    $songsQuery = "SELECT * FROM songs WHERE type='$category' ORDER BY id DESC LIMIT $limit OFFSET $offset";
-    $songsResult = $DB->read($songsQuery);
+    $songsQuery = "SELECT s.* $likeSelect FROM songs s $likeJoin WHERE s.type='$category' ORDER BY s.id DESC LIMIT $limit OFFSET $offset";
+    $songsResult = @$DB->read($songsQuery);
+    if ($songsResult === false && $userIdEscaped !== '') {
+        $songsQuery = "SELECT * FROM songs WHERE type='$category' ORDER BY id DESC LIMIT $limit OFFSET $offset";
+        $songsResult = $DB->read($songsQuery);
+    }
     
     $songs = [];
     if ($songsResult && is_array($songsResult)) {
         foreach ($songsResult as $song) {
-            $songs[] = [
-                'id' => (int)$song['id'],
-                'songId' => $song['song_id'],
-                'title' => mb_convert_encoding($song['title'] ?? '', 'UTF-8', 'UTF-8'),
-                'artist' => mb_convert_encoding($song['artist'] ?? '', 'UTF-8', 'UTF-8'),
-                'url' => $song['url'] ?? '',
-                'likeCount' => (int)($song['like_count'] ?? 0),
-                'downloadCount' => (int)($song['download_count'] ?? 0),
-                'audioUrl' => "$baseUrl/audio/{$song['url']}.mp3",
-                'imageUrl' => "$baseUrl/web/{$song['url']}.png",
-                'thumbnailUrl' => "$baseUrl/image/{$song['url']}.png",
-                'lyricsUrl' => "$baseUrl/lyrics/{$song['url']}.txt",
-            ];
+            $songs[] = $formatSong($song);
         }
     }
     

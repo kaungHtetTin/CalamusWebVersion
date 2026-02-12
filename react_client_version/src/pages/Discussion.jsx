@@ -27,7 +27,7 @@ import {
   FavoriteBorder as LikeIcon,
   Favorite as LikedIcon,
   ChatBubbleOutline as CommentIcon,
-  Send as ShareIcon,
+  Send as SendIcon,
   MoreHoriz as MoreIcon,
   Verified as VerifiedIcon,
   AddCircleOutline as AddIcon,
@@ -44,6 +44,7 @@ import { PostCard, formatRelativeTime, formatNumber } from '../components/PostCa
 import CommentItem from '../components/CommentItem';
 import CreatePost from '../components/CreatePost';
 import { useAuth } from '../context/AuthContext';
+import { useThemeMode } from '../context/ThemeContext';
 
 // Transition for dialog
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -66,6 +67,7 @@ const CATEGORY_CONFIG = {
 // Comments Modal Component
 const CommentsModal = ({ open, onClose, post, user, isAuthenticated, navigate }) => {
   const theme = useTheme();
+  const { mode } = useThemeMode();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -274,159 +276,126 @@ const CommentsModal = ({ open, onClose, post, user, isAuthenticated, navigate })
         sx: {
           borderRadius: isMobile ? 0 : 2,
           maxHeight: isMobile ? '100%' : '85vh',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          boxShadow: theme.palette.mode === 'light' ? '0 8px 32px rgba(0,0,0,0.12)' : '0 8px 32px rgba(0,0,0,0.4)',
+          bgcolor: 'background.paper',
         },
       }}
     >
-      {/* Header */}
-      <DialogTitle
-        sx={{
-          p: 2,
-          borderBottom: 'none',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          fontWeight: 600,
-        }}
-      >
-        Comments
-        <IconButton onClick={onClose} size="small">
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      
-      {/* Content */}
-      <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column' }}>
-        {/* Post Preview */}
-        {post && (
-          <Box sx={{ p: 2, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-            <Stack direction="row" spacing={1.5} alignItems="flex-start">
-              <Avatar
-                src={post?.userImage}
-                sx={{ width: 36, height: 36 }}
-              />
-              <Box sx={{ flex: 1 }}>
-                <Stack direction="row" alignItems="center" spacing={0.5}>
-                  <Typography variant="subtitle2" fontWeight={600}>
-                    {post?.userName}
-                  </Typography>
-                  {post?.vip === 1 && (
-                    <VerifiedIcon sx={{ fontSize: 14, color: 'primary.main' }} />
-                  )}
-                </Stack>
-                {post?.body && (
-                  <Typography 
-                    variant="body2" 
-                    color="text.secondary"
-                    sx={{
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                    }}
-                  >
-                    {post.body}
-                  </Typography>
-                )}
-              </Box>
-            </Stack>
-          </Box>
-        )}
-        
-        {/* Comments List */}
-        <Box 
-          sx={{ 
-            flex: 1, 
-            overflowY: 'auto', 
-            p: 2,
-            minHeight: 200,
-          }}
-        >
-          {loading ? (
-            <Stack spacing={2}>
-              {[1, 2, 3].map((i) => (
-                <Stack key={i} direction="row" spacing={1.5}>
-                  <Skeleton variant="circular" width={32} height={32} />
-                  <Box sx={{ flex: 1 }}>
-                    <Skeleton variant="rounded" width="60%" height={60} sx={{ borderRadius: 2 }} />
-                    <Stack direction="row" spacing={2} sx={{ mt: 0.5 }}>
-                      <Skeleton variant="text" width={40} />
-                      <Skeleton variant="text" width={30} />
-                      <Skeleton variant="text" width={35} />
-                    </Stack>
-                  </Box>
-                </Stack>
-              ))}
-            </Stack>
-          ) : comments.length === 0 ? (
-            <Box sx={{ textAlign: 'center', py: 4 }}>
-              <CommentIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-              <Typography variant="body1" color="text.secondary">
-                No comments yet
-              </Typography>
-              <Typography variant="body2" color="text.disabled">
-                Be the first to comment!
-              </Typography>
-            </Box>
-          ) : (
-            comments.map((comment) => (
-              <CommentItem
-                key={comment.id || comment.time}
-                postId={post?.postId}
-                comment={comment}
-                currentUserId={user?.phone}
-                onLikeComment={handleLikeComment}
-                onDeleteComment={isAuthenticated ? handleDeleteComment : null}
-                onUpdateComment={isAuthenticated ? handleUpdateComment : null}
-                onReplySubmit={isAuthenticated ? handleReplySubmit : null}
-                isAuthenticated={!!isAuthenticated}
-              />
-            ))
-          )}
-        </Box>
-        
-        {/* Comment Input */}
-        <Box
+      {/* Content — exactly same design as PostDetail / WatchVideo comments section */}
+      <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
+        {/* Comments Section — exactly same as PostDetail/WatchVideo */}
+        <Paper
+          elevation={0}
           sx={{
-            p: 2,
-            boxShadow: '0 -2px 8px rgba(0,0,0,0.04)',
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: 0,
+            borderRadius: 4,
+            border: 'none',
             bgcolor: 'background.paper',
+            boxShadow: theme.palette.mode === 'light' ? '0 2px 12px rgba(0,0,0,0.06)' : '0 4px 20px rgba(0,0,0,0.3)',
+            p: 2,
           }}
         >
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Avatar
-              src="https://www.calamuseducation.com/uploads/placeholder.png"
-              sx={{ width: 32, height: 32 }}
-            />
-            <TextField
-              size="small"
-              placeholder="Add a comment..."
-              fullWidth
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmitComment();
-                }
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                },
-              }}
-            />
-            <IconButton 
-              color="primary" 
-              onClick={handleSubmitComment}
-              disabled={!commentText.trim() || submitting}
-            >
-              <ShareIcon />
+          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
+            <Typography variant="h6" fontWeight={600} color="text.primary">
+              Comments ({comments.length})
+            </Typography>
+            <IconButton onClick={onClose} size="small" aria-label="Close">
+              <CloseIcon />
             </IconButton>
           </Stack>
-        </Box>
+          <Stack direction="row" spacing={1.5} sx={{ mb: 3 }}>
+              <Avatar
+                src={user?.image || user?.learner_image || 'https://www.calamuseducation.com/uploads/placeholder.png'}
+                sx={{ width: 36, height: 36 }}
+              />
+              <TextField
+                size="small"
+                placeholder="Write a comment..."
+                fullWidth
+                multiline
+                maxRows={4}
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmitComment();
+                  }
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '20px',
+                    bgcolor: mode === 'light' ? 'grey.100' : alpha(theme.palette.common.white, 0.05),
+                    '& fieldset': { border: 'none' },
+                    color: 'text.primary',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      bgcolor: mode === 'light' ? 'grey.200' : alpha(theme.palette.common.white, 0.08),
+                    },
+                    '&.Mui-focused': {
+                      bgcolor: mode === 'light' ? '#fff' : alpha(theme.palette.common.white, 0.1),
+                      boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.3)}`,
+                    },
+                  },
+                }}
+              />
+              <IconButton 
+                color="primary" 
+                onClick={handleSubmitComment}
+                disabled={!commentText.trim() || submitting}
+              >
+                <SendIcon />
+              </IconButton>
+            </Stack>
+          <Divider sx={{ mb: 2 }} />
+          {/* Comments List */}
+          <Box sx={{ flex: 1, overflowY: 'auto', minHeight: 120 }}>
+            {loading ? (
+              <Stack spacing={2}>
+                {[1, 2, 3].map((i) => (
+                  <Stack key={i} direction="row" spacing={1.5}>
+                    <Skeleton variant="circular" width={32} height={32} />
+                    <Box sx={{ flex: 1 }}>
+                      <Skeleton variant="rounded" width="60%" height={60} sx={{ borderRadius: '18px' }} />
+                      <Stack direction="row" spacing={2} sx={{ mt: 0.5 }}>
+                        <Skeleton variant="text" width={40} />
+                        <Skeleton variant="text" width={30} />
+                        <Skeleton variant="text" width={35} />
+                      </Stack>
+                    </Box>
+                  </Stack>
+                ))}
+              </Stack>
+            ) : comments.length === 0 ? (
+              <Box sx={{ textAlign: 'center', py: 4 }}>
+                <CommentIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
+                <Typography variant="body1" color="text.secondary">
+                  No comments yet
+                </Typography>
+                <Typography variant="body2" color="text.disabled">
+                  Be the first to comment!
+                </Typography>
+              </Box>
+            ) : (
+              comments.map((comment) => (
+                <CommentItem
+                  key={comment.id || comment.time}
+                  postId={post?.postId}
+                  comment={comment}
+                  currentUserId={user?.phone}
+                  onLikeComment={handleLikeComment}
+                  onDeleteComment={isAuthenticated ? handleDeleteComment : null}
+                  onUpdateComment={isAuthenticated ? handleUpdateComment : null}
+                  onReplySubmit={isAuthenticated ? handleReplySubmit : null}
+                  isAuthenticated={!!isAuthenticated}
+                />
+              ))
+            )}
+          </Box>
+        </Paper>
       </DialogContent>
     </Dialog>
   );

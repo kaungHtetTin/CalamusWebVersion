@@ -7,7 +7,7 @@ import { DrawerProvider } from './context/DrawerContext';
 import { AuthProvider } from './context/AuthContext';
 import { SupportChatProvider } from './context/SupportChatContext';
 import SupportChatBox from './components/SupportChatBox/SupportChatBox';
-import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList, AdditionalLessonPlay, VipPlan, Login, Profile, EditProfile, MyLearning, LessonPlay, VocabLearning, VocabLearn, Chat, Notifications, Settings, Certificate } from './pages';
+import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList, AdditionalLessonPlay, VipPlan, Login, Profile, EditProfile, MyLearning, LessonPlay, VocabLearning, VocabLearn, Chat, Notifications, Settings, Certificate, MiniLibrary } from './pages';
 
 function App() {
   return (
@@ -37,6 +37,7 @@ function App() {
                       <Route path="/vocab-learning" element={<VocabLearning />} />
                       <Route path="/vocab-learning/learn/:deckId" element={<VocabLearn />} />
                       <Route path="/my-learning" element={<MyLearning />} />
+                      <Route path="/mini-library" element={<MiniLibrary />} />
                       <Route path="/additional-lessons/:channel" element={<AdditionalLessons />} />
                       <Route path="/additional-lessons/:channel/category/:categoryId" element={<LessonList />} />
                       <Route path="/additional-lessons/:channel/category/:categoryId/lesson/:lessonId" element={<AdditionalLessonPlay />} />

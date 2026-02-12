@@ -1,5 +1,3 @@
-In dicussion page, we have post array.
-When we click a post comment icon,
-it show the comment dialog box.
-That comment dialog box should be the same 
-comment dialog box to post detail page or watch video page
+This is for all comment input boxes
+the input box is blue color margin on focus state.
+It may be UI default color. Change it to theme color

@@ -1,6 +1,7 @@
 <?php
-include('../../classes/connect.php');
-include('../../classes/song.php');
+require_once __DIR__ . '/../bootstrap.php';
+include(__DIR__ . '/../../classes/connect.php');
+include(__DIR__ . '/../../classes/song.php');
 
 $Song = new Song();
 $songs=$Song->getMostPopularSong($_GET);

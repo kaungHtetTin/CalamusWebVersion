@@ -4,21 +4,12 @@
  * GET: ?major=english (optional, default: english)
  * Returns: { success, data: { categories: [ { name, bookCount } ] } }
  */
+require_once __DIR__ . '/../bootstrap.php';
 
 error_reporting(0);
 ini_set('display_errors', 0);
 
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
-require_once '../../classes/connect.php';
+require_once __DIR__ . '/../../classes/connect.php';
 
 $major = isset($_GET['major']) ? strtolower(trim($_GET['major'])) : 'english';
 $allowedMajors = ['english', 'korea', 'korean', 'chinese', 'japanese', 'russian'];

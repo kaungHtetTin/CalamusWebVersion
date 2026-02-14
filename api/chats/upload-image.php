@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../bootstrap.php';
 
     // $file=$_FILES['file']['name'];
     // $file_loc=$_FILES['file']['tmp_name'];

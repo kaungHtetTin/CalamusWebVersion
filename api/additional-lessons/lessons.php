@@ -1,13 +1,10 @@
 <?php
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
-header('Content-Type: application/json; charset=utf-8');
+require_once __DIR__ . '/../bootstrap.php';
 
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
-require_once '../../classes/connect.php';
+require_once __DIR__ . '/../../classes/connect.php';
 require_once '../../classes/auth.php';
 
 try {

@@ -8,44 +8,23 @@
 error_reporting(0);
 ini_set('display_errors', 0);
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+require_once __DIR__ . '/../bootstrap.php';
+require_once __DIR__ . '/../../classes/connect.php';
+require_once __DIR__ . '/../auth_helper.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    apiJsonError('Method not allowed', 405);
 }
 
-require_once '../../classes/connect.php';
-require_once '../auth_helper.php';
-
 try {
-    // Extract Bearer token
-    $token = getBearerToken();
-
-    if (empty($token)) {
-        echo json_encode(['success' => false, 'error' => 'No authorization token provided']);
-        exit();
-    }
-
     $DB = new Database();
-    $conn = $DB->connect();
-    $token_escaped = mysqli_real_escape_string($conn, $token);
+    $user = getAuthenticatedUser($DB);
 
-    // Find user by auth token
-    $query = "SELECT * FROM learners WHERE auth_token = '$token_escaped' AND auth_token != '' LIMIT 1";
-    $result = $DB->read($query);
-
-    if (!$result) {
-        echo json_encode(['success' => false, 'error' => 'Invalid or expired token']);
-        exit();
+    if (!$user) {
+        apiJsonError('Invalid or expired token', 401);
     }
 
-    $user = $result[0];
-
-    echo json_encode([
+    apiJsonResponse([
         'success' => true,
         'data' => [
             'user' => [
@@ -63,10 +42,8 @@ try {
                 'bio' => mb_convert_encoding($user['bio'] ?? '', 'UTF-8', 'UTF-8'),
             ]
         ]
-    ], JSON_INVALID_UTF8_SUBSTITUTE);
+    ]);
 
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to validate token']);
+    apiJsonError('Failed to validate token', 500);
 }
-?>

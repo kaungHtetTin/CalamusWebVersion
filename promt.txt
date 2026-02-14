@@ -1,3 +1,0 @@
-This is for all comment input boxes
-the input box is blue color margin on focus state.
-It may be UI default color. Change it to theme color

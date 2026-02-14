@@ -1,6 +1,7 @@
 <?php
-include('../../classes/connect.php');
-include('../../classes/LearningFlow.php');
+require_once __DIR__ . '/../bootstrap.php';
+include(__DIR__ . '/../../classes/connect.php');
+include(__DIR__ . '/../../classes/LearningFlow.php');
 
 $user_id = $_GET['user_id'] ?? $_POST['user_id'] ?? null;
 

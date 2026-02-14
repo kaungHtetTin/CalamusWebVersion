@@ -112,12 +112,18 @@ const postFormAPI = async (endpoint, body = {}) => {
 };
 
 /**
- * DELETE fetch wrapper
+ * DELETE fetch wrapper (includes Bearer token when available)
  */
 const deleteAPI = async (endpoint) => {
   try {
+    const headers = {};
+    const token = getToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'DELETE',
+      headers,
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();

@@ -1,6 +1,7 @@
 <?php
-include('../../classes/connect.php');
-include('../../classes/comment.php');
+require_once __DIR__ . '/../bootstrap.php';
+include(__DIR__ . '/../../classes/connect.php');
+include(__DIR__ . '/../../classes/comment.php');
 
 $post_id=$_GET['post_id'];
 $user_id=$_GET['user_id'];

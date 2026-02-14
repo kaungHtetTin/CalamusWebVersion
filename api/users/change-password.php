@@ -8,83 +8,51 @@
 error_reporting(0);
 ini_set('display_errors', 0);
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+require_once __DIR__ . '/../bootstrap.php';
+require_once __DIR__ . '/../../classes/connect.php';
+require_once __DIR__ . '/../auth_helper.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    apiJsonError('Method not allowed', 405);
 }
 
-require_once '../../classes/connect.php';
-require_once '../auth_helper.php';
-
 try {
-    // Get authenticated user
-    $token = getBearerToken();
-    if (empty($token)) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'error' => 'Not authenticated']);
-        exit();
-    }
-
     $DB = new Database();
-    $conn = $DB->connect();
-    $token_escaped = mysqli_real_escape_string($conn, $token);
-
-    // Find user by token
-    $userQuery = "SELECT id, password FROM learners WHERE auth_token = '$token_escaped' LIMIT 1";
-    $userResult = $DB->read($userQuery);
-
-    if (!$userResult || !isset($userResult[0])) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'error' => 'Invalid token']);
-        exit();
+    $user = getAuthenticatedUser($DB);
+    if (!$user) {
+        apiJsonError('Not authenticated', 401);
     }
 
-    $user = $userResult[0];
     $userId = (int)$user['id'];
     $hashedPassword = $user['password'];
 
-    // Get input data
     $input = json_decode(file_get_contents('php://input'), true);
-    if (!$input) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'error' => 'Invalid request body']);
-        exit();
+    if (!$input || !is_array($input)) {
+        apiJsonError('Invalid request body', 400);
     }
 
     $currentPassword = $input['currentPassword'] ?? '';
     $newPassword = $input['newPassword'] ?? '';
 
-    if (empty($currentPassword) || empty($newPassword)) {
-        echo json_encode(['success' => false, 'error' => 'Current and new passwords are required']);
-        exit();
+    if ($currentPassword === '' || $newPassword === '') {
+        apiJsonError('Current and new passwords are required', 400);
+    }
+    if (strlen($newPassword) > 256) {
+        apiJsonError('New password is too long', 400);
     }
 
-    // Verify current password
     if (!password_verify($currentPassword, $hashedPassword)) {
-        echo json_encode(['success' => false, 'error' => 'Incorrect current password']);
-        exit();
+        apiJsonError('Incorrect current password', 400);
     }
 
-    // Hash new password
     $newHashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-    $newHashedPassword_escaped = mysqli_real_escape_string($conn, $newHashedPassword);
+    $ok = $DB->prepareSave('UPDATE learners SET password = ? WHERE id = ?', 'si', [$newHashedPassword, $userId]);
+    if (!$ok) {
+        apiJsonError('Failed to update password', 500);
+    }
 
-    // Update password
-    $updateQuery = "UPDATE learners SET password = '$newHashedPassword_escaped' WHERE id = $userId";
-    $DB->save($updateQuery);
-
-    echo json_encode([
-        'success' => true,
-        'message' => 'Password updated successfully'
-    ]);
+    apiJsonResponse(['success' => true, 'message' => 'Password updated successfully']);
 
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to update password']);
+    apiJsonError('Failed to update password', 500);
 }
-?>

@@ -3,23 +3,12 @@
  * API: Get Discussion Posts
  * Returns posts for the social newsfeed with pagination
  */
+require_once __DIR__ . '/../bootstrap.php';
 
-// Suppress PHP warnings/notices from breaking JSON output
 error_reporting(0);
 ini_set('display_errors', 0);
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST');
-header('Access-Control-Allow-Headers: Content-Type');
-
-// Handle preflight request
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
-require_once '../../classes/connect.php';
+require_once __DIR__ . '/../../classes/connect.php';
 
 try {
     $category = isset($_GET['category']) ? $_GET['category'] : 'english';

@@ -1,20 +1,11 @@
 <?php
-// CORS headers are set by .htaccess - don't duplicate them here
-// Content-Type and OPTIONS handling
+require_once __DIR__ . '/../bootstrap.php';
+
 if (function_exists('ob_start')) {
     ob_start();
 }
-header('Content-Type: application/json; charset=utf-8');
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    if (function_exists('ob_end_clean')) {
-        ob_end_clean();
-    }
-    exit();
-}
-
-include('../../classes/connect.php');
+include(__DIR__ . '/../../classes/connect.php');
 
 $db = new Database();
 $method = $_SERVER['REQUEST_METHOD'];

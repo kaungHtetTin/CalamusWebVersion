@@ -1,19 +1,16 @@
 <?php
+require_once __DIR__ . '/../bootstrap.php';
+
 /**
  * API: Get Lesson Post Detail
  * GET: Returns post details for lesson posts (allows hide = 1)
  * Params: postId, userId (optional)
  * This endpoint is specifically for lesson posts which have hide = 1
  */
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
-header('Content-Type: application/json; charset=utf-8');
-
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
-require_once '../../classes/connect.php';
+require_once __DIR__ . '/../../classes/connect.php';
 
 try {
     $postId = isset($_GET['postId']) ? intval($_GET['postId']) : 0;

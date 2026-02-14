@@ -4,19 +4,10 @@
  * POST: accepts body (text), optional image (base64 or file upload)
  * Requires Bearer token in Authorization header
  */
+require_once __DIR__ . '/../bootstrap.php';
 
 error_reporting(0);
 ini_set('display_errors', 0);
-
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

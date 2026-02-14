@@ -17,4 +17,15 @@
 // define('UPLOAD_DIR_USERS', '../../uploads/users/');
 // define('UPLOAD_DIR_POSTS', '../../uploads/posts/');
 // etc.
+
+// --- Security (API) ---
+// Force development CORS (allow any origin). Use when you get CORS errors in local dev.
+// define('API_DEVELOPMENT', true);
+
+// CORS: allowed origins in production (only used when API_DEVELOPMENT is false).
+// define('ALLOWED_ORIGINS', ['https://www.calamuseducation.com', 'https://calamuseducation.com']);
+
+// Rate limiting for login/register. Set to false to disable.
+// define('RATE_LIMIT_ENABLED', true);
+// define('RATE_LIMIT_DIR', __DIR__ . '/../storage/rate_limit');
 ?>

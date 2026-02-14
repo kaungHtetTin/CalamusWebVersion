@@ -7,48 +7,25 @@
 error_reporting(0);
 ini_set('display_errors', 0);
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+require_once __DIR__ . '/../bootstrap.php';
+require_once __DIR__ . '/../../classes/connect.php';
+require_once __DIR__ . '/../auth_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'error' => 'Method not allowed']);
-    exit();
+    apiJsonError('Method not allowed', 405);
 }
-
-require_once '../../classes/connect.php';
-require_once '../auth_helper.php';
 
 try {
     $token = getBearerToken();
 
     if (empty($token)) {
-        // Already logged out or no token - just return success
-        echo json_encode(['success' => true]);
-        exit();
+        apiJsonResponse(['success' => true]);
     }
 
-    if (!empty($token)) {
-        $DB = new Database();
-        $conn = $DB->connect();
-        $token_escaped = mysqli_real_escape_string($conn, $token);
-
-        // Clear auth token in database
-        $query = "UPDATE learners SET auth_token = '' WHERE auth_token = '$token_escaped'";
-        $DB->save($query);
-    }
-
-    echo json_encode(['success' => true]);
+    $DB = new Database();
+    $DB->prepareSave("UPDATE learners SET auth_token = '' WHERE auth_token = ?", 's', [$token]);
+    apiJsonResponse(['success' => true]);
 
 } catch (Exception $e) {
-    // Even if clearing fails, consider logout successful on client side
-    echo json_encode(['success' => true]);
+    apiJsonResponse(['success' => true]);
 }
-?>

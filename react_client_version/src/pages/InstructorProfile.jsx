@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -11,20 +11,22 @@ import {
   Stack,
   Chip,
   Skeleton,
-  IconButton,
   Rating,
   Divider,
   Paper,
+  Container,
+  Link,
+  Breadcrumbs,
 } from '@mui/material';
 import {
   ArrowBack as BackIcon,
   School as SchoolIcon,
-  People as PeopleIcon,
-  MenuBook as CourseIcon,
   Star as StarIcon,
   Email as EmailIcon,
   AccessTime as TimeIcon,
   PlayLesson as LessonIcon,
+  Home as HomeIcon,
+  ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import { instructorAPI } from '../services/api';
 
@@ -167,43 +169,6 @@ const CourseCard = ({ course }) => {
   );
 };
 
-// Stat card component
-const StatCard = ({ icon, value, label, color }) => (
-  <Paper
-    elevation={0}
-    sx={{
-      p: 3,
-      borderRadius: 3,
-      border: 'none',
-      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-      textAlign: 'center',
-      flex: 1,
-      minWidth: 120,
-    }}
-  >
-    <Box
-      sx={{
-        width: 48,
-        height: 48,
-        borderRadius: 2,
-        backgroundColor: `${color}15`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: '0 auto 12px',
-      }}
-    >
-      {React.cloneElement(icon, { sx: { color, fontSize: 24 } })}
-    </Box>
-    <Typography variant="h5" fontWeight={700} color={color}>
-      {value}
-    </Typography>
-    <Typography variant="body2" color="text.secondary">
-      {label}
-    </Typography>
-  </Paper>
-);
-
 const InstructorProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -262,156 +227,214 @@ const InstructorProfile = () => {
     );
   }
 
-  return (
-    <Box sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
-      {/* Back Button */}
-      <Button
-        startIcon={<BackIcon />}
-        onClick={() => navigate(-1)}
-        sx={{ mb: 3, color: 'text.secondary' }}
-      >
-        Back
-      </Button>
+  // DB stores full profile image link – use directly
+  const instructorImageUrl = instructor.profileImage || null;
 
-      {/* Instructor Header */}
-      <Paper
-        elevation={0}
+  return (
+    <Box sx={{ pb: 3 }}>
+      {/* Hero Section - consistent with Home / About */}
+      <Box
         sx={{
-          p: 4,
-          borderRadius: 4,
-          mb: 4,
-          background: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #43a047 100%)',
-          color: 'white',
           position: 'relative',
+          borderRadius: { xs: 0, md: 6 },
           overflow: 'hidden',
-          boxShadow: '0 8px 32px rgba(46, 125, 50, 0.2)',
+          mb: 4,
+          mx: { xs: -2, sm: -3, md: 0 },
+          minHeight: { xs: 'auto', md: 340 },
+          display: 'flex',
+          alignItems: 'center',
+          background: '#1b5e20',
+          backgroundImage: `
+            radial-gradient(circle at 0% 0%, rgba(46, 125, 50, 0.8) 0%, transparent 50%),
+            radial-gradient(circle at 100% 100%, rgba(27, 94, 32, 0.9) 0%, transparent 50%),
+            url("https://www.transparenttextures.com/patterns/cubes.png")
+          `,
         }}
       >
         <Box
           sx={{
             position: 'absolute',
-            top: -50,
-            right: -50,
-            width: 200,
-            height: 200,
+            top: '10%',
+            right: '5%',
+            width: 280,
+            height: 280,
             borderRadius: '50%',
-            background: 'rgba(255,255,255,0.1)',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%)',
+            filter: 'blur(60px)',
+            animation: 'heroPulse 8s infinite alternate',
+            '@keyframes heroPulse': {
+              '0%': { transform: 'scale(1) translate(0, 0)' },
+              '100%': { transform: 'scale(1.2) translate(-20px, 20px)' },
+            },
           }}
         />
-        
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          spacing={3}
-          alignItems={{ xs: 'center', sm: 'flex-start' }}
-        >
-          <Avatar
-            sx={{
-              width: 120,
-              height: 120,
-              fontSize: '3rem',
-              bgcolor: 'rgba(255,255,255,0.2)',
-              border: '4px solid rgba(255,255,255,0.3)',
-            }}
-          >
-            {instructor.name?.charAt(0) || 'I'}
-          </Avatar>
-          
-          <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
-            <Typography variant="h4" fontWeight={700} gutterBottom>
+
+        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2, py: { xs: 4, md: 5 } }}>
+          <Breadcrumbs separator={<ChevronRightIcon sx={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} />} sx={{ mb: 2 }}>
+            <Link component={RouterLink} to="/" underline="none" sx={{ color: 'rgba(255,255,255,0.85)', display: 'flex', alignItems: 'center', fontSize: '0.8rem' }}>
+              <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} /> Home
+            </Link>
+            <Link component={RouterLink} to="/explore" underline="hover" sx={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.8rem' }}>
+              Instructors
+            </Link>
+            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.95)', fontWeight: 600 }}>
               {instructor.name}
             </Typography>
-            
-            {instructor.specialty && (
-              <Chip
-                label={instructor.specialty}
-                sx={{
-                  backgroundColor: 'rgba(255,255,255,0.2)',
-                  color: 'white',
-                  fontWeight: 500,
-                  mb: 2,
-                }}
-              />
-            )}
-            
-            {instructor.bio && (
-              <Typography
-                variant="body1"
-                sx={{ opacity: 0.9, maxWidth: 600, lineHeight: 1.7 }}
-              >
-                {instructor.bio}
-              </Typography>
-            )}
-            
-            {instructor.email && (
-              <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 2 }}>
-                <EmailIcon sx={{ fontSize: 18, opacity: 0.8 }} />
-                <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                  {instructor.email}
-                </Typography>
-              </Stack>
-            )}
-          </Box>
-        </Stack>
-      </Paper>
+          </Breadcrumbs>
 
-      {/* Stats */}
-      <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        spacing={2}
-        sx={{ mb: 4 }}
-      >
-        <StatCard
-          icon={<CourseIcon />}
-          value={instructor.coursesCount || 0}
-          label="Courses"
-          color="#2e7d32"
-        />
-        <StatCard
-          icon={<PeopleIcon />}
-          value={instructor.totalStudents || 0}
-          label="Students"
-          color="#1976d2"
-        />
-        <StatCard
-          icon={<StarIcon />}
-          value="4.8"
-          label="Avg Rating"
-          color="#ed6c02"
-        />
-      </Stack>
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={{ xs: 3, md: 4 }}
+            alignItems={{ xs: 'center', sm: 'flex-start' }}
+          >
+            <Avatar
+              src={instructorImageUrl || undefined}
+              sx={{
+                width: { xs: 100, md: 120 },
+                height: { xs: 100, md: 120 },
+                fontSize: '2.5rem',
+                bgcolor: 'rgba(255,255,255,0.2)',
+                border: '4px solid rgba(255,255,255,0.35)',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+              }}
+            >
+              {instructor.name?.charAt(0) || 'I'}
+            </Avatar>
+
+            <Box sx={{ flex: 1, textAlign: { xs: 'center', sm: 'left' } }}>
+              {instructor.specialty && (
+                <Chip
+                  label={instructor.specialty}
+                  size="small"
+                  sx={{
+                    mb: 1.5,
+                    backgroundColor: 'rgba(255,255,255,0.2)',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '0.7rem',
+                    letterSpacing: 0.5,
+                  }}
+                />
+              )}
+              <Typography
+                variant="h4"
+                sx={{
+                  color: 'white',
+                  fontWeight: 800,
+                  mb: 1,
+                  fontSize: { xs: '1.5rem', md: '1.75rem' },
+                  textShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                }}
+              >
+                {instructor.name}
+              </Typography>
+              {instructor.bio && (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'rgba(255,255,255,0.9)',
+                    maxWidth: 560,
+                    lineHeight: 1.65,
+                    mb: 2,
+                    mx: { xs: 'auto', sm: 0 },
+                  }}
+                >
+                  {instructor.bio}
+                </Typography>
+              )}
+              {instructor.email && (
+                <Stack direction="row" alignItems="center" spacing={1} justifyContent={{ xs: 'center', sm: 'flex-start' }}>
+                  <EmailIcon sx={{ fontSize: 18, color: 'rgba(255,255,255,0.9)' }} />
+                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                    {instructor.email}
+                  </Typography>
+                </Stack>
+              )}
+
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={3}
+                sx={{ mt: 2.5, flexWrap: 'wrap', justifyContent: { xs: 'center', sm: 'flex-start' } }}
+              >
+                <Box>
+                  <Typography variant="h6" sx={{ color: 'white', fontWeight: 800, mb: 0 }}>
+                    {instructor.coursesCount || 0}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>
+                    Courses
+                  </Typography>
+                </Box>
+                <Divider orientation="vertical" flexItem sx={{ borderColor: 'rgba(255,255,255,0.2)', height: 36 }} />
+                <Box>
+                  <Typography variant="h6" sx={{ color: 'white', fontWeight: 800, mb: 0 }}>
+                    {instructor.totalStudents ?? 0}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>
+                    Students
+                  </Typography>
+                </Box>
+                <Divider orientation="vertical" flexItem sx={{ borderColor: 'rgba(255,255,255,0.2)', height: 36 }} />
+                <Stack direction="row" alignItems="center" spacing={0.5}>
+                  <StarIcon sx={{ fontSize: 20, color: '#ffc107' }} />
+                  <Typography variant="h6" sx={{ color: 'white', fontWeight: 800 }}>
+                    4.8
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', alignSelf: 'flex-end', mb: 0.3 }}>
+                    Avg
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Box>
+          </Stack>
+        </Container>
+      </Box>
+
+      {/* Back button - below hero */}
+      <Container maxWidth="lg" sx={{ mb: 2 }}>
+        <Button
+          startIcon={<BackIcon />}
+          onClick={() => navigate(-1)}
+          sx={{ color: 'text.secondary' }}
+        >
+          Back
+        </Button>
+      </Container>
 
       {/* Instructor's Courses */}
-      <Box>
-        <Typography variant="h5" fontWeight={700} gutterBottom>
-          Courses by {instructor.name}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Explore all courses taught by this instructor
-        </Typography>
+      <Container maxWidth="lg">
+        <Box>
+          <Typography variant="h5" fontWeight={700} gutterBottom>
+            Courses by {instructor.name}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            Explore all courses taught by this instructor
+          </Typography>
 
-        {instructor.courses && instructor.courses.length > 0 ? (
-          <ResponsiveGrid>
-            {instructor.courses.map((course) => (
-              <CourseCard key={course.id} course={course} />
-            ))}
-          </ResponsiveGrid>
-        ) : (
-          <Paper
-            elevation={0}
-            sx={{
-              p: 4,
-              textAlign: 'center',
-              borderRadius: 3,
-              border: 'none',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
-            }}
-          >
-            <Typography color="text.secondary">
-              No courses available from this instructor yet.
-            </Typography>
-          </Paper>
-        )}
-      </Box>
+          {instructor.courses && instructor.courses.length > 0 ? (
+            <ResponsiveGrid>
+              {instructor.courses.map((course) => (
+                <CourseCard key={course.id} course={course} />
+              ))}
+            </ResponsiveGrid>
+          ) : (
+            <Paper
+              elevation={0}
+              sx={{
+                p: 4,
+                textAlign: 'center',
+                borderRadius: 3,
+                border: 'none',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+              }}
+            >
+              <Typography color="text.secondary">
+                No courses available from this instructor yet.
+              </Typography>
+            </Paper>
+          )}
+        </Box>
+      </Container>
     </Box>
   );
 };

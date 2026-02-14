@@ -46,8 +46,31 @@ function getAuthorizationHeader() {
 function getBearerToken() {
     $authHeader = getAuthorizationHeader();
     if (!empty($authHeader) && preg_match('/Bearer\s+(.+)$/i', $authHeader, $matches)) {
-        return $matches[1];
+        $token = trim($matches[1]);
+        // Reject obviously invalid tokens (length / format)
+        if (strlen($token) >= 16 && strlen($token) <= 256 && ctype_xdigit($token)) {
+            return $token;
+        }
     }
     return '';
+}
+
+/**
+ * Validate Bearer token and return the learner row, or null.
+ * Uses prepared statement. Requires Database instance and connection.
+ *
+ * @param Database $DB
+ * @return array|null Learner row or null if invalid/missing token
+ */
+function getAuthenticatedUser($DB) {
+    $token = getBearerToken();
+    if (empty($token)) {
+        return null;
+    }
+    $rows = $DB->prepareRead('SELECT * FROM learners WHERE auth_token = ? AND auth_token != "" LIMIT 1', 's', [$token]);
+    if (!$rows || count($rows) === 0) {
+        return null;
+    }
+    return $rows[0];
 }
 ?>

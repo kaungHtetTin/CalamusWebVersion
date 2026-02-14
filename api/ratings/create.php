@@ -4,19 +4,10 @@
  * POST: Create a new rating for a course
  */
 
+require_once __DIR__ . '/../bootstrap.php';
+
 error_reporting(E_ALL);
 ini_set('display_errors', 0); // Don't display, but log errors
-
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
 require_once '../../classes/connect.php';
 require_once '../../classes/rating.php';
 require_once '../auth_helper.php';

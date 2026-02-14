@@ -1,6 +1,7 @@
 <?php
-include('../../classes/connect.php');
-include('../../classes/comment.php');
+require_once __DIR__ . '/../bootstrap.php';
+include(__DIR__ . '/../../classes/connect.php');
+include(__DIR__ . '/../../classes/comment.php');
 
 if($_SERVER['REQUEST_METHOD']=='POST'){
     $Comment=new Comment();

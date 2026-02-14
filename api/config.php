@@ -4,16 +4,20 @@
  * Handles environment detection and base URL configuration
  */
 
-// Detect environment based on HTTP_HOST
+// Detect environment based on HTTP_HOST (for CORS and base URL)
 $isDevelopment = (
-    isset($_SERVER['HTTP_HOST']) && 
+    isset($_SERVER['HTTP_HOST']) &&
     (
         $_SERVER['HTTP_HOST'] === 'localhost' ||
         $_SERVER['HTTP_HOST'] === '127.0.0.1' ||
         strpos($_SERVER['HTTP_HOST'], 'localhost') !== false ||
-        strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false
+        strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
+        preg_match('/\.(local|test|dev)$/', $_SERVER['HTTP_HOST']) === 1
     )
 );
+if (!defined('API_DEVELOPMENT')) {
+    define('API_DEVELOPMENT', $isDevelopment);
+}
 
 // Set base URL based on environment (can be overridden by config.local.php)
 if (!defined('UPLOAD_BASE_URL')) {
@@ -54,6 +58,21 @@ if (!defined('UPLOAD_DIR_CHATS')) {
 }
 if (!defined('UPLOAD_DIR_SONGS')) {
     define('UPLOAD_DIR_SONGS', UPLOAD_DIR . 'songs/');
+}
+
+// Security: CORS allowed origins. Use ['*'] for development; restrict in production.
+if (!defined('ALLOWED_ORIGINS')) {
+    $allowedOrigins = $isDevelopment ? ['*'] : ['https://www.calamuseducation.com', 'https://calamuseducation.com'];
+    define('ALLOWED_ORIGINS', $allowedOrigins);
+}
+
+// Rate limiting (auth endpoints). Set to false to disable.
+if (!defined('RATE_LIMIT_ENABLED')) {
+    define('RATE_LIMIT_ENABLED', true);
+}
+if (!defined('RATE_LIMIT_DIR')) {
+    $rateLimitDir = __DIR__ . '/../storage/rate_limit';
+    define('RATE_LIMIT_DIR', $rateLimitDir);
 }
 
 // Load local config override if it exists

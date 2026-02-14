@@ -7,7 +7,7 @@ import { DrawerProvider } from './context/DrawerContext';
 import { AuthProvider } from './context/AuthContext';
 import { SupportChatProvider } from './context/SupportChatContext';
 import SupportChatBox from './components/SupportChatBox/SupportChatBox';
-import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList, AdditionalLessonPlay, VipPlan, Login, Profile, EditProfile, MyLearning, LessonPlay, VocabLearning, VocabLearn, Chat, Notifications, Settings, Certificate, MiniLibrary, AboutUs } from './pages';
+import { Home, InstructorProfile, Explore, CourseDetail, VideoChannel, WatchVideo, SongWithLyrics, Discussion, PostDetail, AdditionalLessons, LessonList, AdditionalLessonPlay, VipPlan, Login, Profile, EditProfile, MyLearning, LessonPlay, VocabLearning, VocabLearn, Chat, Notifications, Settings, Certificate, MiniLibrary, AboutUs, Terms, Privacy, Contact } from './pages';
 
 function App() {
   return (
@@ -50,9 +50,9 @@ function App() {
                       <Route path="/settings" element={<Settings />} />
                       <Route path="/vip-plan" element={<VipPlan />} />
                       <Route path="/about" element={<AboutUs />} />
-                      <Route path="/contact" element={<PlaceholderPage title="Contact Us" />} />
-                      <Route path="/terms" element={<PlaceholderPage title="Terms" />} />
-                      <Route path="/privacy" element={<PlaceholderPage title="Privacy" />} />
+                      <Route path="/contact" element={<Contact />} />
+                      <Route path="/terms" element={<Terms />} />
+                      <Route path="/privacy" element={<Privacy />} />
                       <Route path="/profile" element={<Profile />} />
                       <Route path="/profile/edit" element={<EditProfile />} />
                       <Route path="/profile/:userId" element={<Profile />} />

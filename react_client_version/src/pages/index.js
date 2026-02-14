@@ -24,3 +24,6 @@ export { default as Settings } from './Settings';
 export { default as Certificate } from './Certificate';
 export { default as MiniLibrary } from './MiniLibrary';
 export { default as AboutUs } from './AboutUs';
+export { default as Terms } from './Terms';
+export { default as Privacy } from './Privacy';
+export { default as Contact } from './Contact';

@@ -4,21 +4,12 @@
  * GET: Fetch lesson content, video link, and course curriculum
  * Params: id (lesson_id), course_id
  */
+require_once __DIR__ . '/../bootstrap.php';
 
-// Report all errors but do not display them in output (keep JSON clean)
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-require_once '../../classes/connect.php';
+require_once __DIR__ . '/../../classes/connect.php';
 require_once '../../classes/course.php';
 require_once '../../classes/auth.php';
 

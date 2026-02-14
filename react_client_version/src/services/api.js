@@ -569,6 +569,11 @@ export const statsAPI = {
    * Returns: totalCourses, totalLessons, totalInstructors, totalStudents, avgRating, topInstructors
    */
   getHome: () => fetchAPI('/stats/home.php'),
+  /**
+   * Get About page stats (Our Reach)
+   * Returns: instructors, courses, lectures, enrollments, languages, members
+   */
+  getAbout: () => fetchAPI('/about/stats.php'),
 };
 
 /**

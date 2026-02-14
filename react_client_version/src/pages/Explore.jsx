@@ -10,33 +10,38 @@ import {
   Fade,
   Breadcrumbs,
   Link,
+  TextField,
+  InputAdornment,
+  Paper,
+  Divider,
+  IconButton,
 } from '@mui/material';
 import {
   Home as HomeIcon,
   School as SchoolIcon,
   ChevronRight as ChevronRightIcon,
+  Search as SearchIcon,
+  FilterList as FilterIcon,
+  Clear as ClearIcon,
 } from '@mui/icons-material';
 import { courseAPI } from '../services/api';
 import { CourseCard, CourseCardSkeleton, ResponsiveGrid } from '../components/CourseCard';
 
-// Category configuration
 const categories = [
   { value: 'all', label: 'All Courses' },
   { value: 'english', label: 'English' },
   { value: 'korea', label: 'Korean' },
 ];
 
-// Main Explore Page Component
 const Explore = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
+  
+  const selectedCategory = searchParams.get('category') || 'all';
   const searchQuery = searchParams.get('q') || '';
 
-  // Fetch courses on mount
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -45,209 +50,145 @@ const Explore = () => {
         setCourses(response.data || []);
       } catch (error) {
         console.error('Failed to fetch courses:', error);
-        setCourses([]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchCourses();
   }, []);
 
-  // Filter courses by category and search query
   useEffect(() => {
     let result = [...courses];
-
-    // Filter by category
     if (selectedCategory !== 'all') {
-      result = result.filter(
-        (course) => course.major?.toLowerCase() === selectedCategory.toLowerCase()
-      );
+      result = result.filter(c => c.major?.toLowerCase() === selectedCategory.toLowerCase());
     }
-
-    // Filter by search query
     if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (course) =>
-          course.title?.toLowerCase().includes(query) ||
-          course.description?.toLowerCase().includes(query) ||
-          course.instructor_name?.toLowerCase().includes(query)
+      const q = searchQuery.toLowerCase();
+      result = result.filter(c => 
+        c.title?.toLowerCase().includes(q) || 
+        c.instructor_name?.toLowerCase().includes(q)
       );
     }
-
-    // Sort by newest
-    result.sort((a, b) => b.id - a.id);
-
-    setFilteredCourses(result);
+    setFilteredCourses(result.sort((a, b) => b.id - a.id));
   }, [courses, selectedCategory, searchQuery]);
 
-  // Update URL params when category changes
-  useEffect(() => {
-    if (selectedCategory === 'all') {
-      searchParams.delete('category');
-    } else {
-      searchParams.set('category', selectedCategory);
-    }
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    if (val) searchParams.set('q', val);
+    else searchParams.delete('q');
     setSearchParams(searchParams);
-  }, [selectedCategory, searchParams, setSearchParams]);
+  };
 
   const handleCategoryChange = (event, newValue) => {
-    setSelectedCategory(newValue);
+    if (newValue === 'all') searchParams.delete('category');
+    else searchParams.set('category', newValue);
+    setSearchParams(searchParams);
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
-        {/* Breadcrumbs */}
-        <Breadcrumbs
-          sx={{ mb: 3 }}
-          separator={<ChevronRightIcon sx={{ fontSize: 14, opacity: 0.5 }} />}
-        >
-          <Link
-            component={RouterLink}
-            to="/"
-            underline="hover"
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              color: 'text.secondary',
-              fontSize: '0.8125rem',
-              fontWeight: 500,
-              '&:hover': { color: 'primary.main' },
-            }}
-          >
-            <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} />
-            Home
-          </Link>
-          <Typography
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              color: 'text.primary',
-              fontSize: '0.8125rem',
-              fontWeight: 600,
-            }}
-          >
-            <SchoolIcon sx={{ mr: 0.5, fontSize: 16 }} />
-            Explore Courses
-          </Typography>
-        </Breadcrumbs>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#f8f9fa', pb: 8 }}>
+      {/* HEADER SECTION */}
+      <Paper elevation={0} sx={{ borderBottom: '1px solid', borderColor: 'divider', mb: 4, bgcolor: 'background.paper' }}>
+        <Container maxWidth="xl" sx={{ py: 3 }}>
+          <Breadcrumbs separator={<ChevronRightIcon sx={{ fontSize: 16 }} />} sx={{ mb: 2 }}>
+            <Link component={RouterLink} to="/" underline="hover" color="inherit" sx={{ display: 'flex', alignItems: 'center', fontSize: '0.875rem' }}>
+              <HomeIcon sx={{ mr: 0.5, fontSize: 18 }} /> Home
+            </Link>
+            <Typography color="text.primary" sx={{ display: 'flex', alignItems: 'center', fontSize: '0.875rem', fontWeight: 600 }}>
+              Explore
+            </Typography>
+          </Breadcrumbs>
 
-        {/* Page Header */}
-        <Box sx={{ mb: 4 }}>
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-            flexWrap="wrap"
-            spacing={2}
-          >
+          <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ md: 'center' }} spacing={3}>
             <Box>
-              <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px', mb: 0.5, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
-                Explore Courses
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ opacity: 0.8 }}>
-                Discover our collection of English and Korean language courses
-              </Typography>
+              <Typography variant="h4" fontWeight={800} gutterBottom>Explore Courses</Typography>
+              <Typography variant="body1" color="text.secondary">Master a new language with expert-led courses.</Typography>
             </Box>
+            
+            <TextField
+              placeholder="Search courses..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              sx={{ width: { xs: '100%', md: 350 }, bgcolor: 'background.paper' }}
+              InputProps={{
+                startAdornment: (<InputAdornment position="start"><SearchIcon color="action" /></InputAdornment>),
+                endAdornment: searchQuery && (
+                  <IconButton size="small" onClick={() => { searchParams.delete('q'); setSearchParams(searchParams); }}>
+                    <ClearIcon fontSize="small" />
+                  </IconButton>
+                )
+              }}
+            />
           </Stack>
-        </Box>
+        </Container>
+      </Paper>
 
-        {/* Category Tabs */}
-        <Box sx={{ mb: 4, borderBottom: '1px solid', borderColor: 'divider' }}>
-          <Tabs
-            value={selectedCategory}
-            onChange={handleCategoryChange}
-            sx={{
-              minHeight: 40,
-              '& .MuiTabs-indicator': {
-                height: 2.5,
-                borderRadius: '2px 2px 0 0',
-              },
-              '& .MuiTab-root': {
-                textTransform: 'none',
-                fontWeight: 600,
-                fontSize: '0.9rem',
-                minHeight: 40,
-                px: 2.5,
-                color: 'text.secondary',
-                '&.Mui-selected': {
-                  color: 'primary.main',
-                },
-              },
-            }}
-          >
-            {categories.map((cat) => (
-              <Tab
-                key={cat.value}
-                value={cat.value}
-                label={cat.label}
-              />
-            ))}
-          </Tabs>
-        </Box>
-
-        {/* Results Count */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="body2" color="text.secondary">
-            {searchQuery ? (
-              <>
-                Search results for "<strong>{searchQuery}</strong>": <strong>{filteredCourses.length}</strong> courses found
-              </>
-            ) : (
-              <>
-                Showing <strong>{filteredCourses.length}</strong> courses
-              </>
-            )}
-            {selectedCategory !== 'all' && (
-              <> in <strong>{categories.find((c) => c.value === selectedCategory)?.label}</strong></>
-            )}
-          </Typography>
-        </Box>
-
-        {/* Courses Grid */}
-        {loading ? (
-          <ResponsiveGrid>
-            {[...Array(8)].map((_, index) => (
-              <CourseCardSkeleton key={index} />
-            ))}
-          </ResponsiveGrid>
-        ) : filteredCourses.length > 0 ? (
-          <Fade in timeout={500}>
-            <Box>
-              <ResponsiveGrid>
-                {filteredCourses.map((course) => (
-                  <CourseCard key={course.id} course={course} />
-                ))}
-              </ResponsiveGrid>
-            </Box>
-          </Fade>
-        ) : (
-          <Box
-            sx={{
-              textAlign: 'center',
-              py: 8,
-              px: 3,
-              bgcolor: 'background.paper',
-              borderRadius: 2,
-              boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
-            }}
-          >
-            <SchoolIcon sx={{ fontSize: 80, color: 'text.disabled', mb: 2 }} />
-            <Typography variant="h5" color="text.secondary" gutterBottom>
-              {searchQuery ? 'No results found' : 'No courses found'}
+      {/* CONTENT SECTION */}
+      <Container maxWidth="xl">
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
+          
+          {/* SIDEBAR FILTERS */}
+          <Box sx={{ width: { xs: '100%', md: 240 }, flexShrink: 0 }}>
+            <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 2, display: 'flex', alignItems: 'center', textTransform: 'uppercase', letterSpacing: 1 }}>
+              <FilterIcon sx={{ mr: 1, fontSize: 18 }} /> Categories
             </Typography>
-            <Typography variant="body1" color="text.disabled">
-              {searchQuery 
-                ? `We couldn't find any courses matching "${searchQuery}". Try a different keyword.`
-                : 'No courses available in this category yet.'}
-            </Typography>
+            <Tabs
+              orientation={{ xs: 'horizontal', md: 'vertical' }}
+              variant="scrollable"
+              value={selectedCategory}
+              onChange={handleCategoryChange}
+              sx={{
+                '& .MuiTabs-indicator': { display: { xs: 'block', md: 'none' } },
+                '& .MuiTab-root': { 
+                  alignItems: 'flex-start', 
+                  textAlign: 'left',
+                  fontWeight: 600,
+                  borderRadius: 1,
+                  mb: { md: 0.5 },
+                  minHeight: 44,
+                  '&.Mui-selected': { bgcolor: { md: 'primary.light' }, color: { md: 'primary.dark' } }
+                }
+              }}
+            >
+              {categories.map((cat) => (
+                <Tab key={cat.value} value={cat.value} label={cat.label} disableRipple />
+              ))}
+            </Tabs>
+            <Divider sx={{ my: 3, display: { xs: 'none', md: 'block' } }} />
           </Box>
-        )}
 
-        {/* Bottom spacing */}
-        <Box sx={{ pb: 4 }} />
+          {/* MAIN GRID */}
+          <Box sx={{ flexGrow: 1 }}>
+            <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="body2" color="text.secondary">
+                Showing <b>{filteredCourses.length}</b> courses 
+                {searchQuery && <> for "<b>{searchQuery}</b>"</>}
+              </Typography>
+            </Box>
+
+            {loading ? (
+              <ResponsiveGrid>
+                {[...Array(6)].map((_, i) => <CourseCardSkeleton key={i} />)}
+              </ResponsiveGrid>
+            ) : filteredCourses.length > 0 ? (
+              <Fade in timeout={600}>
+                <Box>
+                  <ResponsiveGrid>
+                    {filteredCourses.map((course) => (
+                      <CourseCard key={course.id} course={course} />
+                    ))}
+                  </ResponsiveGrid>
+                </Box>
+              </Fade>
+            ) : (
+              <Paper sx={{ textAlign: 'center', py: 10, px: 2, borderRadius: 3, bgcolor: 'transparent' }} variant="outlined">
+                <SchoolIcon sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }} />
+                <Typography variant="h6">No courses found</Typography>
+                <Typography variant="body2" color="text.secondary">Try adjusting your filters or search terms.</Typography>
+              </Paper>
+            )}
+          </Box>
+        </Box>
       </Container>
     </Box>
   );

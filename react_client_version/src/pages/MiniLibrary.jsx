@@ -33,9 +33,10 @@ const MAJOR_OPTIONS = [
   { value: 'russian', label: 'Russian' },
 ];
 
-// Category card in grid
+// Category card – app-consistent card style (matches CourseCard / DeckCard)
 const CategoryCard = ({ category, onClick }) => {
   const theme = useTheme();
+  const { mode } = useThemeMode();
 
   return (
     <Paper
@@ -45,15 +46,14 @@ const CategoryCard = ({ category, onClick }) => {
         p: 2,
         textAlign: 'center',
         cursor: 'pointer',
-        borderRadius: 2,
-        border: '1px solid',
-        borderColor: theme.palette.divider,
-        bgcolor: theme.palette.background.paper,
-        transition: 'all 0.2s ease',
+        borderRadius: 3,
+        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        boxShadow: mode === 'light' ? '0 2px 12px rgba(0,0,0,0.06)' : '0 4px 16px rgba(0,0,0,0.25)',
+        bgcolor: 'background.paper',
+        transition: 'all 0.25s ease',
         '&:hover': {
           transform: 'translateY(-4px)',
-          boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.15)}`,
-          borderColor: theme.palette.primary.main,
+          boxShadow: mode === 'light' ? '0 12px 32px rgba(0,0,0,0.12)' : '0 12px 32px rgba(0,0,0,0.4)',
         },
       }}
     >
@@ -68,7 +68,7 @@ const CategoryCard = ({ category, onClick }) => {
   );
 };
 
-// Book list row: icon, title, download
+// Book list row – app-consistent card style (no lift hover for list rows)
 const BookListItem = ({ book, onDownload }) => {
   const theme = useTheme();
   const { mode } = useThemeMode();
@@ -82,14 +82,13 @@ const BookListItem = ({ book, onDownload }) => {
         gap: 2,
         px: 2,
         py: 1.5,
-        borderRadius: 2,
-        border: '1px solid',
-        borderColor: theme.palette.divider,
-        bgcolor: theme.palette.background.paper,
-        boxShadow: mode === 'light' ? '0 1px 4px rgba(0,0,0,0.06)' : '0 2px 8px rgba(0,0,0,0.2)',
-        transition: 'background-color 0.2s',
+        borderRadius: 3,
+        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        boxShadow: mode === 'light' ? '0 2px 12px rgba(0,0,0,0.06)' : '0 4px 16px rgba(0,0,0,0.25)',
+        bgcolor: 'background.paper',
+        transition: 'all 0.25s ease',
         '&:hover': {
-          bgcolor: alpha(theme.palette.primary.main, theme.palette.mode === 'light' ? 0.04 : 0.08),
+          bgcolor: alpha(theme.palette.primary.main, mode === 'light' ? 0.04 : 0.08),
         },
       }}
     >

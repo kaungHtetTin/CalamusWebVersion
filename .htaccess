@@ -1,13 +1,13 @@
-# SPA: serve index.html for routes so refresh keeps you on the current page. Never rewrite static assets.
+# On refresh: redirect to home. Never redirect static assets (.js, .json, .css, etc.).
 Options -MultiViews
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  # Do NOT rewrite requests for static files (avoids "Unexpected token '<'" for .js/.json)
+  # Do NOT redirect static files (avoids "Unexpected token '<'" for .js/.json)
   RewriteCond %{REQUEST_URI} \.(js|css|json|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|map|webp)$ [NC]
   RewriteRule ^ - [L]
   # Serve existing files and directories as-is
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  # Send route requests to index.html so React Router can show the current page
-  RewriteRule ^ index.html [QSA,L]
+  # Redirect route requests to home (e.g. /calamus/explore -> /calamus/)
+  RewriteRule ^.+ /calamus/ [R=302,L]
 </IfModule>

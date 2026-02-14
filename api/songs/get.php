@@ -20,17 +20,54 @@ try {
     $DB = new Database();
     $conn = $DB->connect();
     $userIdEscaped = $userId !== '' ? mysqli_real_escape_string($conn, $userId) : '';
-    $likeJoin = '';
-    $likeSelect = '';
-    if ($userIdEscaped !== '') {
-        $likeJoin = " LEFT JOIN song_likes sl ON sl.song_id = s.id AND sl.user_id = '$userIdEscaped' ";
-        $likeSelect = ", (sl.id IS NOT NULL) as user_liked ";
-    }
-    
+
+    // Resolve user_liked from mylikes (content_id = song id, likes = JSON array of {user_id})
+    $userLikedSongIds = [];
+    $resolveLiked = ($userIdEscaped !== '');
+
     // Base URL for media files
     $baseUrl = 'https://www.calamuseducation.com/uploads/songs';
-    
-    $formatSong = function($song) use ($baseUrl, $userIdEscaped) {
+
+    // Get popular songs (top 20 by like count)
+    $popularQuery = "SELECT * FROM songs WHERE type='$category' ORDER BY like_count DESC LIMIT 20";
+    $popularResult = $DB->read($popularQuery);
+
+    // Get all songs with pagination
+    $songsQuery = "SELECT * FROM songs WHERE type='$category' ORDER BY id DESC LIMIT $limit OFFSET $offset";
+    $songsResult = $DB->read($songsQuery);
+
+    // Build set of song ids this user liked (from mylikes)
+    if ($resolveLiked) {
+        $allSongIds = [];
+        if ($popularResult && is_array($popularResult)) {
+            foreach ($popularResult as $s) {
+                $allSongIds[] = (int)$s['id'];
+            }
+        }
+        if ($songsResult && is_array($songsResult)) {
+            foreach ($songsResult as $s) {
+                $allSongIds[] = (int)$s['id'];
+            }
+        }
+        $allSongIds = array_unique($allSongIds);
+        if (!empty($allSongIds)) {
+            $idsList = implode(',', array_map('intval', $allSongIds));
+            $mylikesRows = $DB->read("SELECT content_id, likes FROM mylikes WHERE content_id IN ($idsList)");
+            if ($mylikesRows && is_array($mylikesRows)) {
+                foreach ($mylikesRows as $mr) {
+                    $decoded = json_decode($mr['likes'], true);
+                    if ($decoded && is_array($decoded)) {
+                        $userIds = array_column($decoded, 'user_id');
+                        if (in_array($userId, $userIds)) {
+                            $userLikedSongIds[(int)$mr['content_id']] = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    $formatSong = function($song) use ($baseUrl, $userLikedSongIds, $resolveLiked) {
         $row = [
             'id' => (int)$song['id'],
             'songId' => $song['song_id'],
@@ -44,35 +81,19 @@ try {
             'thumbnailUrl' => "$baseUrl/image/{$song['url']}.png",
             'lyricsUrl' => "$baseUrl/lyrics/{$song['url']}.txt",
         ];
-        if (isset($song['user_liked'])) {
-            $row['liked'] = (bool)$song['user_liked'];
+        if ($resolveLiked) {
+            $row['liked'] = isset($userLikedSongIds[(int)$song['id']]);
         }
         return $row;
     };
-    
-    // Get popular songs (top 20 by like count)
-    $popularQuery = "SELECT s.* $likeSelect FROM songs s $likeJoin WHERE s.type='$category' ORDER BY s.like_count DESC LIMIT 20";
-    $popularResult = @$DB->read($popularQuery);
-    if ($popularResult === false && $userIdEscaped !== '') {
-        $popularQuery = "SELECT * FROM songs WHERE type='$category' ORDER BY like_count DESC LIMIT 20";
-        $popularResult = $DB->read($popularQuery);
-    }
-    
+
     $popularSongs = [];
     if ($popularResult && is_array($popularResult)) {
         foreach ($popularResult as $song) {
             $popularSongs[] = $formatSong($song);
         }
     }
-    
-    // Get all songs with pagination
-    $songsQuery = "SELECT s.* $likeSelect FROM songs s $likeJoin WHERE s.type='$category' ORDER BY s.id DESC LIMIT $limit OFFSET $offset";
-    $songsResult = @$DB->read($songsQuery);
-    if ($songsResult === false && $userIdEscaped !== '') {
-        $songsQuery = "SELECT * FROM songs WHERE type='$category' ORDER BY id DESC LIMIT $limit OFFSET $offset";
-        $songsResult = $DB->read($songsQuery);
-    }
-    
+
     $songs = [];
     if ($songsResult && is_array($songsResult)) {
         foreach ($songsResult as $song) {

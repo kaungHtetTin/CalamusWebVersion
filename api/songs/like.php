@@ -3,6 +3,8 @@
  * API: Toggle like for a song
  * POST: Requires Authorization Bearer token. Body: { "songId": number }
  * Returns: { success, liked: bool, likeCount: number }
+ *
+ * Uses mylikes table: content_id = song id (songs.id), likes = JSON array of {user_id}, rowNo for sharding.
  */
 
 require_once __DIR__ . '/../bootstrap.php';
@@ -15,8 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-require_once '../../classes/connect.php';
-require_once '../auth_helper.php';
+require_once __DIR__ . '/../../classes/connect.php';
+require_once __DIR__ . '/../auth_helper.php';
 
 try {
     $token = getBearerToken();
@@ -44,30 +46,80 @@ try {
         exit();
     }
     $userId = $userRow[0]['learner_phone'];
-
-    // Create table if not exists (one-time)
-    $conn->query("CREATE TABLE IF NOT EXISTS song_likes (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id VARCHAR(50) NOT NULL,
-        song_id INT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE KEY uq_user_song (user_id, song_id),
-        KEY idx_song_id (song_id)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
     $userIdEscaped = mysqli_real_escape_string($conn, $userId);
 
-    $existing = $DB->read("SELECT id FROM song_likes WHERE user_id = '$userIdEscaped' AND song_id = $songId LIMIT 1");
+    // Verify song exists
+    $songCheck = $DB->read("SELECT id, like_count FROM songs WHERE id = $songId LIMIT 1");
+    if (!$songCheck || count($songCheck) === 0) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'error' => 'Song not found']);
+        exit();
+    }
+
+    $contentId = $songId; // content_id in mylikes = song id (songs.id)
+
+    $likeRows = $DB->read("SELECT * FROM mylikes WHERE content_id = $contentId");
+    $rowCount = ($likeRows && is_array($likeRows)) ? count($likeRows) : 0;
+
     $liked = false;
 
-    if ($existing && count($existing) > 0) {
-        $DB->save("DELETE FROM song_likes WHERE user_id = '$userIdEscaped' AND song_id = $songId");
-        $conn->query("UPDATE songs SET like_count = GREATEST(0, like_count - 1) WHERE id = $songId");
-        $liked = false;
-    } else {
-        $DB->save("INSERT INTO song_likes (user_id, song_id) VALUES ('$userIdEscaped', $songId)");
-        $conn->query("UPDATE songs SET like_count = like_count + 1 WHERE id = $songId");
+    if ($rowCount === 0) {
+        // First like ever on this song
+        $arr = [['user_id' => $userId]];
+        $likesJson = mysqli_real_escape_string($conn, json_encode($arr));
+        $DB->save("INSERT INTO mylikes (content_id, likes, rowNo) VALUES ($contentId, '$likesJson', 0)
+                   ON DUPLICATE KEY UPDATE likes = '$likesJson'");
+        $DB->save("UPDATE songs SET like_count = like_count + 1 WHERE id = $songId");
         $liked = true;
+    } else {
+        $alreadyLike = false;
+        $foundRowNo = 0;
+        $foundKey = 0;
+        $foundLikesArr = [];
+
+        foreach ($likeRows as $row) {
+            $likesArrTemp = json_decode($row['likes'], true);
+            if ($likesArrTemp && is_array($likesArrTemp)) {
+                $userIds = array_column($likesArrTemp, 'user_id');
+                $searchKey = array_search($userId, $userIds);
+                if ($searchKey !== false) {
+                    $alreadyLike = true;
+                    $foundKey = $searchKey;
+                    $foundRowNo = (int)$row['rowNo'];
+                    $foundLikesArr = $likesArrTemp;
+                    break;
+                }
+            }
+        }
+
+        if ($alreadyLike) {
+            // Unlike: remove user from likes array
+            array_splice($foundLikesArr, $foundKey, 1);
+            $likesString = mysqli_real_escape_string($conn, json_encode($foundLikesArr));
+            $DB->save("UPDATE mylikes SET likes = '$likesString' WHERE content_id = $contentId AND rowNo = $foundRowNo");
+            $DB->save("UPDATE songs SET like_count = GREATEST(like_count - 1, 0) WHERE id = $songId");
+            $liked = false;
+        } else {
+            // Like: add user to likes
+            $DB->save("UPDATE songs SET like_count = like_count + 1 WHERE id = $songId");
+            $likeCountResult = $DB->read("SELECT like_count FROM songs WHERE id = $songId LIMIT 1");
+            $currentLikeCount = ($likeCountResult && is_array($likeCountResult)) ? (int)$likeCountResult[0]['like_count'] : 0;
+            $rowNo = (int)round($currentLikeCount / 10000);
+
+            $existingRow = $DB->read("SELECT likes FROM mylikes WHERE content_id = $contentId AND rowNo = $rowNo LIMIT 1");
+            $likesArr = [];
+            if ($existingRow && is_array($existingRow) && count($existingRow) > 0) {
+                $decoded = json_decode($existingRow[0]['likes'], true);
+                if ($decoded && is_array($decoded)) {
+                    $likesArr = $decoded;
+                }
+            }
+            $likesArr[] = ['user_id' => $userId];
+            $likesString = mysqli_real_escape_string($conn, json_encode($likesArr));
+            $DB->save("INSERT INTO mylikes (content_id, likes, rowNo) VALUES ($contentId, '$likesString', $rowNo)
+                       ON DUPLICATE KEY UPDATE likes = '$likesString'");
+            $liked = true;
+        }
     }
 
     $countRow = $DB->read("SELECT like_count FROM songs WHERE id = $songId LIMIT 1");

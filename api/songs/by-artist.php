@@ -30,15 +30,32 @@ try {
     $categoryEscaped = mysqli_real_escape_string($conn, $category);
     $userId = isset($_GET['userId']) ? trim($_GET['userId']) : '';
     $userIdEscaped = $userId !== '' ? mysqli_real_escape_string($conn, $userId) : '';
-    $likeJoin = '';
-    $likeSelect = '';
-    if ($userIdEscaped !== '') {
-        $likeJoin = " LEFT JOIN song_likes sl ON sl.song_id = s.id AND sl.user_id = '$userIdEscaped' ";
-        $likeSelect = ", (sl.id IS NOT NULL) as user_liked ";
-    }
-    
+    $resolveLiked = ($userIdEscaped !== '');
+    $userLikedSongIds = [];
+
     $baseUrl = 'https://www.calamuseducation.com/uploads/songs';
-    $formatSong = function($song) use ($baseUrl) {
+
+    $songsQuery = "SELECT * FROM songs WHERE type='$categoryEscaped' AND artist='$artistEscaped' ORDER BY like_count DESC";
+    $songsResult = $DB->read($songsQuery);
+
+    if ($resolveLiked && $songsResult && is_array($songsResult) && count($songsResult) > 0) {
+        $allSongIds = array_unique(array_map(function ($s) { return (int)$s['id']; }, $songsResult));
+        $idsList = implode(',', $allSongIds);
+        $mylikesRows = $DB->read("SELECT content_id, likes FROM mylikes WHERE content_id IN ($idsList)");
+        if ($mylikesRows && is_array($mylikesRows)) {
+            foreach ($mylikesRows as $mr) {
+                $decoded = json_decode($mr['likes'], true);
+                if ($decoded && is_array($decoded)) {
+                    $userIds = array_column($decoded, 'user_id');
+                    if (in_array($userId, $userIds)) {
+                        $userLikedSongIds[(int)$mr['content_id']] = true;
+                    }
+                }
+            }
+        }
+    }
+
+    $formatSong = function($song) use ($baseUrl, $userLikedSongIds, $resolveLiked) {
         $row = [
             'id' => (int)$song['id'],
             'songId' => $song['song_id'],
@@ -52,18 +69,12 @@ try {
             'thumbnailUrl' => "$baseUrl/image/{$song['url']}.png",
             'lyricsUrl' => "$baseUrl/lyrics/{$song['url']}.txt",
         ];
-        if (isset($song['user_liked'])) {
-            $row['liked'] = (bool)$song['user_liked'];
+        if ($resolveLiked) {
+            $row['liked'] = isset($userLikedSongIds[(int)$song['id']]);
         }
         return $row;
     };
-    
-    $songsQuery = "SELECT s.* $likeSelect FROM songs s $likeJoin WHERE s.type='$categoryEscaped' AND s.artist='$artistEscaped' ORDER BY s.like_count DESC";
-    $songsResult = @$DB->read($songsQuery);
-    if ($songsResult === false && $userIdEscaped !== '') {
-        $songsResult = $DB->read("SELECT * FROM songs WHERE type='$categoryEscaped' AND artist='$artistEscaped' ORDER BY like_count DESC");
-    }
-    
+
     $songs = [];
     if ($songsResult && is_array($songsResult)) {
         foreach ($songsResult as $song) {

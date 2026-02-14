@@ -2,6 +2,10 @@
 
 Complete CRUD operations for chat conversations and messages.
 
+## Overview
+
+The Chat API supports multi-language users via the `major` parameter. Conversations and messages are scoped by `major` (e.g., `english`, `korea`, `chinese`, `japanese`, `russian`). All timestamps in responses are Unix timestamps in **milliseconds**.
+
 ## Database setup
 
 If you see **"Failed to fetch conversations"**, the `conversations` and `messages` tables may be missing the `major` column. Run the migration once:
@@ -15,19 +19,46 @@ Then reload the Chat page.
 
 `/api/chat/`
 
+## Endpoints Summary
+
+| Endpoint          | Methods | Description |
+|-------------------|---------|-------------|
+| `conversations.php` | GET, POST, PUT, PATCH, DELETE | CRUD for conversations |
+| `messages.php`      | GET, POST, PUT, PATCH, DELETE | CRUD for messages |
+| `mark-read.php`     | POST | Mark message(s) as read |
+| `upload-voice.php`  | POST | Upload voice message file |
+| `upload-image.php`  | POST | Upload image message file |
+
+## Common Parameters
+
+| Parameter | Type   | Required | Default   | Description |
+|-----------|--------|----------|-----------|-------------|
+| `major`   | string | No       | `english` | Language/major. Values: `english`, `korea`, `korean`, `chinese`, `japanese`, `russian`, `russia` |
+
+## Response Format
+
+All endpoints return JSON with:
+
+- `success` (boolean): Whether the request succeeded
+- `data` (object/array): Response payload (omitted on error)
+- `error` (string): Error message when `success` is `false`
+
 ---
 
 ## Conversations API
 
 ### 1. GET - List Conversations
 
-**Endpoint:** `conversations.php?user_id={user_id}`
+**Endpoint:** `conversations.php`
 
-Get all conversations for a user.
+**Method:** GET
 
 **Parameters:**
 
-- `user_id` (required): User ID
+| Parameter  | Type   | Required | Description |
+|------------|--------|----------|-------------|
+| `user_id`  | int    | Yes      | User ID (phone) |
+| `major`    | string | No       | Major (default: `english`) |
 
 **Response:**
 
@@ -43,28 +74,37 @@ Get all conversations for a user.
       "unread_count": 3,
       "last_message_text": "Hello!",
       "last_message_type": "text",
-      "last_message_at": "2024-01-15 10:30:00",
-      "created_at": "2024-01-10 08:00:00",
+      "last_message_at": 1705312200000,
+      "created_at": 1704974400000,
       "friend": {
         "phone": 2,
         "name": "John Doe",
-        "image": "https://www.calamuseducation.com/uploads/profile.jpg"
+        "image": "https://www.calamuseducation.com/uploads/profile.jpg",
+        "fcm_token": "device-fcm-token-or-null",
+        "blocked": false,
+        "blocked_by_me": false,
+        "blocked_by_other": false
       }
     }
   ]
 }
 ```
 
+> **Note:** `created_at` and `last_message_at` are Unix timestamps in **milliseconds**.
+
 ### 2. GET - Get Single Conversation
 
-**Endpoint:** `conversations.php?id={conversation_id}&user_id={user_id}`
+**Endpoint:** `conversations.php`
 
-Get a single conversation by ID with friend profile.
+**Method:** GET
 
 **Parameters:**
 
-- `id` (required): Conversation ID
-- `user_id` (required): User ID to determine which user is the "friend"
+| Parameter  | Type   | Required | Description |
+|------------|--------|----------|-------------|
+| `id`       | int    | Yes      | Conversation ID |
+| `user_id`  | int    | Yes      | User ID to determine the "friend" (other participant) |
+| `major`    | string | No       | Major (default: `english`) |
 
 **Response:**
 
@@ -76,12 +116,16 @@ Get a single conversation by ID with friend profile.
     "user1_id": 1,
     "user2_id": 2,
     "other_user_id": 2,
-    "last_message_at": "2024-01-15 10:30:00",
-    "created_at": "2024-01-10 08:00:00",
+    "last_message_at": 1705312200000,
+    "created_at": 1704974400000,
     "friend": {
       "phone": 2,
       "name": "John Doe",
-      "image": "https://www.calamuseducation.com/uploads/profile.jpg"
+      "image": "https://www.calamuseducation.com/uploads/profile.jpg",
+      "fcm_token": "device-fcm-token-or-null",
+      "blocked": false,
+      "blocked_by_me": false,
+      "blocked_by_other": false
     }
   }
 }
@@ -91,12 +135,17 @@ Get a single conversation by ID with friend profile.
 
 **Endpoint:** `conversations.php`
 
-Create a new conversation or get existing one.
+**Method:** POST
 
-**Body (form-data or x-www-form-urlencoded):**
+Create a new conversation or return an existing one. User IDs are normalized so `user1_id < user2_id` for consistency.
 
-- `user1_id` (required): First user ID
-- `user2_id` (required): Second user ID
+**Body (form-data, x-www-form-urlencoded, or JSON):**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `user1_id` | int | Yes | First user ID (phone) |
+| `user2_id` | int | Yes | Second user ID (phone) |
+| `major`    | string | No | Major (default: `english`) |
 
 **Response:**
 
@@ -116,12 +165,15 @@ Create a new conversation or get existing one.
 
 **Endpoint:** `conversations.php`
 
-Update conversation details.
+**Method:** PUT or PATCH
 
-**Body (raw/x-www-form-urlencoded):**
+**Body (JSON, x-www-form-urlencoded, or form-data):**
 
-- `id` (required): Conversation ID
-- `last_message_at` (optional): Timestamp
+| Parameter         | Type   | Required | Description |
+|-------------------|--------|----------|-------------|
+| `id`              | int    | Yes      | Conversation ID |
+| `last_message_at` | string | No       | Timestamp (MySQL DATETIME format) |
+| `major`           | string | No       | Major (default: `english`) |
 
 **Response:**
 
@@ -132,8 +184,8 @@ Update conversation details.
     "id": 1,
     "user1_id": 1,
     "user2_id": 2,
-    "last_message_at": "2024-01-15 10:30:00",
-    "updated_at": "2024-01-15 10:30:00"
+    "last_message_at": 1705312200000,
+    "updated_at": 1705312200000
   }
 }
 ```
@@ -142,11 +194,16 @@ Update conversation details.
 
 **Endpoint:** `conversations.php`
 
-Delete a conversation and all its messages (CASCADE).
+**Method:** DELETE
 
-**Body (raw/x-www-form-urlencoded) or Query:**
+Delete a conversation and all its messages (CASCADE). Deletes associated message files (voice/image) if any.
 
-- `id` (required): Conversation ID
+**Body (JSON/x-www-form-urlencoded) or Query parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id`      | int  | Yes      | Conversation ID |
+| `major`   | string | No     | Major (default: `english`) |
 
 **Response:**
 
@@ -166,17 +223,21 @@ Delete a conversation and all its messages (CASCADE).
 
 ### 1. GET - List Messages
 
-**Endpoint:** `messages.php?conversation_id={conversation_id}&major={major}&limit={limit}&before_id={before_id}&after_id={after_id}`
+**Endpoint:** `messages.php`
 
-Get messages from a conversation using cursor-based pagination.
+**Method:** GET
+
+Get messages from a conversation using cursor-based pagination. Messages are always returned in chronological order (oldest first).
 
 **Parameters:**
 
-- `conversation_id` (required): Conversation ID
-- `major` (required): Major field (e.g., 'ee', 'ek')
-- `limit` (optional): Number of messages per page (default: 50, max: 100)
-- `before_id` (optional): Message ID to load older messages (messages with id < before_id)
-- `after_id` (optional): Message ID to load newer messages (messages with id > after_id)
+| Parameter        | Type | Required | Default | Description |
+|------------------|------|----------|---------|-------------|
+| `conversation_id` | int  | Yes      | -       | Conversation ID |
+| `major`          | string | No     | `english` | Major |
+| `limit`          | int  | No       | 50      | Messages per page (max: 100) |
+| `before_id`      | int  | No       | -       | Load older messages (id < before_id) |
+| `after_id`       | int  | No       | -       | Load newer messages (id > after_id) |
 
 **Pagination Usage:**
 
@@ -227,13 +288,16 @@ Get messages from a conversation using cursor-based pagination.
 
 ### 2. GET - Get Single Message
 
-**Endpoint:** `messages.php?id={message_id}`
+**Endpoint:** `messages.php`
 
-Get a single message by ID.
+**Method:** GET
 
 **Parameters:**
 
-- `id` (required): Message ID
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id`      | int  | Yes      | Message ID |
+| `major`   | string | No     | Major (default: `english`) |
 
 **Response:**
 
@@ -246,8 +310,10 @@ Get a single message by ID.
     "sender_id": 1,
     "message_type": "text",
     "message_text": "Hello!",
+    "file_path": null,
+    "file_size": null,
     "is_read": 0,
-    "created_at": "2024-01-15 10:30:00"
+    "created_at": 1705312200000
   }
 }
 ```
@@ -256,16 +322,21 @@ Get a single message by ID.
 
 **Endpoint:** `messages.php`
 
-Send a new message.
+**Method:** POST
 
-**Body (form-data or x-www-form-urlencoded):**
+Send a new message. Sender must be a participant in the conversation.
 
-- `conversation_id` (required): Conversation ID
-- `sender_id` (required): Sender user ID
-- `message_type` (required): 'text', 'voice', or 'image'
-- `message_text` (required for text): Message text
-- `file_path` (required for voice/image): File path
-- `file_size` (optional): File size in bytes
+**Body (form-data, x-www-form-urlencoded, or JSON):**
+
+| Parameter        | Type   | Required | Description |
+|------------------|--------|----------|-------------|
+| `conversation_id` | int   | Yes      | Conversation ID |
+| `sender_id`      | int   | Yes      | Sender user ID (phone) |
+| `message_type`   | string | Yes    | `text`, `voice`, or `image` |
+| `message_text`   | string | For text | Required when `message_type` is `text` |
+| `file_path`      | string | For voice/image | Required when `message_type` is `voice` or `image` (use path from upload API) |
+| `file_size`      | int    | No      | File size in bytes |
+| `major`          | string | No      | Major (default: `english`) |
 
 **Response:**
 
@@ -278,8 +349,10 @@ Send a new message.
     "sender_id": 1,
     "message_type": "text",
     "message_text": "Hello!",
+    "file_path": null,
+    "file_size": null,
     "is_read": 0,
-    "created_at": "2024-01-15 10:30:00"
+    "created_at": 1705312200000
   }
 }
 ```
@@ -288,15 +361,20 @@ Send a new message.
 
 **Endpoint:** `messages.php`
 
-Update a message (edit text, update file, mark as read).
+**Method:** PUT or PATCH
 
-**Body (raw/x-www-form-urlencoded):**
+Update a message (edit text, update file, or mark as read).
 
-- `id` (required): Message ID
-- `message_text` (optional): Updated text (text messages only)
-- `file_path` (optional): Updated file path (voice/image messages only)
-- `file_size` (optional): Updated file size
-- `is_read` (optional): Read status (0 or 1)
+**Body (JSON, x-www-form-urlencoded, or form-data):**
+
+| Parameter     | Type   | Required | Description |
+|---------------|--------|----------|-------------|
+| `id`          | int    | Yes      | Message ID |
+| `message_text`| string | No       | Updated text (text messages only) |
+| `file_path`   | string | No       | Updated file path (voice/image only) |
+| `file_size`   | int    | No       | File size in bytes |
+| `is_read`     | int    | No       | Read status (0 or 1) |
+| `major`       | string | No       | Major (default: `english`) |
 
 **Response:**
 
@@ -309,8 +387,10 @@ Update a message (edit text, update file, mark as read).
     "sender_id": 1,
     "message_type": "text",
     "message_text": "Updated message!",
+    "file_path": null,
+    "file_size": null,
     "is_read": 1,
-    "created_at": "2024-01-15 10:30:00"
+    "created_at": 1705312200000
   }
 }
 ```
@@ -319,11 +399,16 @@ Update a message (edit text, update file, mark as read).
 
 **Endpoint:** `messages.php`
 
-Delete a message and its associated file (if any).
+**Method:** DELETE
 
-**Body (raw/x-www-form-urlencoded) or Query:**
+Delete a message and its associated file (if voice/image).
 
-- `id` (required): Message ID
+**Body (JSON/x-www-form-urlencoded) or Query parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id`      | int  | Yes      | Message ID |
+| `major`   | string | No     | Major (default: `english`) |
 
 **Response:**
 
@@ -401,16 +486,22 @@ Delete a message and its associated file (if any).
 
 **Method:** POST
 
-**Body (form-data or x-www-form-urlencoded):**
+**Body (form-data, x-www-form-urlencoded, or JSON):**
 
-**Option 1 - Single Message:**
+**Option 1 - Single message:**
 
-- `message_id` (required): Message ID
+| Parameter   | Type | Required | Description |
+|-------------|------|----------|-------------|
+| `message_id` | int | Yes | Message ID |
+| `major`      | string | No | Major (default: `english`) |
 
-**Option 2 - All Messages in Conversation:**
+**Option 2 - All messages in conversation:**
 
-- `conversation_id` (required): Conversation ID
-- `user_id` (required): User ID (marks all messages from other user)
+| Parameter        | Type | Required | Description |
+|------------------|------|----------|-------------|
+| `conversation_id` | int  | Yes      | Conversation ID |
+| `user_id`        | int  | Yes      | Current user ID (marks all messages from the other user as read) |
+| `major`          | string | No     | Major (default: `english`) |
 
 **Response:**
 
@@ -454,8 +545,10 @@ All endpoints return errors in this format:
 ## Notes
 
 - No authentication required
-- All timestamps are in MySQL DATETIME format
-- File uploads are automatically validated and given unique filenames
-- Deleting a conversation will cascade delete all messages
-- Deleting a message will also delete its associated file (if any)
-- Message types: 'text', 'voice', 'image'
+- All response timestamps use Unix **milliseconds** (e.g., `1705312200000`)
+- `major` scopes data per language; supported values: `english`, `korea`, `korean`, `chinese`, `japanese`, `russian`, `russia`
+- File uploads are validated (type and size) and given unique filenames
+- Deleting a conversation CASCADE deletes all messages and their files
+- Deleting a voice/image message also removes the file from disk
+- Message types: `text`, `voice`, `image`
+- PUT/DELETE accept `application/json` for the request body

@@ -1,99 +1,84 @@
 import React, { useState, useEffect } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
-  Box,
-  Typography,
-  Stack,
-  useTheme,
-  alpha,
-  Paper,
-  Grid,
-  Skeleton,
-  Container,
-  Breadcrumbs,
-  Link,
-  useMediaQuery,
-  Chip,
+  Box, Typography, Stack, useTheme, alpha, Paper, Grid,
+  Skeleton, Container, Breadcrumbs, Link, useMediaQuery, Chip, Button, Avatar, Divider
 } from '@mui/material';
 import {
-  Smartphone as MobileIcon,
-  Support as SupportIcon,
-  CardMembership as CertificateIcon,
-  Public as GlobeIcon,
-  AutoStories as StoryIcon,
-  Home as HomeIcon,
-  ChevronRight as ChevronRightIcon,
-  Info as InfoIcon,
-  PlayCircleFilled as PlayIcon,
-  FormatQuote as QuoteIcon,
+  Smartphone as MobileIcon, Support as SupportIcon,
+  CardMembership as CertificateIcon, Public as GlobeIcon,
+  Home as HomeIcon, ChevronRight as ChevronRightIcon,
+  PlayCircleFilled as PlayIcon, FormatQuote as QuoteIcon,
+  Timeline as TimelineIcon, TrendingUp as StatsIcon,
+  Translate as TranslateIcon, School as SchoolIcon,
+  Search as SearchIcon, MenuBook as MenuBookIcon, ShowChart as ShowChartIcon,
+  Article as ArticleIcon, Brightness5 as BrightnessIcon, MusicNote as MusicNoteIcon
 } from '@mui/icons-material';
 import { statsAPI } from '../services/api';
 import { useThemeMode } from '../context/ThemeContext';
 
-const formatCount = (n) => {
-  if (n == null || n === '') return '0';
-  const num = Number(n);
-  if (!Number.isFinite(num)) return '0';
-  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-  if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
-  return String(num);
-};
-
 const FEATURES = [
-  { icon: MobileIcon, title: 'Mobile learning', text: 'We Support mobile application (Android) for learning.' },
-  { icon: SupportIcon, title: 'Academic & Technical Support', text: 'You can directly contact the teacher team or developer team through our platform, telegram or facebook.' },
-  { icon: CertificateIcon, title: 'Sharable Certificates', text: 'We give the certificate for each course you have finished.' },
-  { icon: GlobeIcon, title: 'An Inclusive Experience', text: 'We can support new experience, opportunity to developing up yourself and new friendship for you.' },
-];
-
-const OUR_STORY = `We have been trying to develop the greatest online learning platform in Myanmar since 2019.
-Firstly, We have released the Easy English Android App on May 28th, 2020.
-And then, we developed a learning app for Korean Language and we could released the Easy Korean Android App on Jan 12nd, 2021.
-Also, we have freely released an E-library Mobile App and a Russia-Myanmar Dictionary Mobile App on Google Playstore.`;
-
-const REVIEWS = [
-  {
-    title: 'Easy Korean',
-    text: `This is the app to learn Korean Language for Myanmar People. In app many lessons and additional materials to improve your language skills are included. And you can attend to our online course via this app. Courses are pretty cheaper than other online courses, but you will get more than the cost is worth. If you're willing to learn Korean language (or) to improve your Korean language skills, this app is for you.
-Wish you all the success!`,
-    vimeoEmbedUrl: 'https://player.vimeo.com/video/836210202?h=5036ec7717&badge=0&autopause=0&player_id=0&app_id=58479',
-  },
-  {
-    title: 'Easy English',
-    text: `This is an application for those who want to study english systematically and this is really intended to be higher the education of myanmar. In this app, you can freely learn the various subjects of english language such as grammar, sentence construction, writing exercise, how to read the english sentence systematically, popular dialogues, proverbs, tips and slang, idioms, translated songs and movies, words on topics and a funny game for improving your english vocabulary. And also we daily provide an english word and its detail description for you. The weekly and monthly exam will help you to know that how much your english professional skill improves. Also you can ask what you do not understand to your teacher directly. We claim that even if you know only "A" to "Z", this app will help to reach the intermediate level by studying yourself. It only needs that you must be a student trying hard.`,
-    vimeoEmbedUrl: 'https://player.vimeo.com/video/843769832?h=5d0578e19a&badge=0&autopause=0&quality_selector=1&player_id=0&app_id=58479',
-  },
+  { icon: MobileIcon, title: 'Mobile First', text: 'Learn on the go with our dedicated Android applications for English and Korean.' },
+  { icon: SupportIcon, title: 'Expert Support', text: 'Direct access to teachers and developers via Telegram, Facebook, or our platform.' },
+  { icon: CertificateIcon, title: 'Verified Skills', text: 'Earn sharable certificates upon completion to boost your professional portfolio.' },
+  { icon: GlobeIcon, title: 'Inclusive Community', text: 'A supportive environment fostering new friendships and growth opportunities.' },
 ];
 
 const STAT_KEYS = [
-  { key: 'instructors', label: 'Instructors' },
-  { key: 'courses', label: 'Courses' },
-  { key: 'lectures', label: 'Lectures' },
-  { key: 'enrollments', label: 'Course enrollments' },
-  { key: 'languages', label: 'Languages' },
-  { key: 'members', label: 'Members Joined' },
+  { key: 'instructors', label: 'Expert Teachers' },
+  { key: 'courses', label: 'Active Courses' },
+  { key: 'enrollments', label: 'Student Enrollments' },
+  { key: 'members', label: 'Community Members' },
 ];
 
-const getCardSx = (theme, mode, options = {}) => {
-  const base = {
-    borderRadius: 3,
-    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-    boxShadow: mode === 'light' ? '0 2px 12px rgba(0,0,0,0.06)' : '0 4px 16px rgba(0,0,0,0.25)',
-    bgcolor: 'background.paper',
-    transition: 'all 0.25s ease',
-    ...options.extra,
-  };
-  if (!options.noHover) {
-    base['&:hover'] = {
-      transform: 'translateY(-4px)',
-      boxShadow: mode === 'light' ? '0 12px 32px rgba(0,0,0,0.12)' : '0 12px 32px rgba(0,0,0,0.4)',
-    };
-  }
-  return base;
+const formatCount = (num) => {
+  if (num >= 1000) return `${(num / 1000).toFixed(num >= 10000 ? 0 : 1)}K+`;
+  if (num > 0) return `${num}+`;
+  return '0';
 };
+
+// Hero feature card (matches Home page style)
+const HeroFeatureCard = ({ icon, title, description }) => (
+  <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 2.5,
+      p: 2,
+      borderRadius: 4,
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      backdropFilter: 'blur(20px)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      '&:hover': {
+        transform: 'translateX(8px)',
+        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        borderColor: 'rgba(255, 255, 255, 0.25)',
+      },
+    }}
+  >
+    <Box sx={{ width: 48, height: 48, borderRadius: 3, backgroundColor: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      {React.cloneElement(icon, { sx: { fontSize: 24, color: 'white' } })}
+    </Box>
+    <Box>
+      <Typography variant="subtitle2" fontWeight={700} color="white" sx={{ mb: 0.25 }}>{title}</Typography>
+      <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.7)', fontWeight: 500, display: 'block', lineHeight: 1.3 }}>{description}</Typography>
+    </Box>
+  </Box>
+);
+
+const QUICK_LINKS = [
+  { icon: <SearchIcon />, label: 'Explore', path: '/explore' },
+  { icon: <MenuBookIcon />, label: 'Vocab Learning', path: '/vocab-learning' },
+  { icon: <ShowChartIcon />, label: 'My Learning', path: '/my-learning' },
+  { icon: <ArticleIcon />, label: 'Discussion', path: '/discussion/english' },
+  { icon: <BrightnessIcon />, label: 'Lessons', path: '/additional-lessons/english' },
+  { icon: <MusicNoteIcon />, label: 'Songs', path: '/songs/english' },
+];
 
 const AboutUs = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const { mode } = useThemeMode();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [stats, setStats] = useState(null);
@@ -104,165 +89,388 @@ const AboutUs = () => {
       try {
         const res = await statsAPI.getAbout();
         if (res?.success && res?.data) setStats(res.data);
-      } catch (e) {
-        console.error('About stats failed:', e);
-      } finally {
-        setLoadingStats(false);
-      }
+      } catch (e) { console.error(e); } finally { setLoadingStats(false); }
     };
     fetchStats();
   }, []);
 
-  const cardSx = getCardSx(theme, mode);
-  const cardSxNoHover = getCardSx(theme, mode, { noHover: true });
-  const statValues = stats
-    ? [stats.instructors, stats.courses, stats.lectures, stats.enrollments, stats.languages ?? 2, stats.members]
-    : [0, 0, 0, 0, 2, 0];
-
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', width: '100%' }}>
-      <Container maxWidth="lg" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
-        <Breadcrumbs sx={{ mb: 3 }} separator={<ChevronRightIcon sx={{ fontSize: 14, opacity: 0.5 }} />}>
-          <Link component={RouterLink} to="/" underline="hover" sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary', fontSize: '0.8125rem', fontWeight: 500, '&:hover': { color: 'primary.main' } }}>
-            <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} /> Home
-          </Link>
-          <Typography sx={{ display: 'flex', alignItems: 'center', color: 'text.primary', fontSize: '0.8125rem', fontWeight: 600 }}>
-            <InfoIcon sx={{ mr: 0.5, fontSize: 16 }} /> About Us
-          </Typography>
-        </Breadcrumbs>
-
-        <Box sx={{ mb: 5 }}>
-          <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px', mb: 0.5, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
-            About Us
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ opacity: 0.8 }}>
-            Empowering Myanmar through quality education since 2019
-          </Typography>
-        </Box>
-
-        <Paper elevation={0} sx={{ p: { xs: 4, md: 6 }, mb: 5, borderRadius: 3, overflow: 'hidden', border: `1px solid ${alpha(theme.palette.divider, 0.1)}`, boxShadow: mode === 'light' ? '0 2px 12px rgba(0,0,0,0.06)' : '0 4px 16px rgba(0,0,0,0.25)', bgcolor: alpha(theme.palette.primary.main, mode === 'light' ? 0.06 : 0.12) }}>
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.5px', color: 'text.primary', fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' } }}>
-              For Higher Education Of Myanmar
-            </Typography>
-          </Box>
-        </Paper>
-
-        <Box sx={{ mb: 6 }}>
-          <Typography variant="h5" fontWeight={700} sx={{ mb: 0.5 }}>Our Features</Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>On Calamus, you have access to:</Typography>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3 }}>
-            {FEATURES.map((item) => (
-              <Paper key={item.title} elevation={0} sx={{ ...cardSx, p: 2.5, height: '100%', minHeight: { md: 200 }, display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ width: 48, height: 48, borderRadius: 2, bgcolor: alpha(theme.palette.primary.main, 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1.5, flexShrink: 0 }}>
-                  <item.icon sx={{ fontSize: 24, color: 'primary.main' }} />
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+      
+      {/* 1. HERO SECTION (consistent with Home page) */}
+      <Box
+        sx={{
+          position: 'relative',
+          borderRadius: { xs: 0, md: 6 },
+          overflow: 'hidden',
+          mb: 4,
+          mx: { xs: -2, sm: -3, md: 0 },
+          minHeight: { xs: 'auto', md: 480 },
+          display: 'flex',
+          alignItems: 'center',
+          background: '#1b5e20',
+          backgroundImage: 'radial-gradient(circle at 0% 0%, rgba(46, 125, 50, 0.8) 0%, transparent 50%), radial-gradient(circle at 100% 100%, rgba(27, 94, 32, 0.9) 0%, transparent 50%), url("https://www.transparenttextures.com/patterns/cubes.png")',
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '10%',
+            right: '5%',
+            width: 300,
+            height: 300,
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%)',
+            filter: 'blur(60px)',
+            animation: 'pulse 8s infinite alternate',
+            '@keyframes pulse': { '0%': { transform: 'scale(1) translate(0, 0)' }, '100%': { transform: 'scale(1.2) translate(-20px, 20px)' } },
+          }}
+        />
+        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2, py: { xs: 6, md: 8 } }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: { xs: 6, md: 8 }, alignItems: 'center' }}>
+            <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+              <Breadcrumbs separator={<ChevronRightIcon sx={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} />} sx={{ mb: 2 }}>
+                <Link component={RouterLink} to="/" underline="none" sx={{ color: 'rgba(255,255,255,0.85)', display: 'flex', alignItems: 'center', fontSize: '0.8rem' }}>
+                  <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} /> Home
+                </Link>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>About Our Mission</Typography>
+              </Breadcrumbs>
+              <Stack direction="row" alignItems="center" justifyContent={{ xs: 'center', md: 'flex-start' }} spacing={1} sx={{ mb: 2 }}>
+                <Box sx={{ px: 1.5, py: 0.5, bgcolor: 'rgba(255,255,255,0.15)', borderRadius: 1, backdropFilter: 'blur(10px)' }}>
+                  <Typography variant="caption" sx={{ color: 'white', fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase' }}>Since 2019</Typography>
                 </Box>
-                <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 0.75 }}>{item.title}</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6, flex: 1 }}>{item.text}</Typography>
-              </Paper>
-            ))}
+              </Stack>
+
+              <Typography variant="h1" sx={{ fontSize: { xs: '2.5rem', sm: '3rem', md: '3.5rem' }, fontWeight: 900, color: 'white', lineHeight: 1.1, mb: 2, letterSpacing: -1, textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
+                Bridging the Gap in <br /><Box component="span" sx={{ color: '#81c784' }}>Myanmar's Education</Box>
+              </Typography>
+              <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.85)', mb: 4, fontWeight: 400, lineHeight: 1.6, maxWidth: 540, mx: { xs: 'auto', md: 0 }, fontSize: { xs: '1rem', md: '1.125rem' } }}>
+                We're dedicated to the greatest online learning ecosystem for language and professional development in Myanmar.
+              </Typography>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent={{ xs: 'center', md: 'flex-start' }} sx={{ mb: 5 }}>
+                <Button variant="contained" size="large" component={RouterLink} to="/explore" sx={{ bgcolor: 'white', color: 'primary.dark', px: 4, py: 2, fontSize: '1rem', fontWeight: 800, borderRadius: 2, boxShadow: '0 10px 30px rgba(0,0,0,0.2)', '&:hover': { bgcolor: '#f5f5f5', transform: 'translateY(-2px)' }, transition: 'all 0.3s' }}>
+                  Start Learning
+                </Button>
+                <Button variant="outlined" size="large" component="a" href="https://play.google.com/store/apps/dev?id=6266259325837450446" target="_blank" rel="noopener noreferrer" sx={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white', px: 4, py: 2, fontSize: '1rem', fontWeight: 700, borderRadius: 2, backdropFilter: 'blur(10px)', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}>
+                  Our Apps
+                </Button>
+              </Stack>
+              <Stack direction="row" alignItems="center" justifyContent={{ xs: 'center', md: 'flex-start' }} spacing={3} flexWrap="wrap" useFlexGap>
+                <Box>
+                  <Typography variant="h5" sx={{ color: 'white', fontWeight: 800, mb: 0 }}>{formatCount(stats?.instructors ?? 0)}</Typography>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>Teachers</Typography>
+                </Box>
+                <Divider orientation="vertical" flexItem sx={{ borderColor: 'rgba(255,255,255,0.1)', height: 40 }} />
+                <Box>
+                  <Typography variant="h5" sx={{ color: 'white', fontWeight: 800, mb: 0 }}>{formatCount(stats?.courses ?? 0)}</Typography>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>Courses</Typography>
+                </Box>
+                <Divider orientation="vertical" flexItem sx={{ borderColor: 'rgba(255,255,255,0.1)', height: 40 }} />
+                <Box>
+                  <Typography variant="h5" sx={{ color: 'white', fontWeight: 800, mb: 0 }}>{formatCount(stats?.enrollments ?? 0)}</Typography>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>Enrollments</Typography>
+                </Box>
+              </Stack>
+            </Box>
+            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+              <Stack spacing={3}>
+                <HeroFeatureCard icon={<TranslateIcon />} title="Language & Skills" description="English, Korean, and professional development." />
+                <HeroFeatureCard icon={<MobileIcon />} title="Mobile First" description="Learn on the go with our Android apps." />
+                <HeroFeatureCard icon={<SchoolIcon />} title="Expert-Led" description="Certified instructors and structured courses." />
+              </Stack>
+            </Box>
           </Box>
-        </Box>
+        </Container>
+      </Box>
 
-        <Box sx={{ mb: 6 }}>
-          <Paper elevation={0} sx={{ ...cardSxNoHover, p: 4 }}>
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={4} alignItems={{ md: 'center' }}>
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="h5" fontWeight={700} sx={{ mb: 1.5 }}>Our Story</Typography>
-                <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: 'primary.main', mb: 2 }} />
-                <Typography variant="body1" color="text.secondary" sx={{ whiteSpace: 'pre-line', lineHeight: 1.8 }}>{OUR_STORY}</Typography>
-              </Box>
-              <Box sx={{ width: { xs: '100%', md: 200 }, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', p: 4, borderRadius: 2, bgcolor: alpha(theme.palette.primary.main, 0.06) }}>
-                <StoryIcon sx={{ fontSize: 80, color: 'primary.main', opacity: 0.6 }} />
-              </Box>
-            </Stack>
-          </Paper>
-        </Box>
+      {/* 2. STATS OVERLAY CARDS */}
+      <Container maxWidth="lg" sx={{ mt: -6, mb: 6, position: 'relative', zIndex: 3 }}>
+        <Grid container spacing={3}>
+          {STAT_KEYS.map((item, i) => (
+            <Grid size={{ xs: 6, md: 3 }} key={item.key}>
+              <Paper sx={{ 
+                p: 2.5, textAlign: 'center', borderRadius: 4, 
+                boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+                border: '1px solid', borderColor: 'divider'
+              }}>
+                {loadingStats ? <Skeleton variant="text" width="60%" height={36} sx={{ mx: 'auto' }} /> : (
+                  <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main', fontSize: '1.5rem' }}>
+                    {stats ? (stats[item.key] > 1000 ? `${(stats[item.key]/1000).toFixed(1)}k+` : stats[item.key]) : '0'}
+                  </Typography>
+                )}
+                <Typography variant="body2" color="text.secondary" fontWeight={600} sx={{ fontSize: '0.8125rem' }}>{item.label}</Typography>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
 
-        <Box sx={{ mb: 6 }}>
-          <Typography variant="h5" fontWeight={700} sx={{ mb: 0.5, textAlign: 'center' }}>Our Reach</Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3, textAlign: 'center', maxWidth: 520, mx: 'auto' }}>
-            Calamus is the leading marketplace for teaching and learning, connecting thousands of students to the skills they need to succeed.
+      {/* Quick Links - consistent with Home */}
+      <Container maxWidth="lg" sx={{ mb: 4 }}>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="h6" fontWeight={700} gutterBottom sx={{ fontSize: '1.1rem' }}>
+            Quick Links
           </Typography>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', md: 'repeat(6, 1fr)' }, gap: 2 }}>
-            {loadingStats ? [...Array(6)].map((_, i) => <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />) : STAT_KEYS.map((item, i) => (
-              <Paper key={item.key} elevation={0} sx={{ ...cardSx, p: 2, textAlign: 'center' }}>
-                <Typography variant="h4" fontWeight={800} color="primary.main" sx={{ fontSize: { xs: '1.5rem', sm: '1.75rem' } }}>{formatCount(statValues[i])}</Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>{item.label}</Typography>
-              </Paper>
-            ))}
+          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8125rem' }}>
+            Quick access to popular sections
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
+          {QUICK_LINKS.map((link) => (
+            <Box
+              key={link.label}
+              onClick={() => navigate(link.path)}
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 0.75,
+                p: 1.5,
+                minWidth: 88,
+                maxWidth: 110,
+                cursor: 'pointer',
+                borderRadius: 2,
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  bgcolor: alpha(theme.palette.primary.main, 0.08),
+                  '& .quick-link-icon': { transform: 'scale(1.08)' },
+                  '& .quick-link-label': { color: theme.palette.primary.main },
+                },
+              }}
+            >
+              <Box
+                className="quick-link-icon"
+                sx={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: '50%',
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  color: 'primary.main',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                  '& svg': { fontSize: '1.35rem' },
+                }}
+              >
+                {link.icon}
+              </Box>
+              <Typography
+                className="quick-link-label"
+                variant="body2"
+                fontWeight={500}
+                sx={{
+                  color: 'text.primary',
+                  fontSize: '0.75rem',
+                  textAlign: 'center',
+                  transition: 'color 0.2s ease',
+                  lineHeight: 1.3,
+                }}
+              >
+                {link.label}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Container>
+
+      {/* 3. THE JOURNEY (OUR STORY) */}
+      <Container maxWidth="md" sx={{ mb: 6 }}>
+        <Stack alignItems="center" textAlign="center" spacing={1.5} sx={{ mb: 3 }}>
+          <TimelineIcon color="primary" sx={{ fontSize: 36 }} />
+          <Typography variant="h5" fontWeight={800} sx={{ fontSize: '1.35rem' }}>Our Story So Far</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+            From a single idea to a multi-platform learning ecosystem.
+          </Typography>
+        </Stack>
+        
+        <Paper elevation={0} sx={{ p: 3, borderRadius: 4, bgcolor: alpha(theme.palette.primary.main, 0.03), border: '1px dashed', borderColor: 'primary.light' }}>
+          <Typography variant="body2" sx={{ lineHeight: 1.85, color: 'text.primary', fontSize: '0.9375rem' }}>
+            We started with a vision to revolutionize digital education in Myanmar. In 2020, we launched **Easy English**, followed quickly by **Easy Korean** in 2021. Today, our ecosystem includes an E-library and specialized dictionaries, helping thousands study systematically from home.
+          </Typography>
+        </Paper>
+      </Container>
+
+      {/* --- IMPROVED FEATURES SECTION --- */}
+<Box sx={{ py: 5, bgcolor: mode === 'light' ? '#F8FAFC' : 'rgba(255,255,255,0.02)' }}>
+  <Container maxWidth="lg">
+    <Stack alignItems="center" textAlign="center" spacing={1} sx={{ mb: 4 }}>
+      <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: 1.5, fontSize: '0.7rem' }}>
+        Why Calamus?
+      </Typography>
+      <Typography variant="h5" fontWeight={800} sx={{ color: 'text.primary', fontSize: '1.35rem' }}>
+        Designed for the modern learner
+      </Typography>
+    </Stack>
+
+    <Grid container spacing={3}>
+      {/* 1. THE BIG FEATURE (Mobile Learning) */}
+      <Grid size={{ xs: 12, md: 7 }}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 5,
+            height: '100%',
+            borderRadius: 6,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            bgcolor: 'primary.main',
+            color: 'white',
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: '0 20px 40px rgba(0, 127, 255, 0.2)',
+          }}
+        >
+          <Box sx={{ position: 'relative', zIndex: 2 }}>
+            <MobileIcon sx={{ fontSize: 40, mb: 1.5, opacity: 0.9 }} />
+            <Typography variant="h5" fontWeight={800} gutterBottom sx={{ fontSize: '1.25rem' }}>
+              Learn Anywhere, Anytime
+            </Typography>
+            <Typography variant="body2" sx={{ opacity: 0.9, fontWeight: 400, mb: 2.5, maxWidth: 450, fontSize: '0.875rem' }}>
+              Our native Android applications for English and Korean are optimized for low-data usage and offline learning in Myanmar.
+            </Typography>
+            <Button 
+              component="a"
+              href="https://play.google.com/store/apps/dev?id=6266259325837450446"
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="contained" 
+              sx={{ 
+                bgcolor: 'white', 
+                color: 'primary.main', 
+                fontWeight: 700,
+                '&:hover': { bgcolor: '#f0f0f0' } 
+              }}
+            >
+              Get on Google Play
+            </Button>
           </Box>
-        </Box>
+          {/* Decorative Circle */}
+          <Box sx={{ 
+            position: 'absolute', bottom: -50, right: -50, 
+            width: 250, height: 250, borderRadius: '50%', 
+            bgcolor: 'rgba(255,255,255,0.1)' 
+          }} />
+        </Paper>
+      </Grid>
 
-        <Box sx={{ mb: 6, py: { xs: 5, md: 6 }, px: { xs: 2, sm: 3 }, bgcolor: alpha(theme.palette.primary.main, mode === 'light' ? 0.03 : 0.06), borderRadius: 3, border: `1px solid ${alpha(theme.palette.primary.main, 0.08)}` }}>
-          <Container maxWidth="lg" disableGutters>
-            <Stack alignItems="center" sx={{ textAlign: 'center', mb: 5 }}>
-              <Chip icon={<QuoteIcon sx={{ fontSize: 16 }} />} label="From our community" size="small" sx={{ mb: 1.5, fontWeight: 600, bgcolor: alpha(theme.palette.primary.main, 0.12), color: 'primary.dark', '& .MuiChip-icon': { color: 'primary.main' } }} />
-              <Typography variant="h4" fontWeight={800} sx={{ mb: 1, letterSpacing: '-0.02em' }}>Honest Reviews</Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 480 }}>Real feedback from learners. Watch how Easy Korean and Easy English help Myanmar students succeed.</Typography>
-            </Stack>
-            <Stack spacing={5}>
-              {REVIEWS.map((review, idx) => (
-                <Paper key={review.title} elevation={0} sx={{ ...cardSxNoHover, overflow: 'hidden', borderRadius: 3 }}>
-                  <Grid container sx={{ flexDirection: idx % 2 === 1 && !isMobile ? 'row-reverse' : 'row', alignItems: 'stretch', minHeight: { md: 320 } }}>
-                    <Grid size={{ xs: 12, md: 6 }} sx={{ minWidth: 0 }}>
-                      <Box sx={{ width: '100%', overflow: 'hidden', borderRadius: { xs: 0, md: idx % 2 === 1 ? '24px 0 0 24px' : '0 24px 24px 0' }, bgcolor: '#000' }}>
-                        {/* Exact same structure as about_us.php: wrapper with padding 56.25% (16:9), iframe absolute to fill */}
-                        <Box
-                          component="div"
-                          sx={{
-                            position: 'relative',
-                            width: '100%',
-                            paddingTop: '56.25%',
-                          }}
-                        >
-                          <iframe
-                            src={review.vimeoEmbedUrl}
-                            title={`${review.title} Honest Review`}
-                            frameBorder="0"
-                            allow="autoplay; fullscreen; picture-in-picture"
-                            allowFullScreen
-                            style={{
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              width: '100%',
-                              height: '100%',
-                              border: 'none',
-                            }}
-                          />
-                          <Box sx={{ position: 'absolute', bottom: 10, left: 10, pointerEvents: 'none' }}>
-                            <Chip size="small" icon={<PlayIcon sx={{ fontSize: 14, color: 'white' }} />} label="Video review" sx={{ bgcolor: alpha('#000', 0.65), color: 'white', fontWeight: 600, fontSize: '0.75rem', '& .MuiChip-icon': { color: 'white' } }} />
-                          </Box>
-                        </Box>
-                      </Box>
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex', flexDirection: 'column' }}>
-                      <Box sx={{ flex: 1, p: { xs: 3, sm: 4 }, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                        <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2, flexWrap: 'wrap' }}>
-                          <Chip label={review.title} size="small" sx={{ fontWeight: 700, bgcolor: alpha(theme.palette.primary.main, 0.12), color: 'primary.dark' }} />
-                          <Typography variant="h6" fontWeight={700} color="text.primary">Honest Review</Typography>
-                        </Stack>
-                        <Box sx={{ borderLeft: '4px solid', borderColor: 'primary.main', pl: 2, py: 0.5 }}>
-                          <Typography variant="body1" color="text.secondary" sx={{ whiteSpace: 'pre-line', lineHeight: 1.8, maxWidth: '52ch' }}>{review.text}</Typography>
-                        </Box>
-                        <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>Play the video on this page — no need to leave.</Typography>
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </Paper>
-              ))}
-            </Stack>
-          </Container>
-        </Box>
+      {/* 2. SUB-FEATURES COLUMN */}
+      <Grid size={{ xs: 12, md: 5 }}>
+        <Stack spacing={3} sx={{ height: '100%' }}>
+          {/* Academic Support */}
+          <Paper sx={{ p: 2.5, borderRadius: 4, border: '1px solid', borderColor: 'divider', display: 'flex', gap: 2 }}>
+            <Avatar sx={{ width: 40, height: 40, bgcolor: alpha(theme.palette.success.main, 0.1), color: 'success.main' }}>
+              <SupportIcon sx={{ fontSize: 20 }} />
+            </Avatar>
+            <Box>
+              <Typography variant="subtitle2" fontWeight={700} sx={{ fontSize: '0.9rem' }}>Direct Expert Support</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8125rem', lineHeight: 1.5 }}>
+                Chat with teachers via Telegram or Facebook for real-time help.
+              </Typography>
+            </Box>
+          </Paper>
 
-        <Box sx={{ py: 4, textAlign: 'center', borderRadius: 3, bgcolor: alpha(theme.palette.primary.main, mode === 'light' ? 0.05 : 0.08), border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}` }}>
-          <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>Ready to start learning?</Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Explore our courses and begin your journey today.</Typography>
-          <Link component={RouterLink} to="/explore" underline="none" sx={{ display: 'inline-flex', alignItems: 'center', px: 3, py: 1.5, borderRadius: 2, bgcolor: 'primary.main', color: 'white', fontWeight: 600, '&:hover': { bgcolor: 'primary.dark' } }}>
-            Explore Courses <ChevronRightIcon sx={{ ml: 0.5 }} />
-          </Link>
-        </Box>
+          {/* Certificates */}
+          <Paper sx={{ p: 2.5, borderRadius: 4, border: '1px solid', borderColor: 'divider', display: 'flex', gap: 2 }}>
+            <Avatar sx={{ width: 40, height: 40, bgcolor: alpha(theme.palette.warning.main, 0.1), color: 'warning.main' }}>
+              <CertificateIcon sx={{ fontSize: 20 }} />
+            </Avatar>
+            <Box>
+              <Typography variant="subtitle2" fontWeight={700} sx={{ fontSize: '0.9rem' }}>Sharable Certificates</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8125rem', lineHeight: 1.5 }}>
+                Get a digital certificate for every course you successfully finish.
+              </Typography>
+            </Box>
+          </Paper>
+
+          {/* Community */}
+          <Paper sx={{ p: 2.5, borderRadius: 4, border: '1px solid', borderColor: 'divider', display: 'flex', gap: 2 }}>
+            <Avatar sx={{ width: 40, height: 40, bgcolor: alpha(theme.palette.info.main, 0.1), color: 'info.main' }}>
+              <GlobeIcon sx={{ fontSize: 20 }} />
+            </Avatar>
+            <Box>
+              <Typography variant="subtitle2" fontWeight={700} sx={{ fontSize: '0.9rem' }}>Inclusive Community</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8125rem', lineHeight: 1.5 }}>
+                Join a network of thousands of learners and build new friendships.
+              </Typography>
+            </Box>
+          </Paper>
+        </Stack>
+      </Grid>
+    </Grid>
+  </Container>
+</Box>
+
+      {/* 5. VIDEO REVIEWS (LEARNER VOICES) */}
+      <Container maxWidth="lg" sx={{ py: 5 }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="flex-end" sx={{ mb: 3 }}>
+          <Box>
+            <Typography variant="h5" fontWeight={800} sx={{ fontSize: '1.25rem' }}>Student Success Stories</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8125rem' }}>Hear directly from our community in Myanmar.</Typography>
+          </Box>
+          {!isMobile && <StatsIcon color="primary" sx={{ fontSize: 48, opacity: 0.2 }} />}
+        </Stack>
+
+        <Grid container spacing={4}>
+          {[{
+            title: 'Easy Korean Success',
+            vimeoEmbedUrl: 'https://player.vimeo.com/video/836210202?h=5036ec7717&badge=0&autopause=0&player_id=0&app_id=58479',
+            text: 'Courses are affordable and high quality. If you want to improve your Korean skills systematically, this is the app for you.'
+          }, {
+            title: 'Easy English Journey',
+            vimeoEmbedUrl: 'https://player.vimeo.com/video/843769832?h=5d0578e19a&badge=0&autopause=0&quality_selector=1&player_id=0&app_id=58479',
+            text: 'From Grammar to Slang, this app covers everything. It helps you reach intermediate levels through self-study.'
+          }].map((vid, idx) => (
+            <Grid size={{ xs: 12, md: 6 }} key={idx}>
+              <Paper sx={{ overflow: 'hidden', borderRadius: 5, boxShadow: '0 30px 60px rgba(0,0,0,0.12)' }}>
+                <Box sx={{ position: 'relative', paddingTop: '56.25%', bgcolor: 'black' }}>
+                  <iframe
+                    src={vid.vimeoEmbedUrl}
+                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    title={vid.title}
+                  />
+                </Box>
+                <Box sx={{ p: 3 }}>
+                  <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
+                    <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main' }}><QuoteIcon sx={{ fontSize: 18 }} /></Avatar>
+                    <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '0.9375rem' }}>{vid.title}</Typography>
+                  </Stack>
+                  <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', lineHeight: 1.6, fontSize: '0.8125rem' }}>
+                    "{vid.text}"
+                  </Typography>
+                </Box>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+
+      {/* 6. CALL TO ACTION */}
+      <Container maxWidth="lg" sx={{ pb: 6 }}>
+        <Paper sx={{ 
+          p: { xs: 3, md: 6 }, borderRadius: 4, textAlign: 'center',
+          bgcolor: 'primary.main', color: 'white',
+          boxShadow: '0 20px 50px rgba(0,127,255,0.3)'
+        }}>
+          <Typography variant="h5" fontWeight={800} sx={{ mb: 1.5, fontSize: '1.35rem' }}>Ready to Upgrade Your Future?</Typography>
+          <Typography variant="body2" sx={{ mb: 3, opacity: 0.9, fontWeight: 400, fontSize: '0.875rem' }}>
+            Join thousands of Myanmar students today.
+          </Typography>
+          <Button 
+            component={RouterLink} to="/explore"
+            variant="contained" 
+            size="medium"
+            sx={{ 
+              bgcolor: 'white', color: 'primary.main', px: 4, py: 1.5, 
+              borderRadius: 2, fontWeight: 700, fontSize: '0.9375rem',
+              '&:hover': { bgcolor: '#f0f0f0' } 
+            }}
+          >
+            Explore All Courses
+          </Button>
+        </Paper>
       </Container>
     </Box>
   );

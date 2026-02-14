@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { 
   Box, 
   Typography, 
@@ -18,9 +18,12 @@ import {
   Container,
   Divider,
   CircularProgress,
+  Grid,
+  Link,
 } from '@mui/material';
 import { 
   PlayCircleOutline as PlayIcon,
+  PlayCircleFilled as VideoPlayIcon,
   Translate as TranslateIcon,
   EmojiEvents as TrophyIcon,
   ArrowForward as ArrowIcon,
@@ -37,6 +40,7 @@ import {
   MusicNote as MusicNoteIcon,
   Search as SearchIcon,
   Brightness5 as BrightnessIcon,
+  FormatQuote as QuoteIcon,
 } from '@mui/icons-material';
 import { courseAPI, statsAPI, pinnedPostsAPI, instructorAPI, appsAPI, ratingAPI } from '../services/api';
 import { CourseCard, CourseCardSkeleton, ResponsiveGrid } from '../components/CourseCard';
@@ -124,6 +128,20 @@ const StarRating = ({ rating }) => {
 
 // Color palette for avatar fallbacks
 const avatarColors = ['#1976d2', '#d32f2f', '#ed6c02', '#9c27b0', '#0288d1'];
+
+// Honest Review videos (same as About page)
+const HONEST_REVIEWS = [
+  {
+    title: 'Easy Korean',
+    vimeoEmbedUrl: 'https://player.vimeo.com/video/836210202?h=5036ec7717&badge=0&autopause=0&player_id=0&app_id=58479',
+    text: 'Courses are affordable and high quality. If you want to improve your Korean skills systematically, this is the app for you.',
+  },
+  {
+    title: 'Easy English',
+    vimeoEmbedUrl: 'https://player.vimeo.com/video/843769832?h=5d0578e19a&badge=0&autopause=0&quality_selector=1&player_id=0&app_id=58479',
+    text: 'From Grammar to Slang, this app covers everything. It helps you reach intermediate levels through self-study.',
+  },
+];
 
 // Hero Section Component - now accepts live stats
 const HeroSection = ({ stats, loading }) => {
@@ -787,6 +805,50 @@ const Home = () => {
             </Box>
           ))}
         </Box>
+      </Box>
+
+      {/* Honest Reviews Section */}
+      <Box sx={{ mb: 5, py: 5, px: { xs: 2, sm: 3, md: 4 }, bgcolor: alpha(theme.palette.primary.main, theme.palette.mode === 'light' ? 0.04 : 0.08), borderRadius: 3, border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}` }}>
+        <Stack alignItems="center" sx={{ textAlign: 'center', mb: 4 }}>
+          <Chip icon={<QuoteIcon sx={{ fontSize: 16 }} />} label="From our community" size="small" sx={{ mb: 1.5, fontWeight: 600, bgcolor: alpha(theme.palette.primary.main, 0.12), color: 'primary.dark', '& .MuiChip-icon': { color: 'primary.main' } }} />
+          <Typography variant="h5" fontWeight={800} sx={{ mb: 0.5, letterSpacing: '-0.02em' }}>
+            Honest Reviews
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 480 }}>
+            Real feedback from learners. Watch how Easy Korean and Easy English help Myanmar students succeed.
+          </Typography>
+        </Stack>
+        <Grid container spacing={3}>
+          {HONEST_REVIEWS.map((review, idx) => (
+            <Grid size={{ xs: 12, md: 6 }} key={idx}>
+              <Paper elevation={0} sx={{ overflow: 'hidden', borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
+                <Box sx={{ position: 'relative', paddingTop: '56.25%', bgcolor: 'black' }}>
+                  <iframe
+                    src={review.vimeoEmbedUrl}
+                    title={`${review.title} Honest Review`}
+                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                    allow="autoplay; fullscreen; picture-in-picture"
+                  />
+                  <Box sx={{ position: 'absolute', bottom: 8, left: 8, pointerEvents: 'none' }}>
+                    <Chip size="small" icon={<VideoPlayIcon sx={{ fontSize: 14, color: 'white' }} />} label="Video review" sx={{ bgcolor: alpha('#000', 0.65), color: 'white', fontWeight: 600, fontSize: '0.75rem', '& .MuiChip-icon': { color: 'white' } }} />
+                  </Box>
+                </Box>
+                <Box sx={{ p: 3 }}>
+                  <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
+                    <Chip label={review.title} size="small" sx={{ fontWeight: 700, bgcolor: alpha(theme.palette.primary.main, 0.12), color: 'primary.dark' }} />
+                    <Typography variant="subtitle1" fontWeight={700}>Honest Review</Typography>
+                  </Stack>
+                  <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+                    "{review.text}"
+                  </Typography>
+                  <Link component={RouterLink} to="/about" underline="hover" sx={{ mt: 1.5, display: 'inline-block', fontSize: '0.8125rem', fontWeight: 600 }}>
+                    More on About us →
+                  </Link>
+                </Box>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
       </Box>
 
       {/* Latest Reviews Section - Horizontal Scroll */}

@@ -18,11 +18,6 @@ try {
     
     $DB = new Database();
     
-    // Escape userId for SQL query
-    $conn = mysqli_connect('localhost', 'root', '', 'calamus_db');
-    $userIdEscaped = mysqli_real_escape_string($conn, $userId);
-    mysqli_close($conn);
-    
     // Fetch comments with user info and like status
     // Based on original comment.php class query structure
     $commentsQuery = "SELECT 

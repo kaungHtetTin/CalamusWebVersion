@@ -3,7 +3,7 @@ class Song{
 
     function get($data,$userId){
         $major=$data['category'];
-    $query ="SELECT * FROM songs WHERE type='$major' ORDER BY id DESC";
+    $query ="SELECT * FROM Songs WHERE type='$major' ORDER BY id DESC";
         $DB=new Database();
         $Songs=$DB->read($query);
 
@@ -41,7 +41,7 @@ class Song{
 
     function getMostPopularSong($data,$userId){
         $major=$data['category'];
-        $query ="SELECT * FROM songs WHERE type='$major' ORDER BY like_count DESC limit 50";
+        $query ="SELECT * FROM Songs WHERE type='$major' ORDER BY like_count DESC limit 50";
         $DB=new Database();
         $Songs=$DB->read($query);
 

@@ -4,7 +4,7 @@
  * POST: Requires Authorization Bearer token. Body: { "songId": number }
  * Returns: { success, liked: bool, likeCount: number }
  *
- * Uses mylikes table: content_id = song id (songs.id), likes = JSON array of {user_id}, rowNo for sharding.
+ * Uses mylikes table: content_id = song id (Songs.id), likes = JSON array of {user_id}, rowNo for sharding.
  */
 
 require_once __DIR__ . '/../bootstrap.php';
@@ -49,14 +49,14 @@ try {
     $userIdEscaped = mysqli_real_escape_string($conn, $userId);
 
     // Verify song exists
-    $songCheck = $DB->read("SELECT id, like_count FROM songs WHERE id = $songId LIMIT 1");
+    $songCheck = $DB->read("SELECT id, like_count FROM Songs WHERE id = $songId LIMIT 1");
     if (!$songCheck || count($songCheck) === 0) {
         http_response_code(404);
         echo json_encode(['success' => false, 'error' => 'Song not found']);
         exit();
     }
 
-    $contentId = $songId; // content_id in mylikes = song id (songs.id)
+    $contentId = $songId; // content_id in mylikes = song id (Songs.id)
 
     $likeRows = $DB->read("SELECT * FROM mylikes WHERE content_id = $contentId");
     $rowCount = ($likeRows && is_array($likeRows)) ? count($likeRows) : 0;
@@ -69,7 +69,7 @@ try {
         $likesJson = mysqli_real_escape_string($conn, json_encode($arr));
         $DB->save("INSERT INTO mylikes (content_id, likes, rowNo) VALUES ($contentId, '$likesJson', 0)
                    ON DUPLICATE KEY UPDATE likes = '$likesJson'");
-        $DB->save("UPDATE songs SET like_count = like_count + 1 WHERE id = $songId");
+        $DB->save("UPDATE Songs SET like_count = like_count + 1 WHERE id = $songId");
         $liked = true;
     } else {
         $alreadyLike = false;
@@ -97,12 +97,12 @@ try {
             array_splice($foundLikesArr, $foundKey, 1);
             $likesString = mysqli_real_escape_string($conn, json_encode($foundLikesArr));
             $DB->save("UPDATE mylikes SET likes = '$likesString' WHERE content_id = $contentId AND rowNo = $foundRowNo");
-            $DB->save("UPDATE songs SET like_count = GREATEST(like_count - 1, 0) WHERE id = $songId");
+            $DB->save("UPDATE Songs SET like_count = GREATEST(like_count - 1, 0) WHERE id = $songId");
             $liked = false;
         } else {
             // Like: add user to likes
-            $DB->save("UPDATE songs SET like_count = like_count + 1 WHERE id = $songId");
-            $likeCountResult = $DB->read("SELECT like_count FROM songs WHERE id = $songId LIMIT 1");
+            $DB->save("UPDATE Songs SET like_count = like_count + 1 WHERE id = $songId");
+            $likeCountResult = $DB->read("SELECT like_count FROM Songs WHERE id = $songId LIMIT 1");
             $currentLikeCount = ($likeCountResult && is_array($likeCountResult)) ? (int)$likeCountResult[0]['like_count'] : 0;
             $rowNo = (int)round($currentLikeCount / 10000);
 
@@ -122,7 +122,7 @@ try {
         }
     }
 
-    $countRow = $DB->read("SELECT like_count FROM songs WHERE id = $songId LIMIT 1");
+    $countRow = $DB->read("SELECT like_count FROM Songs WHERE id = $songId LIMIT 1");
     $likeCount = $countRow && count($countRow) > 0 ? (int)$countRow[0]['like_count'] : 0;
 
     echo json_encode([

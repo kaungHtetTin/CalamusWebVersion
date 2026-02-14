@@ -28,9 +28,9 @@ try {
     $DB = new Database();
     $conn = $DB->connect();
 
-    $conn->query("UPDATE songs SET download_count = download_count + 1 WHERE id = $songId");
+    $conn->query("UPDATE Songs SET download_count = download_count + 1 WHERE id = $songId");
 
-    $countRow = $DB->read("SELECT download_count FROM songs WHERE id = $songId LIMIT 1");
+    $countRow = $DB->read("SELECT download_count FROM Songs WHERE id = $songId LIMIT 1");
     $downloadCount = $countRow && count($countRow) > 0 ? (int)$countRow[0]['download_count'] : 0;
 
     echo json_encode([

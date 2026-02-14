@@ -35,7 +35,7 @@ try {
 
     $baseUrl = 'https://www.calamuseducation.com/uploads/songs';
 
-    $songsQuery = "SELECT * FROM songs WHERE type='$categoryEscaped' AND artist='$artistEscaped' ORDER BY like_count DESC";
+    $songsQuery = "SELECT * FROM Songs WHERE type='$categoryEscaped' AND artist='$artistEscaped' ORDER BY like_count DESC";
     $songsResult = $DB->read($songsQuery);
 
     if ($resolveLiked && $songsResult && is_array($songsResult) && count($songsResult) > 0) {
@@ -83,7 +83,7 @@ try {
     }
     
     // Get total count for this artist
-    $countQuery = "SELECT COUNT(*) as total FROM songs WHERE type='$categoryEscaped' AND artist='$artistEscaped'";
+    $countQuery = "SELECT COUNT(*) as total FROM Songs WHERE type='$categoryEscaped' AND artist='$artistEscaped'";
     $countResult = $DB->read($countQuery);
     $totalSongs = $countResult && is_array($countResult) ? (int)$countResult[0]['total'] : 0;
     

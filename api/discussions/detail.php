@@ -17,12 +17,7 @@ try {
     }
     
     $DB = new Database();
-    
-    // Escape userId for SQL query
-    $conn = mysqli_connect('localhost', 'root', '', 'calamus_db');
-    $userIdEscaped = mysqli_real_escape_string($conn, $userId);
-    mysqli_close($conn);
-    
+
     // Fetch single post with user info
     $postQuery = "SELECT 
         posts.post_id as postId,
@@ -109,8 +104,9 @@ try {
         'isLiked' => $isLiked,
     ];
     
-    // Fetch comments for this post
-    $commentsQuery = "SELECT 
+    // Fetch comments for this post (prepared: userId, postId)
+    $commentsResult = $DB->prepareRead(
+        "SELECT 
         comment.id,
         comment.post_id as postId,
         comment.writer_id as writerId,
@@ -124,16 +120,20 @@ try {
         CASE
             WHEN EXISTS (
                 SELECT NULL FROM comment_likes l 
-                WHERE l.user_id = '$userIdEscaped' AND l.comment_id = comment.time
+                WHERE l.user_id = ? AND l.comment_id = comment.time
             ) THEN 1
             ELSE 0
         END as isLiked
     FROM comment 
     JOIN learners ON learners.learner_phone = comment.writer_id
-    WHERE comment.post_id = $postId
-    ORDER BY comment.time ASC";
-    
-    $commentsResult = $DB->read($commentsQuery);
+    WHERE comment.post_id = ?
+    ORDER BY comment.time ASC",
+        'si',
+        [$userId, $postId]
+    );
+    if ($commentsResult === false) {
+        $commentsResult = [];
+    }
     
     $comments = [];
     if ($commentsResult && is_array($commentsResult)) {

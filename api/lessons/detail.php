@@ -187,7 +187,7 @@ try {
     
     $curriculumQuery = "SELECT 
         lc.id as cat_id,
-        lc.title as cat_title,
+        lc.category_title as cat_title,
         l.id,
         l.title,
         l.isVideo,

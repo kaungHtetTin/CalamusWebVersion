@@ -28,6 +28,7 @@ import {
   MenuBook as MenuBookIcon,
   Lock as LockIcon,
   ArrowBack as ArrowBackIcon,
+  ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
 
@@ -206,14 +207,53 @@ export default function VocabLearn() {
     return (
       <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
         <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
-          <Breadcrumbs sx={{ mb: 3 }}>
-            <Link component={RouterLink} to="/" underline="hover" sx={{ display: 'flex', alignItems: 'center' }} color="inherit">
-              <HomeIcon sx={{ mr: 0.5 }} fontSize="small" /> Home
+          <Breadcrumbs
+            sx={{ mb: 3 }}
+            separator={<ChevronRightIcon sx={{ fontSize: 14, opacity: 0.5 }} />}
+          >
+            <Link
+              component={RouterLink}
+              to="/"
+              underline="hover"
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                color: 'text.secondary',
+                fontSize: '0.8125rem',
+                fontWeight: 500,
+                '&:hover': { color: 'primary.main' },
+              }}
+            >
+              <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} />
+              Home
             </Link>
-            <Link component={RouterLink} to="/vocab-learning" underline="hover" sx={{ display: 'flex', alignItems: 'center' }} color="inherit">
-              <MenuBookIcon sx={{ mr: 0.5 }} fontSize="small" /> Vocab Learning
+            <Link
+              component={RouterLink}
+              to="/vocab-learning"
+              underline="hover"
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                color: 'text.secondary',
+                fontSize: '0.8125rem',
+                fontWeight: 500,
+                '&:hover': { color: 'primary.main' },
+              }}
+            >
+              <MenuBookIcon sx={{ mr: 0.5, fontSize: 16 }} />
+              Vocab Learning
             </Link>
-            <Typography color="text.primary">{resolvedDeck?.title || 'Learn'}</Typography>
+            <Typography
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                color: 'text.primary',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+              }}
+            >
+              {resolvedDeck?.title || 'Learn'}
+            </Typography>
           </Breadcrumbs>
 
           <Box
@@ -310,14 +350,53 @@ export default function VocabLearn() {
     return (
       <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
         <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
-          <Breadcrumbs sx={{ mb: 3 }}>
-            <Link component={RouterLink} to="/" underline="hover" sx={{ display: 'flex', alignItems: 'center' }} color="inherit">
-              <HomeIcon sx={{ mr: 0.5 }} fontSize="small" /> Home
+          <Breadcrumbs
+            sx={{ mb: 3 }}
+            separator={<ChevronRightIcon sx={{ fontSize: 14, opacity: 0.5 }} />}
+          >
+            <Link
+              component={RouterLink}
+              to="/"
+              underline="hover"
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                color: 'text.secondary',
+                fontSize: '0.8125rem',
+                fontWeight: 500,
+                '&:hover': { color: 'primary.main' },
+              }}
+            >
+              <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} />
+              Home
             </Link>
-            <Link component={RouterLink} to="/vocab-learning" underline="hover" sx={{ display: 'flex', alignItems: 'center' }} color="inherit">
-              <MenuBookIcon sx={{ mr: 0.5 }} fontSize="small" /> Vocab Learning
+            <Link
+              component={RouterLink}
+              to="/vocab-learning"
+              underline="hover"
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                color: 'text.secondary',
+                fontSize: '0.8125rem',
+                fontWeight: 500,
+                '&:hover': { color: 'primary.main' },
+              }}
+            >
+              <MenuBookIcon sx={{ mr: 0.5, fontSize: 16 }} />
+              Vocab Learning
             </Link>
-            <Typography color="text.primary">{resolvedDeck?.title || 'Learn'}</Typography>
+            <Typography
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                color: 'text.primary',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+              }}
+            >
+              {resolvedDeck?.title || 'Learn'}
+            </Typography>
           </Breadcrumbs>
           <Typography color="error">{loadError}</Typography>
           <Button component={RouterLink} to="/vocab-learning" sx={{ mt: 2 }}>Back to Decks</Button>
@@ -329,14 +408,51 @@ export default function VocabLearn() {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
-        <Breadcrumbs sx={{ mb: 3 }}>
-          <Link component={RouterLink} to="/" underline="hover" sx={{ display: 'flex', alignItems: 'center' }} color="inherit">
-            <HomeIcon sx={{ mr: 0.5 }} fontSize="small" /> Home
+        <Breadcrumbs
+          sx={{ mb: 3 }}
+          separator={<ChevronRightIcon sx={{ fontSize: 14, opacity: 0.5 }} />}
+        >
+          <Link
+            component={RouterLink}
+            to="/"
+            underline="hover"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.secondary',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              '&:hover': { color: 'primary.main' },
+            }}
+          >
+            <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} />
+            Home
           </Link>
-          <Link component={RouterLink} to="/vocab-learning" underline="hover" sx={{ display: 'flex', alignItems: 'center' }} color="inherit">
-            <MenuBookIcon sx={{ mr: 0.5 }} fontSize="small" /> Vocab Learning
+          <Link
+            component={RouterLink}
+            to="/vocab-learning"
+            underline="hover"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.secondary',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              '&:hover': { color: 'primary.main' },
+            }}
+          >
+            <MenuBookIcon sx={{ mr: 0.5, fontSize: 16 }} />
+            Vocab Learning
           </Link>
-          <Typography color="text.primary" sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.primary',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+            }}
+          >
             {resolvedDeck?.title || 'Learn'}
           </Typography>
         </Breadcrumbs>

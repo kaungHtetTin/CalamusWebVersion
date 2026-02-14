@@ -30,6 +30,7 @@ import {
   AutoStories as BookIcon,
   ArrowBack as BackIcon,
   Lock as LockIcon,
+  ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
 import { useDrawer } from '../context/DrawerContext';
@@ -250,17 +251,68 @@ export default function AdditionalLessonPlay() {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <Box sx={{ maxWidth: 1800, mx: 'auto', p: { xs: 2, sm: 2, md: 3 } }}>
-        <Breadcrumbs sx={{ mb: 2 }}>
-          <Link component={RouterLink} to="/" underline="hover" sx={{ display: 'flex', alignItems: 'center' }} color="inherit">
-            <HomeIcon sx={{ mr: 0.5 }} fontSize="small" /> Home
+        <Breadcrumbs
+          sx={{ mb: 3 }}
+          separator={<ChevronRightIcon sx={{ fontSize: 14, opacity: 0.5 }} />}
+        >
+          <Link
+            component={RouterLink}
+            to="/"
+            underline="hover"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.secondary',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              '&:hover': { color: 'primary.main' },
+            }}
+          >
+            <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} />
+            Home
           </Link>
-          <Link component={RouterLink} to={`/additional-lessons/${channel}`} underline="hover" sx={{ display: 'flex', alignItems: 'center' }} color="inherit">
-            <BookIcon sx={{ mr: 0.5 }} fontSize="small" /> Additional Lessons
+          <Link
+            component={RouterLink}
+            to={`/additional-lessons/${channel}`}
+            underline="hover"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.secondary',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              '&:hover': { color: 'primary.main' },
+            }}
+          >
+            <BookIcon sx={{ mr: 0.5, fontSize: 16 }} />
+            Additional Lessons
           </Link>
-          <Link underline="hover" component="button" onClick={handleBackToCategory} sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', border: 'none', background: 'none', font: 'inherit' }} color="inherit">
+          <Link
+            component={RouterLink}
+            to={`/additional-lessons/${channel}/category/${categoryId}`}
+            underline="hover"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.secondary',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              '&:hover': { color: 'primary.main' },
+            }}
+          >
             {category?.category_title}
           </Link>
-          <Typography color="text.primary">{currentLesson.title_mini || currentLesson.title}</Typography>
+          <Typography
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.primary',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+            }}
+          >
+            {currentLesson.title_mini || currentLesson.title}
+          </Typography>
         </Breadcrumbs>
       </Box>
       <Box

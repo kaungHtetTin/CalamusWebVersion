@@ -304,6 +304,48 @@ export const songAPI = {
 };
 
 /**
+ * Base URL for uploads (same origin as API, without /api)
+ */
+const getUploadsBaseUrl = () => {
+  try {
+    const base = API_BASE_URL.replace(/\/api\/?$/, '');
+    return base || new URL(API_BASE_URL).origin;
+  } catch {
+    return '';
+  }
+};
+
+/**
+ * Full URL for a Mini Library asset (cover image or PDF). Path is relative, e.g. "uploads/books/..."
+ */
+export const getBookAssetUrl = (path) => {
+  if (!path) return '';
+  const base = getUploadsBaseUrl();
+  const normalized = path.startsWith('/') ? path.slice(1) : path;
+  return base ? `${base}/${normalized}` : path;
+};
+
+/**
+ * Mini Library API endpoints
+ */
+export const miniLibraryAPI = {
+  /**
+   * Get categories with book count for a major
+   * @param {string} major - english, korea, etc. Default: english
+   */
+  getCategories: (major = 'english') =>
+    fetchAPI(`/mini-library/categories.php?major=${encodeURIComponent(major)}`),
+
+  /**
+   * Get books in a category
+   * @param {string} major - english, korea, etc.
+   * @param {string} category - Category name
+   */
+  getBooks: (major, category) =>
+    fetchAPI(`/mini-library/books.php?major=${encodeURIComponent(major)}&category=${encodeURIComponent(category)}`),
+};
+
+/**
  * Languages API endpoints
  */
 export const languagesAPI = {

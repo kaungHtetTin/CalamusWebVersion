@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Stack,
@@ -24,6 +24,7 @@ import {
   Home as HomeIcon,
   Forum as ForumIcon,
   ArrowBack as BackIcon,
+  ChevronRight as ChevronRightIcon,
   Language as LanguageIcon,
 } from '@mui/icons-material';
 import { Chip, useTheme, alpha } from '@mui/material';
@@ -413,26 +414,51 @@ const PostDetail = () => {
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
         {/* Breadcrumbs */}
-        <Breadcrumbs sx={{ mb: 3 }}>
+        <Breadcrumbs
+          sx={{ mb: 3 }}
+          separator={<ChevronRightIcon sx={{ fontSize: 14, opacity: 0.5 }} />}
+        >
           <Link
+            component={RouterLink}
+            to="/"
             underline="hover"
-            sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-            color="inherit"
-            href="/"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.secondary',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              '&:hover': { color: 'primary.main' },
+            }}
           >
-            <HomeIcon sx={{ mr: 0.5 }} fontSize="small" />
+            <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} />
             Home
           </Link>
           <Link
+            component={RouterLink}
+            to={`/discussion/${post?.major || 'english'}`}
             underline="hover"
-            sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-            color="inherit"
-            onClick={handleBack}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.secondary',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              '&:hover': { color: 'primary.main' },
+            }}
           >
-            <ForumIcon sx={{ mr: 0.5 }} fontSize="small" />
+            <ForumIcon sx={{ mr: 0.5, fontSize: 16 }} />
             Discussion
           </Link>
-          <Typography color="text.primary">
+          <Typography
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.primary',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+            }}
+          >
             Post
           </Typography>
         </Breadcrumbs>

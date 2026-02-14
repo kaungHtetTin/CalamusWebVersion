@@ -1031,7 +1031,7 @@ const Settings = () => {
             spacing={2}
           >
             <Box>
-              <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px', mb: 0.5 }}>
+              <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px', mb: 0.5, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                 Settings
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ opacity: 0.8 }}>

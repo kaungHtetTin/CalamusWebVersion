@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Container,
+  Stack,
   Typography,
   Tabs,
   Tab,
@@ -13,6 +14,7 @@ import {
 import {
   Home as HomeIcon,
   School as SchoolIcon,
+  ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import { courseAPI } from '../services/api';
 import { CourseCard, CourseCardSkeleton, ResponsiveGrid } from '../components/CourseCard';
@@ -98,30 +100,58 @@ const Explore = () => {
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
         {/* Breadcrumbs */}
-        <Breadcrumbs sx={{ mb: 3 }}>
+        <Breadcrumbs
+          sx={{ mb: 3 }}
+          separator={<ChevronRightIcon sx={{ fontSize: 14, opacity: 0.5 }} />}
+        >
           <Link
+            component={RouterLink}
+            to="/"
             underline="hover"
-            sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-            color="inherit"
-            href="/"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.secondary',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              '&:hover': { color: 'primary.main' },
+            }}
           >
-            <HomeIcon sx={{ mr: 0.5 }} fontSize="small" />
+            <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} />
             Home
           </Link>
-          <Typography color="text.primary" sx={{ display: 'flex', alignItems: 'center' }}>
-            <SchoolIcon sx={{ mr: 0.5 }} fontSize="small" />
+          <Typography
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.primary',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+            }}
+          >
+            <SchoolIcon sx={{ mr: 0.5, fontSize: 16 }} />
             Explore Courses
           </Typography>
         </Breadcrumbs>
 
         {/* Page Header */}
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" fontWeight={700} gutterBottom>
-            Explore Courses
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Discover our collection of English and Korean language courses
-          </Typography>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            flexWrap="wrap"
+            spacing={2}
+          >
+            <Box>
+              <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px', mb: 0.5, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
+                Explore Courses
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ opacity: 0.8 }}>
+                Discover our collection of English and Korean language courses
+              </Typography>
+            </Box>
+          </Stack>
         </Box>
 
         {/* Category Tabs */}

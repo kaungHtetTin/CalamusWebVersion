@@ -15,6 +15,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import HomeIcon from '@mui/icons-material/Home';
@@ -117,20 +118,37 @@ function Notifications() {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
-        {/* Breadcrumbs (quick link) - same as Explore */}
-        <Breadcrumbs sx={{ mb: 3 }}>
+        {/* Breadcrumbs */}
+        <Breadcrumbs
+          sx={{ mb: 3 }}
+          separator={<ChevronRightIcon sx={{ fontSize: 14, opacity: 0.5 }} />}
+        >
           <Link
             component={RouterLink}
             to="/"
             underline="hover"
-            sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-            color="inherit"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.secondary',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              '&:hover': { color: 'primary.main' },
+            }}
           >
-            <HomeIcon sx={{ mr: 0.5 }} fontSize="small" />
+            <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} />
             Home
           </Link>
-          <Typography color="text.primary" sx={{ display: 'flex', alignItems: 'center' }}>
-            <NotificationsIcon sx={{ mr: 0.5 }} fontSize="small" />
+          <Typography
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.primary',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+            }}
+          >
+            <NotificationsIcon sx={{ mr: 0.5, fontSize: 16 }} />
             Notifications
           </Typography>
         </Breadcrumbs>
@@ -139,7 +157,7 @@ function Notifications() {
         <Box sx={{ mb: 4 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
             <Box>
-              <Typography variant="h4" fontWeight={700} gutterBottom>
+              <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px', mb: 0.5, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                 Notifications
               </Typography>
               <Typography variant="body1" color="text.secondary">

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { userAPI } from '../services/api';
 import {
@@ -13,7 +14,7 @@ import {
   Tab,
   Chip,
 } from '@mui/material';
-import { Home as HomeIcon, School as SchoolIcon, Lock as LockIcon, LockOpen as LockOpenIcon } from '@mui/icons-material';
+import { Home as HomeIcon, School as SchoolIcon, Lock as LockIcon, LockOpen as LockOpenIcon, ChevronRight as ChevronRightIcon } from '@mui/icons-material';
 import { CourseCard, CourseCardSkeleton, ResponsiveGrid } from '../components/CourseCard';
 
 export default function MyLearning() {
@@ -67,17 +68,42 @@ export default function MyLearning() {
   if (loading) return <div style={{ padding: 20 }}>Checking authentication...</div>;
   if (!isAuthenticated) return (
     <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
-      <Breadcrumbs sx={{ mb: 3 }}>
-        <Link underline="hover" sx={{ display: 'flex', alignItems: 'center' }} color="inherit" href="/">
-          <HomeIcon sx={{ mr: 0.5 }} fontSize="small" /> Home
+      <Breadcrumbs
+        sx={{ mb: 3 }}
+        separator={<ChevronRightIcon sx={{ fontSize: 14, opacity: 0.5 }} />}
+      >
+        <Link
+          component={RouterLink}
+          to="/"
+          underline="hover"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            color: 'text.secondary',
+            fontSize: '0.8125rem',
+            fontWeight: 500,
+            '&:hover': { color: 'primary.main' },
+          }}
+        >
+          <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} />
+          Home
         </Link>
-        <Typography color="text.primary" sx={{ display: 'flex', alignItems: 'center' }}>
-          <SchoolIcon sx={{ mr: 0.5 }} fontSize="small" /> My Learning
+        <Typography
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            color: 'text.primary',
+            fontSize: '0.8125rem',
+            fontWeight: 600,
+          }}
+        >
+          <SchoolIcon sx={{ mr: 0.5, fontSize: 16 }} />
+          My Learning
         </Typography>
       </Breadcrumbs>
 
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight={700} gutterBottom>My Learning</Typography>
+        <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px', mb: 0.5, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>My Learning</Typography>
         <Typography variant="body1" color="text.secondary">This page is only available for signed-in users. Please <Link href="/login">log in</Link>.</Typography>
       </Box>
     </Container>
@@ -86,17 +112,42 @@ export default function MyLearning() {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
-        <Breadcrumbs sx={{ mb: 3 }}>
-          <Link underline="hover" sx={{ display: 'flex', alignItems: 'center' }} color="inherit" href="/">
-            <HomeIcon sx={{ mr: 0.5 }} fontSize="small" /> Home
+        <Breadcrumbs
+          sx={{ mb: 3 }}
+          separator={<ChevronRightIcon sx={{ fontSize: 14, opacity: 0.5 }} />}
+        >
+          <Link
+            component={RouterLink}
+            to="/"
+            underline="hover"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.secondary',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              '&:hover': { color: 'primary.main' },
+            }}
+          >
+            <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} />
+            Home
           </Link>
-          <Typography color="text.primary" sx={{ display: 'flex', alignItems: 'center' }}>
-            <SchoolIcon sx={{ mr: 0.5 }} fontSize="small" /> My Learning
+          <Typography
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.primary',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+            }}
+          >
+            <SchoolIcon sx={{ mr: 0.5, fontSize: 16 }} />
+            My Learning
           </Typography>
         </Breadcrumbs>
 
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" fontWeight={700} gutterBottom>My Learning</Typography>
+          <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px', mb: 0.5, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>My Learning</Typography>
           <Typography variant="body1" color="text.secondary">Your enrolled courses and progress. <Link href="/explore">Explore more courses</Link></Typography>
         </Box>
 

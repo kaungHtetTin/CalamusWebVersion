@@ -448,7 +448,7 @@ const VipPlan = () => {
         <Box sx={{ mb: 3 }}>
           <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
             <PremiumIcon sx={{ color: '#ffc107', fontSize: 22 }} />
-            <Typography variant="h6" fontWeight={700}>
+            <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px', mb: 0.5, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
               VIP Plans & Pricing
             </Typography>
           </Stack>

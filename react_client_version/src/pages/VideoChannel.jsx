@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -14,11 +14,15 @@ import {
   useMediaQuery,
   Slide,
   useScrollTrigger,
+  Breadcrumbs,
+  Link,
 } from '@mui/material';
 import {
   PlayArrow as PlayIcon,
   Visibility as ViewIcon,
   VideoLibrary as VideoIcon,
+  Home as HomeIcon,
+  ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import { videoChannelAPI } from '../services/api';
 
@@ -358,6 +362,39 @@ const VideoChannel = () => {
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       {/* Page Header */}
       <Box sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
+        <Breadcrumbs
+          sx={{ mb: 3 }}
+          separator={<ChevronRightIcon sx={{ fontSize: 14, opacity: 0.5 }} />}
+        >
+          <Link
+            component={RouterLink}
+            to="/"
+            underline="hover"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.secondary',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              '&:hover': { color: 'primary.main' },
+            }}
+          >
+            <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} />
+            Home
+          </Link>
+          <Typography
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.primary',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+            }}
+          >
+            <VideoIcon sx={{ mr: 0.5, fontSize: 16 }} />
+            {app.name}
+          </Typography>
+        </Breadcrumbs>
         <Stack direction="row" spacing={2} alignItems="center">
           <Avatar
             src={app.icon}

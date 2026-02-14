@@ -16,6 +16,7 @@ import {
   School as SchoolIcon,
   Home as HomeIcon,
   MenuBook as MenuBookIcon,
+  ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
 import { DeckCard, DeckCardSkeleton, ResponsiveGrid } from '../components/DeckCard/DeckCard';
@@ -73,19 +74,42 @@ export default function VocabLearning() {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
-        <Breadcrumbs sx={{ mb: 3 }}>
-          <Link component={RouterLink} to="/" underline="hover" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} color="inherit">
-            <HomeIcon sx={{ mr: 0.5 }} fontSize="small" />
+        <Breadcrumbs
+          sx={{ mb: 3 }}
+          separator={<ChevronRightIcon sx={{ fontSize: 14, opacity: 0.5 }} />}
+        >
+          <Link
+            component={RouterLink}
+            to="/"
+            underline="hover"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.secondary',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              '&:hover': { color: 'primary.main' },
+            }}
+          >
+            <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} />
             Home
           </Link>
-          <Typography color="text.primary" sx={{ display: 'flex', alignItems: 'center' }}>
-            <MenuBookIcon sx={{ mr: 0.5 }} fontSize="small" />
+          <Typography
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.primary',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+            }}
+          >
+            <MenuBookIcon sx={{ mr: 0.5, fontSize: 16 }} />
             Vocab Learning
           </Typography>
         </Breadcrumbs>
 
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" fontWeight={700} gutterBottom>
+          <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px', mb: 0.5, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
             Vocab Learning
           </Typography>
           <Typography variant="body1" color="text.secondary">

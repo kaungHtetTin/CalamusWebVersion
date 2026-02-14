@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -24,7 +24,7 @@ import {
   PlayArrow as PlayIcon,
   Lock as LockIcon,
   Description as DocIcon,
-  ChevronRight as ChevronIcon,
+  ChevronRight as ChevronRightIcon,
   Home as HomeIcon,
   AutoStories as BookIcon,
   ArrowBack as BackIcon,
@@ -192,7 +192,7 @@ const SidebarItem = ({ category, isActive, onClick }) => {
           >
             {category.category_title}
           </Typography>
-          {isActive && <ChevronIcon sx={{ fontSize: 18, color: 'primary.main' }} />}
+          {isActive && <ChevronRightIcon sx={{ fontSize: 18, color: 'primary.main' }} />}
         </Stack>
       </ListItemButton>
     </ListItem>
@@ -296,26 +296,51 @@ const LessonList = () => {
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
         {/* Breadcrumbs */}
-        <Breadcrumbs sx={{ mb: 3 }}>
+        <Breadcrumbs
+          sx={{ mb: 3 }}
+          separator={<ChevronRightIcon sx={{ fontSize: 14, opacity: 0.5 }} />}
+        >
           <Link
+            component={RouterLink}
+            to="/"
             underline="hover"
-            sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-            color="inherit"
-            href="/"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.secondary',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              '&:hover': { color: 'primary.main' },
+            }}
           >
-            <HomeIcon sx={{ mr: 0.5 }} fontSize="small" />
+            <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} />
             Home
           </Link>
           <Link
+            component={RouterLink}
+            to={`/additional-lessons/${channel}`}
             underline="hover"
-            sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-            color="inherit"
-            onClick={handleBack}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.secondary',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              '&:hover': { color: 'primary.main' },
+            }}
           >
-            <BookIcon sx={{ mr: 0.5 }} fontSize="small" />
+            <BookIcon sx={{ mr: 0.5, fontSize: 16 }} />
             Additional Lessons
           </Link>
-          <Typography color="text.primary">
+          <Typography
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.primary',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+            }}
+          >
             {category.category_title}
           </Typography>
         </Breadcrumbs>
@@ -329,7 +354,7 @@ const LessonList = () => {
               sx={{ width: 56, height: 56, borderRadius: 2 }}
             />
             <Box>
-              <Typography variant="h4" fontWeight={700} gutterBottom sx={{ mb: 0 }}>
+              <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px', mb: 0.5, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                 {category.category_title}
               </Typography>
               <Typography variant="body1" color="text.secondary">

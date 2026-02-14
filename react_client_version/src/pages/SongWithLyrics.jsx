@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -21,6 +21,8 @@ import {
   Fade,
   Snackbar,
   Alert,
+  Breadcrumbs,
+  Link,
 } from '@mui/material';
 import {
   PlayArrow as PlayIcon,
@@ -38,6 +40,8 @@ import {
   Whatshot as PopularIcon,
   LibraryMusic as AllSongsIcon,
   Close as CloseIcon,
+  Home as HomeIcon,
+  ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import { songAPI } from '../services/api';
 import { useThemeMode } from '../context/ThemeContext';
@@ -914,6 +918,39 @@ const SongWithLyrics = () => {
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', pb: showMiniPlayer ? 10 : 4, width: '100%', overflowX: 'hidden' }}>
       {/* Page Header */}
       <Box sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
+        <Breadcrumbs
+          sx={{ mb: 3 }}
+          separator={<ChevronRightIcon sx={{ fontSize: 14, opacity: 0.5 }} />}
+        >
+          <Link
+            component={RouterLink}
+            to="/"
+            underline="hover"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.secondary',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              '&:hover': { color: 'primary.main' },
+            }}
+          >
+            <HomeIcon sx={{ mr: 0.5, fontSize: 16 }} />
+            Home
+          </Link>
+          <Typography
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'text.primary',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+            }}
+          >
+            <MusicIcon sx={{ mr: 0.5, fontSize: 16 }} />
+            {categoryConfig.displayName}
+          </Typography>
+        </Breadcrumbs>
         <Stack 
           direction="row" 
           alignItems="center" 
@@ -923,7 +960,7 @@ const SongWithLyrics = () => {
             <MusicIcon sx={{ fontSize: 28, color: 'primary.main' }} />
           </Avatar>
           <Box>
-            <Typography variant="h5" fontWeight={700} color="text.primary">
+            <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-1px', mb: 0.5, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
               {categoryConfig.displayName}
             </Typography>
             <Typography variant="body2" color="text.secondary">

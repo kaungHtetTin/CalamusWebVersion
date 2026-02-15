@@ -13,26 +13,26 @@ require_once '../../classes/auth.php';
 
 try {
     $courseId = isset($_GET['course_id']) ? (int)$_GET['course_id'] : 0;
-    $userId = isset($_GET['userId']) ? trim($_GET['userId']) : '';
+    // userId param = learner phone (used as user_id in certificates table)
+    $phone = isset($_GET['userId']) ? trim($_GET['userId']) : (isset($_GET['phone']) ? trim($_GET['phone']) : '');
 
-    if (!$courseId || !$userId) {
-        echo json_encode(['success' => false, 'error' => 'Missing course ID or user ID']);
+    if (!$courseId || !$phone) {
+        echo json_encode(['success' => false, 'error' => 'Missing course ID or user ID (phone)']);
         exit();
     }
 
     $DB = new Database();
     $conn = $DB->connect();
-    $userIdEscaped = mysqli_real_escape_string($conn, $userId);
+    $phoneEscaped = mysqli_real_escape_string($conn, $phone);
 
-    // Resolve learner: certificates.user_id is INT (learners.id), not phone
-    $learnerQuery = "SELECT id, learner_name FROM learners WHERE learner_phone = '$userIdEscaped' LIMIT 1";
+    // Resolve learner for learner_name; certificates.user_id stores learner_phone
+    $learnerQuery = "SELECT id, learner_name FROM learners WHERE learner_phone = '$phoneEscaped' LIMIT 1";
     $learnerResult = $DB->read($learnerQuery);
     if (!$learnerResult) {
         http_response_code(403);
         echo json_encode(['success' => false, 'error' => 'User not found.']);
         exit();
     }
-    $learnerId = (int)$learnerResult[0]['id'];
     $userName = $learnerResult[0]['learner_name'];
 
     $Certificate = new Certificate();
@@ -50,7 +50,7 @@ try {
               JOIN lessons_categories ON lessons_categories.course_id = courses.course_id
               JOIN lessons ON lessons.category_id = lessons_categories.id
               JOIN studies ON studies.lesson_id = lessons.id
-              WHERE courses.course_id = $courseId AND studies.learner_id = '$userIdEscaped'
+              WHERE courses.course_id = $courseId AND studies.learner_id = '$phoneEscaped'
               GROUP BY courses.course_id";
 
     $result = $DB->read($query);
@@ -76,10 +76,10 @@ try {
         exit();
     }
 
-    // 4. Get or Generate Certificate (certificates.user_id = learners.id, INT)
-    $certificate = $Certificate->detail($courseId, $learnerId);
+    // 4. Get or Generate Certificate (certificates.user_id = learners.learner_phone)
+    $certificate = $Certificate->detail($courseId, $phoneEscaped);
     if (!$certificate) {
-        $certificate = $Certificate->store($courseId, $learnerId);
+        $certificate = $Certificate->store($courseId, $phoneEscaped);
     }
 
     if (!$certificate) {

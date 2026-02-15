@@ -48,6 +48,8 @@ include('classes/digitencoder.php');
         if($major == 'not') $error = "No Resource Found!";
 
         $DB = new Database();
+        $conn = $DB->connect();
+        $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
         $query = "	SELECT
                     courses.lessons_count,
                     count(*) as learned
@@ -55,7 +57,7 @@ include('classes/digitencoder.php');
                     JOIN lessons_categories ON lessons_categories.course_id = courses.course_id
                     JOIN lessons ON lessons.category_id = lessons_categories.id
                     JOIN studies ON studies.lesson_id = lessons.id
-                    WHERE courses.course_id=$course_id and studies.learner_id=$user_id;
+                    WHERE courses.course_id=$course_id and studies.learner_id='$user_id_escaped';
                 ";
 
         $result = $DB->read($query); 

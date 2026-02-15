@@ -116,7 +116,7 @@ try {
         $DB->save("DELETE FROM user_learning_progress WHERE user_id = '$userPhone_escaped'");
         $DB->save("DELETE FROM user_roadmaps WHERE user_id = '$userPhone_escaped'");
         $DB->save("DELETE FROM user_word_skips WHERE user_id = '$userPhone_escaped'");
-        $DB->save("DELETE FROM certificates WHERE user_id = $userId");
+        $DB->save("DELETE FROM certificates WHERE user_id = '$userPhone_escaped'");
         $DB->save("DELETE FROM library_downloads WHERE user_id = $userId");
 
         // Payments

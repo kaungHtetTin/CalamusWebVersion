@@ -1,13 +1,7 @@
-# On refresh: redirect to home. Never redirect static assets (.js, .json, .css, etc.).
-Options -MultiViews
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  # Do NOT redirect static files (avoids "Unexpected token '<'" for .js/.json)
-  RewriteCond %{REQUEST_URI} \.(js|css|json|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|map|webp)$ [NC]
-  RewriteRule ^ - [L]
-  # Serve existing files and directories as-is
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  # Redirect route requests to home (e.g. /calamus/explore -> /calamus/)
-  RewriteRule ^.+ /calamus/ [R=302,L]
-</IfModule>
+RewriteEngine On
+RewriteBase /calamus/
+
+# ✅ Allow React/PHP router to handle everything except REAL files
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L,QSA]

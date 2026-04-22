@@ -48,7 +48,7 @@ include('classes/digitencoder.php');
             $platform = "Korean for Myanmar";
         }
         
-        $certificate_bg = "assets/images/certificate_background.png";
+        $certificate_bg = "https://www.calamuseducation.com/uploads/icons/certificate/certificate_background.png";
 
         if($major == 'not') $error = "No Resource Found!";
 
@@ -280,24 +280,6 @@ include('classes/digitencoder.php');
                     var user_id = <?php echo $user_id ?>;
                     var certificate_id = "<?php echo $certificate_id ?>";
                     var image_id = '<?php echo $certificate_id ?>';
-
-                    // $(document).ready(function() {
-                    //     $('#loading_bar').hide();
-                    //     $('#btn_download').on('click', function() {
-                    //         $('#loading_bar').show();
-                    //         html2canvas($('#captureArea')[0]).then(canvas => {
-                    //             // Create an <a> element to trigger the download
-                    //             let link = $('<a>').attr({
-                    //                 href: canvas.toDataURL('image/png'),
-                    //                 download: 'capture.png'
-                    //             });
-            
-                    //             // Trigger the download
-                    //             link[0].click();
-                    //             $('#loading_bar').hide();
-                    //         });
-                    //     });
-                    // });
                     
                     $(document).ready(function() {
                         $('#loading_bar').hide();
@@ -335,8 +317,6 @@ include('classes/digitencoder.php');
                         });
                     });
 
-
-
                     var qrcode = new QRCode(document.getElementById("qrcode"), {
                         text: `www.calamuseducation.com/qr.php?id=${certificate_id}`,
                         width: 55,
@@ -360,9 +340,7 @@ include('classes/digitencoder.php');
                 </div>
             <?php }?>
 		</div>
-
 	</div>
-	
-	
+
 </body>
 </html>

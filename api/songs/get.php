@@ -7,6 +7,9 @@ require_once __DIR__ . '/../../classes/connect.php';
 require_once __DIR__ . '/../../classes/song.php';
 
 try {
+
+
+
     $category = isset($_GET['category']) ? preg_replace('/[^a-z0-9_]/', '', trim($_GET['category'])) : 'english';
     $category = $category ?: 'english';
     $page = max(1, (int)($_GET['page'] ?? 1));
@@ -18,9 +21,9 @@ try {
     $Song = new Song();
     $data = ['category' => $category];
     $popularList = array_slice((array)$Song->getMostPopularSong($data, $userId), 0, 20);
-    $allSongs = (array)$Song->get($data, $userId);
-    $totalSongs = count($allSongs);
-    $songsPage = array_slice($allSongs, $offset, $limit);
+    $songsPage = (array)$Song->get($data, $userId, $limit, $offset);
+    $totalSongs = (int)$Song->countByCategory($data);
+
 
     $baseUrl = 'https://www.calamuseducation.com/uploads/songs';
     $fmt = function ($s) use ($baseUrl, $userId) {
@@ -42,10 +45,29 @@ try {
         return $row;
     };
 
+
+
     $artists = [];
     $DB = new Database();
-    $artRows = $DB->prepareRead('SELECT DISTINCT artist, url FROM Songs WHERE type = ? AND artist IS NOT NULL AND artist != \'\' GROUP BY artist ORDER BY artist LIMIT 50', 's', [$category]);
-    if (is_array($artRows)) foreach ($artRows as $a) $artists[] = ['name' => $a['artist'] ?? '', 'imageUrl' => $baseUrl . '/web/' . ($a['url'] ?? '') . '.png'];
+    $artRows = $DB->prepareRead(
+        'SELECT a.name AS artist, a.image_url AS image_url
+         FROM artists a
+         INNER JOIN songs s ON s.artist_id = a.id
+         WHERE s.major = ? AND a.name IS NOT NULL AND a.name != \'\'
+         GROUP BY a.id, a.name, a.image_url
+         ORDER BY a.name
+         LIMIT 50',
+        's',
+        [$category]
+    );
+    if (is_array($artRows)) {
+        foreach ($artRows as $a) {
+            $artists[] = [
+                'name' => $a['artist'] ?? '',
+                'imageUrl' => $a['image_url'] ?? '',
+            ];
+        }
+    }
 
     echo json_encode([
         'success' => true,

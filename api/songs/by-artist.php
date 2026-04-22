@@ -35,22 +35,26 @@ try {
 
     $baseUrl = 'https://www.calamuseducation.com/uploads/songs';
 
-    $songsQuery = "SELECT * FROM Songs WHERE type='$categoryEscaped' AND artist='$artistEscaped' ORDER BY like_count DESC";
+    $songsQuery = "SELECT s.id,
+                          s.id AS song_id,
+                          s.title,
+                          a.name AS artist,
+                          s.asset_slug AS url,
+                          s.like_count,
+                          s.download_count
+                   FROM songs s
+                   INNER JOIN artists a ON a.id = s.artist_id
+                   WHERE s.major='$categoryEscaped' AND a.name='$artistEscaped'
+                   ORDER BY s.like_count DESC";
     $songsResult = $DB->read($songsQuery);
 
     if ($resolveLiked && $songsResult && is_array($songsResult) && count($songsResult) > 0) {
         $allSongIds = array_unique(array_map(function ($s) { return (int)$s['id']; }, $songsResult));
         $idsList = implode(',', $allSongIds);
-        $mylikesRows = $DB->read("SELECT content_id, likes FROM mylikes WHERE content_id IN ($idsList)");
-        if ($mylikesRows && is_array($mylikesRows)) {
-            foreach ($mylikesRows as $mr) {
-                $decoded = json_decode($mr['likes'], true);
-                if ($decoded && is_array($decoded)) {
-                    $userIds = array_column($decoded, 'user_id');
-                    if (in_array($userId, $userIds)) {
-                        $userLikedSongIds[(int)$mr['content_id']] = true;
-                    }
-                }
+        $songLikesRows = $DB->read("SELECT song_id FROM song_likes WHERE song_id IN ($idsList) AND user_id = '$userIdEscaped'");
+        if ($songLikesRows && is_array($songLikesRows)) {
+            foreach ($songLikesRows as $lr) {
+                $userLikedSongIds[(int)$lr['song_id']] = true;
             }
         }
     }
@@ -83,7 +87,10 @@ try {
     }
     
     // Get total count for this artist
-    $countQuery = "SELECT COUNT(*) as total FROM Songs WHERE type='$categoryEscaped' AND artist='$artistEscaped'";
+    $countQuery = "SELECT COUNT(*) as total
+                   FROM songs s
+                   INNER JOIN artists a ON a.id = s.artist_id
+                   WHERE s.major='$categoryEscaped' AND a.name='$artistEscaped'";
     $countResult = $DB->read($countQuery);
     $totalSongs = $countResult && is_array($countResult) ? (int)$countResult[0]['total'] : 0;
     

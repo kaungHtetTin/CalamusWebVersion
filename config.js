@@ -3,4 +3,4 @@
  * Edit this file after build if needed; no rebuild required.
  */
 window.__BASE_PATH__ = '/calamus';
-window.__API_BASE_URL__ = window.location.origin + '/calamus/api';
+window.__API_BASE_URL__ = 'http://localhost/calamus-v3/public/api';

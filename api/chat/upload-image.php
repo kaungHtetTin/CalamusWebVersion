@@ -70,6 +70,7 @@ if (empty($extension)) {
 
 $newFileName = $newName . '.' . $extension;
 $uploadDir = '../../uploads/chat/images/';
+$uploadDir2 = '../../../uploads/chat/images/';
 
 // Create directory if it doesn't exist
 if (!file_exists($uploadDir)) {
@@ -80,15 +81,23 @@ if (!file_exists($uploadDir)) {
 
 // Check if file already exists (very unlikely but check anyway)
 $fullPath = $uploadDir . $newFileName;
-if (file_exists($fullPath)) {
+$fullPath2 = $uploadDir2 . $newFileName;
+
+if (file_exists($fullPath) || file_exists($fullPath2)) {
     // Regenerate name
     $newName = substr(str_shuffle($str), 0, $length);
     $newFileName = $newName . '.' . $extension;
     $fullPath = $uploadDir . $newFileName;
+    $fullPath2 = $uploadDir2 . $newFileName;
 }
 
 // Move uploaded file
 if (!move_uploaded_file($fileTemp, $fullPath)) {
+    sendResponse(false, null, 'Failed to save image file. Please try again');
+}
+
+// Move uploaded file to second directory
+if (!move_uploaded_file($fileTemp, $fullPath2)) {
     sendResponse(false, null, 'Failed to save image file. Please try again');
 }
 

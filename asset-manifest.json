@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/calamus/static/js/main.e4caee2c.js",
+    "main.js": "/calamus/static/js/main.e6469d72.js",
     "index.html": "/calamus/index.html",
-    "main.e4caee2c.js.map": "/calamus/static/js/main.e4caee2c.js.map"
+    "main.e6469d72.js.map": "/calamus/static/js/main.e6469d72.js.map"
   },
   "entrypoints": [
-    "static/js/main.e4caee2c.js"
+    "static/js/main.e6469d72.js"
   ]
 }
